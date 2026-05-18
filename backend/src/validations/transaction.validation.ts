@@ -19,3 +19,13 @@ export const updateTransactionSchema = z.object({
 export const transactionIdParamSchema = z.object({
   id: z.string().uuid('Invalid transaction id'),
 });
+
+export const transactionQuerySchema = z.object({
+  type: z.enum(['income', 'expense']).optional(),
+  categoryId: z.string().uuid('Invalid category id').optional(),
+  month: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/, 'Month must use YYYY-MM format')
+    .optional(),
+  search: z.string().optional(),
+});

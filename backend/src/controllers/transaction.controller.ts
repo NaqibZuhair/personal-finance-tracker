@@ -1,9 +1,11 @@
 import type { Request, Response } from 'express';
+import type { Prisma } from '../generated/prisma/client.js';
 import { ZodError } from 'zod';
 import prisma from '../lib/prisma';
 import {
   createTransactionSchema,
   transactionIdParamSchema,
+  transactionQuerySchema,
   updateTransactionSchema,
 } from '../validations/transaction.validation';
 
@@ -16,9 +18,40 @@ function isRecordNotFoundError(error: unknown) {
   );
 }
 
-export async function getTransactions(_req: Request, res: Response) {
+export async function getTransactions(req: Request, res: Response) {
   try {
+    const query = transactionQuerySchema.parse(req.query);
+
+    const where: Prisma.TransactionWhereInput = {};
+
+    if (query.type) {
+      where.type = query.type;
+    }
+
+    if (query.categoryId) {
+      where.categoryId = query.categoryId;
+    }
+
+    if (query.search) {
+      where.description = {
+        contains: query.search,
+        mode: 'insensitive',
+      };
+    }
+
+    if (query.month) {
+      const startDate = new Date(`${query.month}-01T00:00:00.000Z`);
+      const endDate = new Date(startDate);
+      endDate.setUTCMonth(endDate.getUTCMonth() + 1);
+
+      where.transactionDate = {
+        gte: startDate,
+        lt: endDate,
+      };
+    }
+
     const transactions = await prisma.transaction.findMany({
+      where,
       include: {
         category: true,
       },
@@ -31,6 +64,14 @@ export async function getTransactions(_req: Request, res: Response) {
       data: transactions,
     });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        message: 'Validation failed',
+        errors: error.issues,
+      });
+      return;
+    }
+
     res.status(500).json({
       message: 'Failed to fetch transactions',
     });
