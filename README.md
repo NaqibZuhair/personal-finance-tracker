@@ -99,3 +99,26 @@ personal-finance-tracker/
 │
 ├─ .gitignore
 └─ README.md
+
+
+## Screenshots
+
+### Dashboard
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Transactions Page
+
+![Transactions Page](docs/screenshots/transactions.png)
+
+### Add Transaction Form
+
+![Add Transaction Form](docs/screenshots/add-transactions.png)
+
+### Edit Transaction Form
+
+![Edit Transaction Form](docs/screenshots/edit-transaction.png)
+
+### Categories Page
+
+![Categories Page](docs/screenshots/categories.png)
