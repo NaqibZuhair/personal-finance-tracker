@@ -99,7 +99,7 @@ personal-finance-tracker/
 │
 ├─ .gitignore
 └─ README.md
-
+```
 
 ## Screenshots
 
