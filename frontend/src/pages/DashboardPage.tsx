@@ -3,6 +3,8 @@ import CategorySummaryList from '../components/dashboard/CategorySummaryList';
 import type { CategorySummaryItem } from '../components/dashboard/CategorySummaryList';
 import RecentTransactionsList from '../components/dashboard/RecentTransactionsList';
 import SummaryCard from '../components/dashboard/SummaryCard';
+import ErrorAlert from '../components/ui/ErrorAlert';
+import LoadingCard from '../components/ui/LoadingCard';
 import PageHeader from '../components/ui/PageHeader';
 import { apiClient } from '../lib/apiClient';
 import type { Transaction } from '../types/transaction';
@@ -92,7 +94,7 @@ function DashboardPage() {
         />
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700 mr-4">
+          <span className="text-sm font-medium text-slate-700">
             Summary Month
           </span>
           <input
@@ -104,17 +106,9 @@ function DashboardPage() {
         </label>
       </div>
 
-      {isLoading && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">Loading dashboard data...</p>
-        </div>
-      )}
+      {isLoading && <LoadingCard message="Loading dashboard data..." />}
 
-      {errorMessage && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm font-medium text-rose-700">
-          {errorMessage}
-        </div>
-      )}
+      {errorMessage && <ErrorAlert message={errorMessage} />}
 
       {!isLoading && !errorMessage && summary && categorySummary && (
         <>

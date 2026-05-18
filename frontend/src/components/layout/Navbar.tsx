@@ -1,29 +1,37 @@
-import { Link } from 'react-router';
+import { Link, NavLink } from 'react-router';
 
 function Navbar() {
+  const baseNavClass =
+    'rounded-lg px-3 py-2 text-sm font-medium transition';
+
+  const getNavClass = ({ isActive }: { isActive: boolean }) =>
+    isActive
+      ? `${baseNavClass} bg-slate-900 text-white`
+      : `${baseNavClass} text-slate-600 hover:bg-slate-100 hover:text-slate-950`;
+
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
         <Link to="/" className="text-lg font-bold text-slate-900">
           Personal Finance Tracker
         </Link>
 
-        <nav className="flex gap-4 text-sm font-medium text-slate-600">
-          <Link to="/" className="hover:text-slate-950">
+        <nav className="flex flex-wrap gap-2">
+          <NavLink to="/" end className={getNavClass}>
             Dashboard
-          </Link>
+          </NavLink>
 
-          <Link to="/transactions" className="hover:text-slate-950">
+          <NavLink to="/transactions" className={getNavClass}>
             Transactions
-          </Link>
+          </NavLink>
 
-          <Link to="/transactions/new" className="hover:text-slate-950">
+          <NavLink to="/transactions/new" className={getNavClass}>
             Add Transaction
-          </Link>
+          </NavLink>
 
-          <Link to="/categories" className="hover:text-slate-950">
+          <NavLink to="/categories" className={getNavClass}>
             Categories
-          </Link>
+          </NavLink>
         </nav>
       </div>
     </header>

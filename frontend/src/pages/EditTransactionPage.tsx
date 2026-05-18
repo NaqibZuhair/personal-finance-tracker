@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import TransactionForm from '../components/transactions/TransactionForm';
 import type { TransactionFormValues } from '../components/transactions/TransactionForm';
+import ButtonLink from '../components/ui/ButtonLink';
+import ErrorAlert from '../components/ui/ErrorAlert';
+import LoadingCard from '../components/ui/LoadingCard';
 import PageHeader from '../components/ui/PageHeader';
 import { apiClient } from '../lib/apiClient';
 import type { Category } from '../types/category';
@@ -115,25 +118,14 @@ function EditTransactionPage() {
           description="Update an existing income or expense transaction."
         />
 
-        <Link
-          to="/transactions"
-          className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-        >
+        <ButtonLink to="/transactions" variant="secondary">
           Back to Transactions
-        </Link>
+        </ButtonLink>
       </div>
 
-      {isLoading && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">Loading transaction data...</p>
-        </div>
-      )}
+      {isLoading && <LoadingCard message="Loading transaction data..." />}
 
-      {loadErrorMessage && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm font-medium text-rose-700">
-          {loadErrorMessage}
-        </div>
-      )}
+      {loadErrorMessage && <ErrorAlert message={loadErrorMessage} />}
 
       {!isLoading && !loadErrorMessage && initialValues && (
         <TransactionForm

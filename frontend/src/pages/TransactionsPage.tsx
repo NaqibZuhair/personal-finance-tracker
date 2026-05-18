@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router';
 import TransactionFilters from '../components/transactions/TransactionFilters';
 import type { TransactionFiltersValue } from '../components/transactions/TransactionFilters';
 import TransactionTable from '../components/transactions/TransactionTable';
+import ButtonLink from '../components/ui/ButtonLink';
+import EmptyState from '../components/ui/EmptyState';
+import ErrorAlert from '../components/ui/ErrorAlert';
+import LoadingCard from '../components/ui/LoadingCard';
 import PageHeader from '../components/ui/PageHeader';
 import { apiClient } from '../lib/apiClient';
 import type { Category } from '../types/category';
@@ -26,7 +29,8 @@ const initialFilters: TransactionFiltersValue = {
 function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [filters, setFilters] = useState<TransactionFiltersValue>(initialFilters);
+  const [filters, setFilters] =
+    useState<TransactionFiltersValue>(initialFilters);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -151,12 +155,7 @@ function TransactionsPage() {
           description="Track every income and expense record in one organized table."
         />
 
-        <Link
-          to="/transactions/new"
-          className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700"
-        >
-          Add Transaction
-        </Link>
+        <ButtonLink to="/transactions/new">Add Transaction</ButtonLink>
       </div>
 
       <TransactionFilters
@@ -167,45 +166,23 @@ function TransactionsPage() {
       />
 
       {isLoadingCategories && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-sm">
-          Loading filter categories...
-        </div>
+        <LoadingCard message="Loading filter categories..." />
       )}
 
-      {deleteErrorMessage && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm font-medium text-rose-700">
-          {deleteErrorMessage}
-        </div>
-      )}
+      {deleteErrorMessage && <ErrorAlert message={deleteErrorMessage} />}
 
-      {isLoading && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">Loading transactions...</p>
-        </div>
-      )}
+      {isLoading && <LoadingCard message="Loading transactions..." />}
 
-      {errorMessage && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm font-medium text-rose-700">
-          {errorMessage}
-        </div>
-      )}
+      {errorMessage && <ErrorAlert message={errorMessage} />}
 
       {!isLoading && !errorMessage && transactions.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">
-            No transactions found
-          </h2>
-          <p className="mt-2 text-sm text-slate-500">
-            Try adjusting your filters or add a new transaction.
-          </p>
-
-          <Link
-            to="/transactions/new"
-            className="mt-6 inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700"
-          >
-            Add Transaction
-          </Link>
-        </div>
+        <EmptyState
+          title="No transactions found"
+          description="Try adjusting your filters or add a new transaction."
+          action={
+            <ButtonLink to="/transactions/new">Add Transaction</ButtonLink>
+          }
+        />
       )}
 
       {!isLoading && !errorMessage && transactions.length > 0 && (

@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import CategoryForm from '../components/categories/CategoryForm';
 import CategoryTypeBadge from '../components/ui/CategoryTypeBadge';
 import Button from '../components/ui/Button';
+import EmptyState from '../components/ui/EmptyState';
+import ErrorAlert from '../components/ui/ErrorAlert';
+import LoadingCard from '../components/ui/LoadingCard';
 import PageHeader from '../components/ui/PageHeader';
 import { apiClient } from '../lib/apiClient';
 import type { Category, CategoryType } from '../types/category';
@@ -190,34 +193,17 @@ function CategoriesPage() {
         />
       )}
 
-      {deleteErrorMessage && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm font-medium text-rose-700">
-          {deleteErrorMessage}
-        </div>
-      )}
+      {deleteErrorMessage && <ErrorAlert message={deleteErrorMessage} />}
 
-      {isLoading && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">Loading categories...</p>
-        </div>
-      )}
+      {isLoading && <LoadingCard message="Loading categories..." />}
 
-      {errorMessage && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm font-medium text-rose-700">
-          {errorMessage}
-        </div>
-      )}
+      {errorMessage && <ErrorAlert message={errorMessage} />}
 
       {!isLoading && !errorMessage && categories.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">
-            No categories yet
-          </h2>
-          <p className="mt-2 text-sm text-slate-500">
-            Create your first income or expense category to start organizing
-            transactions.
-          </p>
-        </div>
+        <EmptyState
+          title="No categories yet"
+          description="Create your first income or expense category to start organizing transactions."
+        />
       )}
 
       {!isLoading && !errorMessage && categories.length > 0 && (

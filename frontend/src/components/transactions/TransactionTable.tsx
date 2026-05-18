@@ -2,7 +2,7 @@ import CategoryTypeBadge from '../ui/CategoryTypeBadge';
 import Button from '../ui/Button';
 import type { Transaction } from '../../types/transaction';
 import { formatCurrency, formatDate } from '../../utils/formatters';
-import { Link } from 'react-router';
+import ButtonLink from '../ui/ButtonLink';
 
 type TransactionTableProps = {
   transactions: Transaction[];
@@ -125,12 +125,13 @@ function TransactionTable({
 
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                        <Link
+                        <ButtonLink
                             to={`/transactions/${transaction.id}/edit`}
-                            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                            variant="secondary"
+                            className="px-3 py-2 text-xs"
                             >
                             Edit
-                        </Link>
+                        </ButtonLink>
 
                       <Button
                         type="button"

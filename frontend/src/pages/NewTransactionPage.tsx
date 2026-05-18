@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import TransactionForm from '../components/transactions/TransactionForm';
 import type { TransactionFormValues } from '../components/transactions/TransactionForm';
 import PageHeader from '../components/ui/PageHeader';
 import { apiClient } from '../lib/apiClient';
 import type { Category } from '../types/category';
 import type { Transaction } from '../types/transaction';
+import ButtonLink from '../components/ui/ButtonLink';
 
 type CategoriesResponse = {
   data: Category[];
@@ -74,12 +75,9 @@ function NewTransactionPage() {
           description="Create a new income or expense transaction with category-based tracking."
         />
 
-        <Link
-          to="/transactions"
-          className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-        >
+        <ButtonLink to="/transactions" variant="secondary">
           Back to Transactions
-        </Link>
+        </ButtonLink>
       </div>
 
       {isLoadingCategories && (
@@ -104,12 +102,9 @@ function NewTransactionPage() {
             transaction.
           </p>
 
-          <Link
-            to="/categories"
-            className="mt-6 inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700"
-          >
+          <ButtonLink to="/categories" className="mt-6">
             Manage Categories
-          </Link>
+          </ButtonLink>
         </div>
       )}
 
