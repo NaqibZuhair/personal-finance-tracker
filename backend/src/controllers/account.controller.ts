@@ -64,11 +64,6 @@ export async function getAccountBalances(_req: Request, res: Response) {
 
     const transactionTotals = await prisma.transaction.groupBy({
       by: ['accountId', 'type'],
-      where: {
-        accountId: {
-          not: null,
-        },
-      },
       _sum: {
         amount: true,
       },
@@ -83,14 +78,12 @@ export async function getAccountBalances(_req: Request, res: Response) {
     >();
 
     for (const total of transactionTotals) {
-      if (!total.accountId) continue;
-
       const existing = balanceMap.get(total.accountId) ?? {
         totalIncome: 0,
         totalExpense: 0,
       };
 
-      const amount = Number(total._sum.amount ?? 0);
+      const amount = Number(total._sum?.amount ?? 0);
 
       if (total.type === 'income') {
         existing.totalIncome += amount;
