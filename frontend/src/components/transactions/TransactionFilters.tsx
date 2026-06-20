@@ -1,15 +1,18 @@
 import type { Category, CategoryType } from '../../types/category';
 import Button from '../ui/Button';
+import type { Account } from '../../types/account';
 
 export type TransactionFiltersValue = {
   type: CategoryType | '';
   categoryId: string;
+  accountId: string;
   month: string;
   search: string;
 };
 
 type TransactionFiltersProps = {
   categories: Category[];
+  accounts: Account[];
   value: TransactionFiltersValue;
   onChange: (value: TransactionFiltersValue) => void;
   onReset: () => void;
@@ -17,6 +20,7 @@ type TransactionFiltersProps = {
 
 function TransactionFilters({
   categories,
+  accounts,
   value,
   onChange,
   onReset,
@@ -83,6 +87,22 @@ function TransactionFilters({
             {filteredCategories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          <span className="text-sm font-medium text-slate-700">Account</span>
+          <select
+            value={value.accountId}
+            onChange={(event) => updateFilter('accountId', event.target.value)}
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
+          >
+            <option value="">All accounts</option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name}
               </option>
             ))}
           </select>

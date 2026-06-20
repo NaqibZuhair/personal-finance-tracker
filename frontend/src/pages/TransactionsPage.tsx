@@ -10,6 +10,7 @@ import PageHeader from '../components/ui/PageHeader';
 import { apiClient } from '../lib/apiClient';
 import type { Category } from '../types/category';
 import type { Transaction } from '../types/transaction';
+import type { Account } from '../types/account';
 
 type TransactionsResponse = {
   data: Transaction[];
@@ -19,9 +20,14 @@ type CategoriesResponse = {
   data: Category[];
 };
 
+type AccountsResponse = {
+  data: Account[];
+};
+
 const initialFilters: TransactionFiltersValue = {
   type: '',
   categoryId: '',
+  accountId: '',
   month: '',
   search: '',
 };
@@ -38,6 +44,7 @@ function TransactionsPage() {
   const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
   const [pendingDeleteId, setPendingDeleteId] = useState('');
   const [deletingTransactionId, setDeletingTransactionId] = useState('');
+  const [accounts, setAccounts] = useState<Account[]>([]);
 
   const transactionQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -48,6 +55,10 @@ function TransactionsPage() {
 
     if (filters.categoryId) {
       params.set('categoryId', filters.categoryId);
+    }
+
+    if (filters.accountId) {
+      params.set('accountId', filters.accountId);
     }
 
     if (filters.month) {
@@ -64,23 +75,27 @@ function TransactionsPage() {
   }, [filters]);
 
   useEffect(() => {
-    async function fetchCategories() {
+    async function fetchFilterData() {
       try {
         setIsLoadingCategories(true);
 
-        const response = await apiClient<CategoriesResponse>('/categories');
+        const [categoriesResponse, accountsResponse] = await Promise.all([
+          apiClient<CategoriesResponse>('/categories'),
+          apiClient<AccountsResponse>('/accounts'),
+        ]);
 
-        setCategories(response.data);
+        setCategories(categoriesResponse.data);
+        setAccounts(accountsResponse.data);
       } catch (error) {
         setErrorMessage(
-          error instanceof Error ? error.message : 'Failed to load categories',
+          error instanceof Error ? error.message : 'Failed to load filters',
         );
       } finally {
         setIsLoadingCategories(false);
       }
     }
 
-    fetchCategories();
+    fetchFilterData();
   }, []);
 
   useEffect(() => {
@@ -160,6 +175,7 @@ function TransactionsPage() {
 
       <TransactionFilters
         categories={categories}
+        accounts={accounts}
         value={filters}
         onChange={setFilters}
         onReset={handleResetFilters}
