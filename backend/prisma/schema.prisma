@@ -18,6 +18,12 @@ enum TransactionType {
   expense
 }
 
+enum AccountType {
+  bank
+  ewallet
+  cash
+}
+
 model Category {
   id           String          @id @default(uuid())
   name         String
@@ -41,11 +47,31 @@ model Transaction {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
+  accountId String?
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([type])
   @@index([categoryId])
   @@index([transactionDate])
+  @@index([accountId])
   @@map("transactions")
+}
+
+model Account {
+  id             String        @id @default(uuid())
+  name           String
+  type           AccountType
+  initialBalance Decimal       @default(0) @db.Decimal(12, 2)
+  isActive       Boolean       @default(true)
+  transactions   Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, type])
+  @@index([type])
+  @@map("accounts")
 }
