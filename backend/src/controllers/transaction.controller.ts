@@ -32,6 +32,10 @@ export async function getTransactions(req: Request, res: Response) {
       where.categoryId = query.categoryId;
     }
 
+    if (query.accountId) {
+      where.accountId = query.accountId;
+    }
+
     if (query.search) {
       where.description = {
         contains: query.search,
@@ -54,6 +58,7 @@ export async function getTransactions(req: Request, res: Response) {
       where,
       include: {
         category: true,
+        account: true,
       },
       orderBy: {
         transactionDate: 'desc',
@@ -88,6 +93,7 @@ export async function getTransactionById(req: Request, res: Response) {
       },
       include: {
         category: true,
+        account: true,
       },
     });
 
@@ -140,6 +146,26 @@ export async function createTransaction(req: Request, res: Response) {
       return;
     }
 
+    const account = await prisma.account.findUnique({
+      where: {
+        id: validatedData.accountId,
+      },
+    });
+
+    if (!account) {
+      res.status(404).json({
+        message: 'Account not found',
+      });
+      return;
+    }
+
+    if (!account.isActive) {
+      res.status(400).json({
+        message: 'Account is inactive',
+      });
+      return;
+    }
+
     const transaction = await prisma.transaction.create({
       data: {
         type: validatedData.type,
@@ -147,9 +173,11 @@ export async function createTransaction(req: Request, res: Response) {
         description: validatedData.description,
         transactionDate: validatedData.transactionDate,
         categoryId: validatedData.categoryId,
+        accountId: validatedData.accountId,
       },
       include: {
         category: true,
+        account: true,
       },
     });
 
@@ -197,6 +225,26 @@ export async function updateTransaction(req: Request, res: Response) {
       return;
     }
 
+    const account = await prisma.account.findUnique({
+      where: {
+        id: validatedData.accountId,
+      },
+    });
+
+    if (!account) {
+      res.status(404).json({
+        message: 'Account not found',
+      });
+      return;
+    }
+
+    if (!account.isActive) {
+      res.status(400).json({
+        message: 'Account is inactive',
+      });
+      return;
+    }
+
     const transaction = await prisma.transaction.update({
       where: {
         id,
@@ -207,9 +255,11 @@ export async function updateTransaction(req: Request, res: Response) {
         description: validatedData.description,
         transactionDate: validatedData.transactionDate,
         categoryId: validatedData.categoryId,
+        accountId: validatedData.accountId,
       },
       include: {
         category: true,
+        account: true,
       },
     });
 
