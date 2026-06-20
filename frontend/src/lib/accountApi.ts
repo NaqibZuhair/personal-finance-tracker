@@ -26,7 +26,7 @@ export async function getAccountBalances() {
 export async function createAccount(payload: CreateAccountInput) {
   const response = await apiClient<ApiResponse<Account>>('/accounts', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: payload,
   });
 
   return response.data;
@@ -35,7 +35,7 @@ export async function createAccount(payload: CreateAccountInput) {
 export async function updateAccount(id: string, payload: UpdateAccountInput) {
   const response = await apiClient<ApiResponse<Account>>(`/accounts/${id}`, {
     method: 'PUT',
-    body: JSON.stringify(payload),
+    body: payload,
   });
 
   return response.data;
