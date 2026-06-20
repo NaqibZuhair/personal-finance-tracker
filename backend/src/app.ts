@@ -4,6 +4,7 @@ import categoryRoutes from './routes/category.routes';
 import healthRoutes from './routes/health.routes';
 import summaryRoutes from './routes/summary.routes';
 import transactionRoutes from './routes/transaction.routes';
+import accountRoutes from './routes/account.routes';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/', (_req, res) => {
 });
 
 app.use('/api', healthRoutes);
+app.use('/api/accounts', accountRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/summary', summaryRoutes);
