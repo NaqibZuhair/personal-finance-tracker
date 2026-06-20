@@ -53,6 +53,90 @@ export async function getAccounts(_req: Request, res: Response) {
   }
 }
 
+export async function getAccountBalances(_req: Request, res: Response) {
+  try {
+    const accounts = await prisma.account.findMany({
+      orderBy: [
+        { type: 'asc' },
+        { name: 'asc' },
+      ],
+    });
+
+    const transactionTotals = await prisma.transaction.groupBy({
+      by: ['accountId', 'type'],
+      where: {
+        accountId: {
+          not: null,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const balanceMap = new Map<
+      string,
+      {
+        totalIncome: number;
+        totalExpense: number;
+      }
+    >();
+
+    for (const total of transactionTotals) {
+      if (!total.accountId) continue;
+
+      const existing = balanceMap.get(total.accountId) ?? {
+        totalIncome: 0,
+        totalExpense: 0,
+      };
+
+      const amount = Number(total._sum.amount ?? 0);
+
+      if (total.type === 'income') {
+        existing.totalIncome += amount;
+      }
+
+      if (total.type === 'expense') {
+        existing.totalExpense += amount;
+      }
+
+      balanceMap.set(total.accountId, existing);
+    }
+
+    const data = accounts.map((account) => {
+      const totals = balanceMap.get(account.id) ?? {
+        totalIncome: 0,
+        totalExpense: 0,
+      };
+
+      const initialBalance = Number(account.initialBalance);
+      const currentBalance =
+        initialBalance + totals.totalIncome - totals.totalExpense;
+
+      return {
+        id: account.id,
+        name: account.name,
+        type: account.type,
+        initialBalance,
+        totalIncome: totals.totalIncome,
+        totalExpense: totals.totalExpense,
+        currentBalance,
+        isActive: account.isActive,
+        createdAt: account.createdAt,
+        updatedAt: account.updatedAt,
+      };
+    });
+
+    res.status(200).json({
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Failed to fetch account balances',
+    });
+  }
+}
+
 export async function createAccount(req: Request, res: Response) {
   try {
     const validatedData = createAccountSchema.parse(req.body);
