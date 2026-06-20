@@ -32,6 +32,10 @@ function Navbar() {
           <NavLink to="/categories" className={getNavClass}>
             Categories
           </NavLink>
+
+          <NavLink to="/accounts" className={getNavClass}>
+            Accounts
+          </NavLink>
         </nav>
       </div>
     </header>
