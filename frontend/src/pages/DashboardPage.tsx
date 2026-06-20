@@ -9,6 +9,8 @@ import PageHeader from '../components/ui/PageHeader';
 import { apiClient } from '../lib/apiClient';
 import type { Transaction } from '../types/transaction';
 import { formatCurrency } from '../utils/formatters';
+import { getAccountBalances } from '../lib/accountApi';
+import type { AccountBalance } from '../types/account';
 
 type MonthlySummary = {
   month: string;
@@ -50,6 +52,7 @@ function DashboardPage() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [accountBalances, setAccountBalances] = useState<AccountBalance[]>([]);
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -57,16 +60,22 @@ function DashboardPage() {
         setIsLoading(true);
         setErrorMessage('');
 
-        const [monthlyResponse, categoryResponse, recentResponse] =
-          await Promise.all([
-            apiClient<MonthlySummaryResponse>(
-              `/summary/monthly?month=${selectedMonth}`,
-            ),
-            apiClient<CategorySummaryResponse>(
-              `/summary/categories?month=${selectedMonth}`,
-            ),
-            apiClient<RecentTransactionsResponse>('/summary/recent'),
-          ]);
+        const [
+          monthlyResponse,
+          categoryResponse,
+          recentResponse,
+          accountBalancesData,
+        ] = await Promise.all([
+          apiClient<MonthlySummaryResponse>(`/summary/monthly?month=${selectedMonth}`),
+          apiClient<CategorySummaryResponse>(`/summary/categories?month=${selectedMonth}`),
+          apiClient<RecentTransactionsResponse>('/summary/recent'),
+          getAccountBalances(),
+        ]);
+
+        setSummary(monthlyResponse.data);
+        setCategorySummary(categoryResponse.data);
+        setRecentTransactions(recentResponse.data);
+        setAccountBalances(accountBalancesData);
 
         setSummary(monthlyResponse.data);
         setCategorySummary(categoryResponse.data);
@@ -84,6 +93,11 @@ function DashboardPage() {
 
     fetchDashboardData();
   }, [selectedMonth]);
+
+  const totalCurrentBalance = accountBalances.reduce(
+    (total, account) => total + account.currentBalance,
+    0,
+  );
 
   return (
     <section className="space-y-8">
@@ -113,6 +127,14 @@ function DashboardPage() {
       {!isLoading && !errorMessage && summary && categorySummary && (
         <>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+
+            <SummaryCard
+              label="Total Current Balance"
+              value={formatCurrency(totalCurrentBalance)}
+              description="Total money across all active accounts"
+              tone="balance"
+            />
+            
             <SummaryCard
               label="Total Income"
               value={formatCurrency(summary.totalIncome)}
