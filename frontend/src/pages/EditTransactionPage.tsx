@@ -7,11 +7,16 @@ import ErrorAlert from '../components/ui/ErrorAlert';
 import LoadingCard from '../components/ui/LoadingCard';
 import PageHeader from '../components/ui/PageHeader';
 import { apiClient } from '../lib/apiClient';
+import type { Account } from '../types/account';
 import type { Category } from '../types/category';
 import type { Transaction } from '../types/transaction';
 
 type CategoriesResponse = {
   data: Category[];
+};
+
+type AccountsResponse = {
+  data: Account[];
 };
 
 type TransactionResponse = {
@@ -33,6 +38,7 @@ function EditTransactionPage() {
 
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadErrorMessage, setLoadErrorMessage] = useState('');
   const [formErrorMessage, setFormErrorMessage] = useState('');
@@ -50,13 +56,16 @@ function EditTransactionPage() {
         setIsLoading(true);
         setLoadErrorMessage('');
 
-        const [transactionResponse, categoriesResponse] = await Promise.all([
-          apiClient<TransactionResponse>(`/transactions/${id}`),
-          apiClient<CategoriesResponse>('/categories'),
-        ]);
+        const [transactionResponse, categoriesResponse, accountsResponse] =
+          await Promise.all([
+            apiClient<TransactionResponse>(`/transactions/${id}`),
+            apiClient<CategoriesResponse>('/categories'),
+            apiClient<AccountsResponse>('/accounts'),
+          ]);
 
         setTransaction(transactionResponse.data);
         setCategories(categoriesResponse.data);
+        setAccounts(accountsResponse.data);
       } catch (error) {
         setLoadErrorMessage(
           error instanceof Error
@@ -76,14 +85,17 @@ function EditTransactionPage() {
       return undefined;
     }
 
+    const fallbackAccount = accounts.find((account) => account.isActive);
+
     return {
       type: transaction.type,
       amount: Number(transaction.amount),
       description: transaction.description ?? '',
       transactionDate: formatDateForInput(transaction.transactionDate),
       categoryId: transaction.categoryId,
+      accountId: transaction.accountId ?? fallbackAccount?.id ?? '',
     };
-  }, [transaction]);
+  }, [transaction, accounts]);
 
   async function handleUpdateTransaction(values: TransactionFormValues) {
     if (!id) {
@@ -127,16 +139,36 @@ function EditTransactionPage() {
 
       {loadErrorMessage && <ErrorAlert message={loadErrorMessage} />}
 
-      {!isLoading && !loadErrorMessage && initialValues && (
-        <TransactionForm
-          categories={categories}
-          initialValues={initialValues}
-          submitLabel="Update Transaction"
-          onSubmit={handleUpdateTransaction}
-          isSubmitting={isSubmitting}
-          errorMessage={formErrorMessage}
-        />
+      {!isLoading && !loadErrorMessage && accounts.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">
+            No accounts available
+          </h2>
+          <p className="mt-2 text-sm text-slate-500">
+            Create at least one bank account, e-wallet, or cash wallet before
+            editing this transaction.
+          </p>
+
+          <ButtonLink to="/accounts" className="mt-6">
+            Manage Accounts
+          </ButtonLink>
+        </div>
       )}
+
+      {!isLoading &&
+        !loadErrorMessage &&
+        accounts.length > 0 &&
+        initialValues && (
+          <TransactionForm
+            categories={categories}
+            accounts={accounts}
+            initialValues={initialValues}
+            submitLabel="Update Transaction"
+            onSubmit={handleUpdateTransaction}
+            isSubmitting={isSubmitting}
+            errorMessage={formErrorMessage}
+          />
+        )}
     </section>
   );
 }

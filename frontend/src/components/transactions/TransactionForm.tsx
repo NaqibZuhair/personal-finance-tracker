@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import type { Category, CategoryType } from '../../types/category';
 import Button from '../ui/Button';
+import type { Account } from '../../types/account';
 
 export type TransactionFormValues = {
   type: CategoryType;
@@ -9,10 +10,12 @@ export type TransactionFormValues = {
   description: string;
   transactionDate: string;
   categoryId: string;
+  accountId: string;
 };
 
 type TransactionFormProps = {
   categories: Category[];
+  accounts: Account[];
   initialValues?: TransactionFormValues;
   submitLabel?: string;
   onSubmit: (values: TransactionFormValues) => Promise<void>;
@@ -26,6 +29,7 @@ function getTodayDate() {
 
 function TransactionForm({
   categories,
+  accounts,
   initialValues,
   submitLabel = 'Save Transaction',
   onSubmit,
@@ -51,6 +55,8 @@ function TransactionForm({
     return categories.filter((category) => category.type === type);
   }, [categories, type]);
 
+  const [accountId, setAccountId] = useState(initialValues?.accountId ?? '');
+
   useEffect(() => {
     if (!initialValues) {
       return;
@@ -62,6 +68,7 @@ function TransactionForm({
     setTransactionDate(initialValues.transactionDate);
     setCategoryId(initialValues.categoryId);
     setLocalError('');
+    setAccountId(initialValues.accountId);
   }, [initialValues]);
 
   useEffect(() => {
@@ -73,6 +80,17 @@ function TransactionForm({
       setCategoryId(filteredCategories[0]?.id ?? '');
     }
   }, [filteredCategories, categoryId]);
+
+  useEffect(() => {
+    const selectedAccountStillValid = accounts.some(
+      (account) => account.id === accountId && account.isActive,
+    );
+
+    if (!selectedAccountStillValid) {
+      const firstActiveAccount = accounts.find((account) => account.isActive);
+      setAccountId(firstActiveAccount?.id ?? '');
+    }
+  }, [accounts, accountId]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -94,6 +112,11 @@ function TransactionForm({
       return;
     }
 
+    if (!accountId) {
+      setLocalError('Please select an account');
+      return;
+    }
+
     setLocalError('');
 
     await onSubmit({
@@ -102,6 +125,7 @@ function TransactionForm({
       description: description.trim(),
       transactionDate,
       categoryId,
+      accountId,
     });
   }
 
@@ -159,6 +183,28 @@ function TransactionForm({
                   {category.name}
                 </option>
               ))
+            )}
+          </select>
+        </label>
+
+        <label>
+          <span className="text-sm font-medium text-slate-700">Account</span>
+          <select
+            value={accountId}
+            onChange={(event) => setAccountId(event.target.value)}
+            disabled={isSubmitting || accounts.length === 0}
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+          >
+            {accounts.length === 0 ? (
+              <option value="">No account available</option>
+            ) : (
+              accounts
+                .filter((account) => account.isActive)
+                .map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.name}
+                  </option>
+                ))
             )}
           </select>
         </label>
