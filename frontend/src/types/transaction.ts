@@ -3,8 +3,8 @@ import type { Account } from './account';
 
 export type Transaction = {
   id: string;
-  accountId: string | null;
-  account?: Account | null;
+  accountId: string;
+  account: Account;
   type: CategoryType;
   amount: string;
   description: string | null;
