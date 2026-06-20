@@ -33,12 +33,13 @@ function TransactionTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] text-left">
+        <table className="w-full min-w-225 text-left">
           <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="px-6 py-4 font-semibold">Date</th>
               <th className="px-6 py-4 font-semibold">Type</th>
               <th className="px-6 py-4 font-semibold">Category</th>
+              <th className="px-6 py-4 font-semibold">Account</th>
               <th className="px-6 py-4 font-semibold">Description</th>
               <th className="px-6 py-4 text-right font-semibold">Amount</th>
               <th className="px-6 py-4 text-right font-semibold">Action</th>
@@ -72,6 +73,20 @@ function TransactionTable({
                       <p className="mt-1 text-xs text-slate-500">
                         ID: {transaction.categoryId.slice(0, 8)}
                       </p>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    <div className="flex flex-col">
+                      <span className="font-medium text-slate-800">
+                        {transaction.account?.name ?? 'No account'}
+                      </span>
+
+                      {transaction.account?.type && (
+                        <span className="text-xs capitalize text-slate-400">
+                          {transaction.account.type}
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -125,13 +140,13 @@ function TransactionTable({
 
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                        <ButtonLink
-                            to={`/transactions/${transaction.id}/edit`}
-                            variant="secondary"
-                            className="px-3 py-2 text-xs"
-                            >
-                            Edit
-                        </ButtonLink>
+                      <ButtonLink
+                        to={`/transactions/${transaction.id}/edit`}
+                        variant="secondary"
+                        className="px-3 py-2 text-xs"
+                      >
+                        Edit
+                      </ButtonLink>
 
                       <Button
                         type="button"
