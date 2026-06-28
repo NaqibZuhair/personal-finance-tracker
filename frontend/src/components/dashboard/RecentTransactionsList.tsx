@@ -40,7 +40,9 @@ function RecentTransactionsList({ transactions }: RecentTransactionsListProps) {
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-slate-900">
-                      {transaction.category.name}
+                      {transaction.type === 'transfer'
+                        ? `Transfer to ${transaction.toAccount?.name ?? 'Unknown'}`
+                        : transaction.category?.name ?? 'Unknown'}
                     </p>
                     <CategoryTypeBadge type={transaction.type} />
                   </div>
@@ -56,10 +58,14 @@ function RecentTransactionsList({ transactions }: RecentTransactionsListProps) {
 
                 <p
                   className={`text-sm font-bold ${
-                    isIncome ? 'text-emerald-700' : 'text-rose-700'
+                    isIncome
+                      ? 'text-emerald-700'
+                      : transaction.type === 'transfer'
+                        ? 'text-blue-700'
+                        : 'text-rose-700'
                   }`}
                 >
-                  {isIncome ? '+' : '-'}
+                  {isIncome ? '+' : transaction.type === 'transfer' ? '' : '-'}
                   {formatCurrency(transaction.amount)}
                 </p>
               </div>

@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import type { Category, CategoryType } from '../../types/category';
+import type { TransactionType } from '../../types/transaction';
+import type { Category } from '../../types/category';
 import Button from '../ui/Button';
 import type { Account } from '../../types/account';
 
 export type TransactionFormValues = {
-  type: CategoryType;
+  type: TransactionType;
   amount: number;
   description: string;
   transactionDate: string;
-  categoryId: string;
+  categoryId?: string;
   accountId: string;
+  toAccountId?: string;
 };
 
 type TransactionFormProps = {
@@ -36,7 +38,7 @@ function TransactionForm({
   isSubmitting,
   errorMessage,
 }: TransactionFormProps) {
-  const [type, setType] = useState<CategoryType>(
+  const [type, setType] = useState<TransactionType>(
     initialValues?.type ?? 'expense',
   );
   const [amount, setAmount] = useState(
@@ -56,6 +58,7 @@ function TransactionForm({
   }, [categories, type]);
 
   const [accountId, setAccountId] = useState(initialValues?.accountId ?? '');
+  const [toAccountId, setToAccountId] = useState(initialValues?.toAccountId ?? '');
 
   useEffect(() => {
     if (!initialValues) {
@@ -66,9 +69,10 @@ function TransactionForm({
     setAmount(String(initialValues.amount));
     setDescription(initialValues.description);
     setTransactionDate(initialValues.transactionDate);
-    setCategoryId(initialValues.categoryId);
+    setCategoryId(initialValues.categoryId ?? '');
     setLocalError('');
     setAccountId(initialValues.accountId);
+    setToAccountId(initialValues.toAccountId ?? '');
   }, [initialValues]);
 
   useEffect(() => {
@@ -97,9 +101,20 @@ function TransactionForm({
 
     const numericAmount = Number(amount);
 
-    if (!categoryId) {
+    if (type !== 'transfer' && !categoryId) {
       setLocalError('Please select a category');
       return;
+    }
+
+    if (type === 'transfer') {
+      if (!toAccountId) {
+        setLocalError('Please select a destination account');
+        return;
+      }
+      if (accountId === toAccountId) {
+        setLocalError('Source and destination accounts must be different');
+        return;
+      }
     }
 
     if (!numericAmount || numericAmount <= 0) {
@@ -124,8 +139,9 @@ function TransactionForm({
       amount: numericAmount,
       description: description.trim(),
       transactionDate,
-      categoryId,
+      categoryId: type === 'transfer' ? undefined : categoryId,
       accountId,
+      toAccountId: type === 'transfer' ? toAccountId : undefined,
     });
   }
 
@@ -158,37 +174,42 @@ function TransactionForm({
           </span>
           <select
             value={type}
-            onChange={(event) => setType(event.target.value as CategoryType)}
+            onChange={(event) => setType(event.target.value as TransactionType)}
             disabled={isSubmitting}
             className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
+            <option value="transfer">Transfer</option>
           </select>
         </label>
 
-        <label className="block">
-          <span className="text-sm font-medium text-slate-700">Category</span>
-          <select
-            value={categoryId}
-            onChange={(event) => setCategoryId(event.target.value)}
-            disabled={isSubmitting || filteredCategories.length === 0}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
-          >
-            {filteredCategories.length === 0 ? (
-              <option value="">No category available</option>
-            ) : (
-              filteredCategories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))
-            )}
-          </select>
-        </label>
+        {type !== 'transfer' && (
+          <label className="block">
+            <span className="text-sm font-medium text-slate-700">Category</span>
+            <select
+              value={categoryId}
+              onChange={(event) => setCategoryId(event.target.value)}
+              disabled={isSubmitting || filteredCategories.length === 0}
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+            >
+              {filteredCategories.length === 0 ? (
+                <option value="">No category available</option>
+              ) : (
+                filteredCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))
+              )}
+            </select>
+          </label>
+        )}
 
         <label>
-          <span className="text-sm font-medium text-slate-700">Account</span>
+          <span className="text-sm font-medium text-slate-700">
+            {type === 'transfer' ? 'From Account' : 'Account'}
+          </span>
           <select
             value={accountId}
             onChange={(event) => setAccountId(event.target.value)}
@@ -208,6 +229,27 @@ function TransactionForm({
             )}
           </select>
         </label>
+
+        {type === 'transfer' && (
+          <label>
+            <span className="text-sm font-medium text-slate-700">To Account</span>
+            <select
+              value={toAccountId}
+              onChange={(event) => setToAccountId(event.target.value)}
+              disabled={isSubmitting || accounts.length === 0}
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+            >
+              <option value="">Select destination</option>
+              {accounts
+                .filter((account) => account.isActive && account.id !== accountId)
+                .map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.name}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
 
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Amount</span>

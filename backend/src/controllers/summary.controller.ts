@@ -101,7 +101,9 @@ export async function getCategorySummary(req: Request, res: Response) {
       return total + Number(item._sum.amount ?? 0);
     }, 0);
 
-    const categoryIds = groupedExpenses.map((item) => item.categoryId);
+    const categoryIds = groupedExpenses
+      .map((item) => item.categoryId)
+      .filter((id): id is string => id !== null);
 
     const categories = await prisma.category.findMany({
       where: {

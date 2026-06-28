@@ -68,10 +68,10 @@ function TransactionTable({
                   <td className="px-6 py-4">
                     <div>
                       <p className="text-sm font-medium text-slate-900">
-                        {transaction.category.name}
+                        {transaction.category?.name ?? 'Transfer'}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        ID: {transaction.categoryId.slice(0, 8)}
+                        {transaction.categoryId ? `ID: ${transaction.categoryId.slice(0, 8)}` : '-'}
                       </p>
                     </div>
                   </td>
@@ -79,7 +79,9 @@ function TransactionTable({
                   <td className="px-6 py-4 text-sm text-slate-600">
                     <div className="flex flex-col">
                       <span className="font-medium text-slate-800">
-                        {transaction.account?.name ?? 'No account'}
+                        {transaction.type === 'transfer'
+                          ? `${transaction.account?.name ?? '?'} → ${transaction.toAccount?.name ?? '?'}`
+                          : transaction.account?.name ?? 'No account'}
                       </span>
 
                       {transaction.account?.type && (
@@ -131,10 +133,14 @@ function TransactionTable({
 
                   <td
                     className={`px-6 py-4 text-right text-sm font-semibold ${
-                      isIncome ? 'text-emerald-700' : 'text-rose-700'
+                      isIncome
+                        ? 'text-emerald-700'
+                        : transaction.type === 'transfer'
+                          ? 'text-blue-700'
+                          : 'text-rose-700'
                     }`}
                   >
-                    {isIncome ? '+' : '-'}
+                    {isIncome ? '+' : transaction.type === 'transfer' ? '' : '-'}
                     {formatCurrency(transaction.amount)}
                   </td>
 

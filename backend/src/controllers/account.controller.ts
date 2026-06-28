@@ -69,11 +69,24 @@ export async function getAccountBalances(_req: Request, res: Response) {
       },
     });
 
+    const transferInTotals = await prisma.transaction.groupBy({
+      by: ['toAccountId'],
+      where: {
+        type: 'transfer',
+        toAccountId: { not: null },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
     const balanceMap = new Map<
       string,
       {
         totalIncome: number;
         totalExpense: number;
+        totalTransferOut: number;
+        totalTransferIn: number;
       }
     >();
 
@@ -81,6 +94,8 @@ export async function getAccountBalances(_req: Request, res: Response) {
       const existing = balanceMap.get(total.accountId) ?? {
         totalIncome: 0,
         totalExpense: 0,
+        totalTransferOut: 0,
+        totalTransferIn: 0,
       };
 
       const amount = Number(total._sum?.amount ?? 0);
@@ -93,18 +108,39 @@ export async function getAccountBalances(_req: Request, res: Response) {
         existing.totalExpense += amount;
       }
 
+      if (total.type === 'transfer') {
+        existing.totalTransferOut += amount;
+      }
+
       balanceMap.set(total.accountId, existing);
+    }
+
+    for (const total of transferInTotals) {
+      if (!total.toAccountId) continue;
+
+      const existing = balanceMap.get(total.toAccountId) ?? {
+        totalIncome: 0,
+        totalExpense: 0,
+        totalTransferOut: 0,
+        totalTransferIn: 0,
+      };
+
+      const amount = Number(total._sum?.amount ?? 0);
+      existing.totalTransferIn += amount;
+      balanceMap.set(total.toAccountId, existing);
     }
 
     const data = accounts.map((account) => {
       const totals = balanceMap.get(account.id) ?? {
         totalIncome: 0,
         totalExpense: 0,
+        totalTransferOut: 0,
+        totalTransferIn: 0,
       };
 
       const initialBalance = Number(account.initialBalance);
       const currentBalance =
-        initialBalance + totals.totalIncome - totals.totalExpense;
+        initialBalance + totals.totalIncome - totals.totalExpense - totals.totalTransferOut + totals.totalTransferIn;
 
       return {
         id: account.id,

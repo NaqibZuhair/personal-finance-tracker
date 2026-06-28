@@ -16,6 +16,7 @@ datasource db {
 enum TransactionType {
   income
   expense
+  transfer
 }
 
 enum AccountType {
@@ -44,11 +45,14 @@ model Transaction {
   description     String?
   transactionDate DateTime
 
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   accountId String
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  account   Account @relation("TransactionFromAccount", fields: [accountId], references: [id], onDelete: Restrict)
+
+  toAccountId String?
+  toAccount   Account? @relation("TransactionToAccount", fields: [toAccountId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -66,7 +70,8 @@ model Account {
   type           AccountType
   initialBalance Decimal       @default(0) @db.Decimal(12, 2)
   isActive       Boolean       @default(true)
-  transactions   Transaction[]
+  transactionsOut Transaction[] @relation("TransactionFromAccount")
+  transactionsIn  Transaction[] @relation("TransactionToAccount")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

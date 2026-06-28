@@ -92,8 +92,9 @@ function EditTransactionPage() {
       amount: Number(transaction.amount),
       description: transaction.description ?? '',
       transactionDate: formatDateForInput(transaction.transactionDate),
-      categoryId: transaction.categoryId,
+      categoryId: transaction.categoryId ?? undefined,
       accountId: transaction.accountId ?? fallbackAccount?.id ?? '',
+      toAccountId: transaction.toAccountId ?? undefined,
     };
   }, [transaction, accounts]);
 

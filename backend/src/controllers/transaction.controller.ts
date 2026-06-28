@@ -59,6 +59,7 @@ export async function getTransactions(req: Request, res: Response) {
       include: {
         category: true,
         account: true,
+        toAccount: true,
       },
       orderBy: {
         transactionDate: 'desc',
@@ -94,6 +95,7 @@ export async function getTransactionById(req: Request, res: Response) {
       include: {
         category: true,
         account: true,
+        toAccount: true,
       },
     });
 
@@ -126,24 +128,26 @@ export async function createTransaction(req: Request, res: Response) {
   try {
     const validatedData = createTransactionSchema.parse(req.body);
 
-    const category = await prisma.category.findUnique({
-      where: {
-        id: validatedData.categoryId,
-      },
-    });
-
-    if (!category) {
-      res.status(404).json({
-        message: 'Category not found',
+    if (validatedData.type !== 'transfer' && validatedData.categoryId) {
+      const category = await prisma.category.findUnique({
+        where: {
+          id: validatedData.categoryId,
+        },
       });
-      return;
-    }
 
-    if (category.type !== validatedData.type) {
-      res.status(400).json({
-        message: 'Transaction type must match category type',
-      });
-      return;
+      if (!category) {
+        res.status(404).json({
+          message: 'Category not found',
+        });
+        return;
+      }
+
+      if (category.type !== validatedData.type) {
+        res.status(400).json({
+          message: 'Transaction type must match category type',
+        });
+        return;
+      }
     }
 
     const account = await prisma.account.findUnique({
@@ -166,18 +170,36 @@ export async function createTransaction(req: Request, res: Response) {
       return;
     }
 
+    if (validatedData.type === 'transfer' && validatedData.toAccountId) {
+      const toAccount = await prisma.account.findUnique({
+        where: { id: validatedData.toAccountId },
+      });
+
+      if (!toAccount) {
+        res.status(404).json({ message: 'Destination account not found' });
+        return;
+      }
+
+      if (!toAccount.isActive) {
+        res.status(400).json({ message: 'Destination account is inactive' });
+        return;
+      }
+    }
+
     const transaction = await prisma.transaction.create({
       data: {
         type: validatedData.type,
         amount: validatedData.amount,
         description: validatedData.description,
         transactionDate: validatedData.transactionDate,
-        categoryId: validatedData.categoryId,
+        categoryId: validatedData.type === 'transfer' ? null : validatedData.categoryId,
         accountId: validatedData.accountId,
+        toAccountId: validatedData.type === 'transfer' ? validatedData.toAccountId : null,
       },
       include: {
         category: true,
         account: true,
+        toAccount: true,
       },
     });
 
@@ -205,24 +227,26 @@ export async function updateTransaction(req: Request, res: Response) {
     const { id } = transactionIdParamSchema.parse(req.params);
     const validatedData = updateTransactionSchema.parse(req.body);
 
-    const category = await prisma.category.findUnique({
-      where: {
-        id: validatedData.categoryId,
-      },
-    });
-
-    if (!category) {
-      res.status(404).json({
-        message: 'Category not found',
+    if (validatedData.type !== 'transfer' && validatedData.categoryId) {
+      const category = await prisma.category.findUnique({
+        where: {
+          id: validatedData.categoryId,
+        },
       });
-      return;
-    }
 
-    if (category.type !== validatedData.type) {
-      res.status(400).json({
-        message: 'Transaction type must match category type',
-      });
-      return;
+      if (!category) {
+        res.status(404).json({
+          message: 'Category not found',
+        });
+        return;
+      }
+
+      if (category.type !== validatedData.type) {
+        res.status(400).json({
+          message: 'Transaction type must match category type',
+        });
+        return;
+      }
     }
 
     const account = await prisma.account.findUnique({
@@ -245,6 +269,22 @@ export async function updateTransaction(req: Request, res: Response) {
       return;
     }
 
+    if (validatedData.type === 'transfer' && validatedData.toAccountId) {
+      const toAccount = await prisma.account.findUnique({
+        where: { id: validatedData.toAccountId },
+      });
+
+      if (!toAccount) {
+        res.status(404).json({ message: 'Destination account not found' });
+        return;
+      }
+
+      if (!toAccount.isActive) {
+        res.status(400).json({ message: 'Destination account is inactive' });
+        return;
+      }
+    }
+
     const transaction = await prisma.transaction.update({
       where: {
         id,
@@ -254,12 +294,14 @@ export async function updateTransaction(req: Request, res: Response) {
         amount: validatedData.amount,
         description: validatedData.description,
         transactionDate: validatedData.transactionDate,
-        categoryId: validatedData.categoryId,
+        categoryId: validatedData.type === 'transfer' ? null : validatedData.categoryId,
         accountId: validatedData.accountId,
+        toAccountId: validatedData.type === 'transfer' ? validatedData.toAccountId : null,
       },
       include: {
         category: true,
         account: true,
+        toAccount: true,
       },
     });
 
