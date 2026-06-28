@@ -7,6 +7,7 @@ import summaryRoutes from './routes/summary.routes';
 import transactionRoutes from './routes/transaction.routes';
 import accountRoutes from './routes/account.routes';
 import authRoutes from './routes/auth.routes';
+import { requireAuth } from './middleware/auth.middleware';
 
 const app = express();
 
@@ -37,9 +38,11 @@ app.get('/', (_req, res) => {
 
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/accounts', accountRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/summary', summaryRoutes);
+
+// Protected routes
+app.use('/api/accounts', requireAuth, accountRoutes);
+app.use('/api/categories', requireAuth, categoryRoutes);
+app.use('/api/transactions', requireAuth, transactionRoutes);
+app.use('/api/summary', requireAuth, summaryRoutes);
 
 export default app;
