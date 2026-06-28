@@ -10,9 +10,11 @@ import authRoutes from './routes/auth.routes';
 
 const app = express();
 
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: frontendUrl.endsWith('/') ? frontendUrl.slice(0, -1) : frontendUrl,
     credentials: true,
   })
 );
