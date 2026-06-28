@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function loadUser() {
       try {
-        const response = await apiClient<{ data: User }>('/api/auth/me');
+        const response = await apiClient<{ data: User }>('/auth/me');
         setUser(response.data);
       } catch (error) {
         setUser(null);
@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (data: any) => {
-    const response = await apiClient<{ data: User }>('/api/auth/login', {
+    const response = await apiClient<{ data: User }>('/auth/login', {
       method: 'POST',
       body: data,
     });
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (data: any) => {
-    const response = await apiClient<{ data: User }>('/api/auth/register', {
+    const response = await apiClient<{ data: User }>('/auth/register', {
       method: 'POST',
       body: data,
     });
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await apiClient('/api/auth/logout', { method: 'POST' });
+    await apiClient('/auth/logout', { method: 'POST' });
     setUser(null);
   };
 

@@ -10,10 +10,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev';
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 function setAuthCookie(res: Response, token: string) {
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: COOKIE_MAX_AGE,
   });
 }
@@ -39,6 +40,39 @@ export async function register(req: Request, res: Response) {
         name,
         email,
         passwordHash,
+        accounts: {
+          create: {
+            name: 'Cash',
+            type: 'cash',
+            initialBalance: 0,
+          },
+        },
+        categories: {
+          createMany: {
+            data: [
+              { name: 'Food', type: 'expense' },
+              { name: 'Transport', type: 'expense' },
+              { name: 'Shopping', type: 'expense' },
+              { name: 'Bills', type: 'expense' },
+              { name: 'Entertainment', type: 'expense' },
+              { name: 'Ciggarate', type: 'expense' },
+              { name: 'Education', type: 'expense' },
+              { name: 'Beauty', type: 'expense' },
+              { name: 'Nabung', type: 'expense' },
+              { name: 'Gift', type: 'expense' },
+              { name: 'Health', type: 'expense' },
+              { name: 'Parkir', type: 'expense' },
+              { name: 'Other Expense', type: 'expense' },
+              { name: 'From Parents', type: 'income' },
+              { name: 'Salary', type: 'income' },
+              { name: 'Freelance', type: 'income' },
+              { name: 'Bonus', type: 'income' },
+              { name: 'Allowance', type: 'income' },
+              { name: 'Gift', type: 'income' },
+              { name: 'Other Income', type: 'income' },
+            ],
+          },
+        },
       },
     });
 
