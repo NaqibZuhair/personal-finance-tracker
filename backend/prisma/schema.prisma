@@ -25,16 +25,35 @@ enum AccountType {
   cash
 }
 
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("users")
+}
+
 model Category {
   id           String          @id @default(uuid())
   name         String
   type         TransactionType
   transactions Transaction[]
 
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([name, type])
+  @@unique([name, type, userId])
   @@map("categories")
 }
 
@@ -54,6 +73,9 @@ model Transaction {
   toAccountId String?
   toAccount   Account? @relation("TransactionToAccount", fields: [toAccountId], references: [id], onDelete: Restrict)
 
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -61,6 +83,7 @@ model Transaction {
   @@index([categoryId])
   @@index([transactionDate])
   @@index([accountId])
+  @@index([userId])
   @@map("transactions")
 }
 
@@ -73,10 +96,13 @@ model Account {
   transactionsOut Transaction[] @relation("TransactionFromAccount")
   transactionsIn  Transaction[] @relation("TransactionToAccount")
 
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([name, type])
+  @@unique([name, type, userId])
   @@index([type])
   @@map("accounts")
 }

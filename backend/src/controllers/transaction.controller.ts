@@ -1,4 +1,5 @@
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import type { Prisma } from '../generated/prisma/client.js';
 import { ZodError } from 'zod';
 import prisma from '../lib/prisma';
@@ -18,11 +19,13 @@ function isRecordNotFoundError(error: unknown) {
   );
 }
 
-export async function getTransactions(req: Request, res: Response) {
+export async function getTransactions(req: AuthRequest, res: Response) {
   try {
     const query = transactionQuerySchema.parse(req.query);
 
-    const where: Prisma.TransactionWhereInput = {};
+    const where: Prisma.TransactionWhereInput = {
+      userId: req.userId,
+    };
 
     if (query.type) {
       where.type = query.type;
@@ -84,7 +87,7 @@ export async function getTransactions(req: Request, res: Response) {
   }
 }
 
-export async function getTransactionById(req: Request, res: Response) {
+export async function getTransactionById(req: AuthRequest, res: Response) {
   try {
     const { id } = transactionIdParamSchema.parse(req.params);
 
@@ -99,7 +102,7 @@ export async function getTransactionById(req: Request, res: Response) {
       },
     });
 
-    if (!transaction) {
+    if (!transaction || transaction.userId !== req.userId) {
       res.status(404).json({
         message: 'Transaction not found',
       });
@@ -124,14 +127,15 @@ export async function getTransactionById(req: Request, res: Response) {
   }
 }
 
-export async function createTransaction(req: Request, res: Response) {
+export async function createTransaction(req: AuthRequest, res: Response) {
   try {
     const validatedData = createTransactionSchema.parse(req.body);
 
     if (validatedData.type !== 'transfer' && validatedData.categoryId) {
-      const category = await prisma.category.findUnique({
+      const category = await prisma.category.findFirst({
         where: {
           id: validatedData.categoryId,
+          userId: req.userId,
         },
       });
 
@@ -150,9 +154,10 @@ export async function createTransaction(req: Request, res: Response) {
       }
     }
 
-    const account = await prisma.account.findUnique({
+    const account = await prisma.account.findFirst({
       where: {
         id: validatedData.accountId,
+        userId: req.userId,
       },
     });
 
@@ -171,8 +176,8 @@ export async function createTransaction(req: Request, res: Response) {
     }
 
     if (validatedData.type === 'transfer' && validatedData.toAccountId) {
-      const toAccount = await prisma.account.findUnique({
-        where: { id: validatedData.toAccountId },
+      const toAccount = await prisma.account.findFirst({
+        where: { id: validatedData.toAccountId, userId: req.userId },
       });
 
       if (!toAccount) {
@@ -195,6 +200,7 @@ export async function createTransaction(req: Request, res: Response) {
         categoryId: validatedData.type === 'transfer' ? null : validatedData.categoryId,
         accountId: validatedData.accountId,
         toAccountId: validatedData.type === 'transfer' ? validatedData.toAccountId : null,
+        userId: req.userId!,
       },
       include: {
         category: true,
@@ -222,15 +228,22 @@ export async function createTransaction(req: Request, res: Response) {
   }
 }
 
-export async function updateTransaction(req: Request, res: Response) {
+export async function updateTransaction(req: AuthRequest, res: Response) {
   try {
     const { id } = transactionIdParamSchema.parse(req.params);
     const validatedData = updateTransactionSchema.parse(req.body);
 
+    const existingTransaction = await prisma.transaction.findUnique({ where: { id } });
+    if (!existingTransaction || existingTransaction.userId !== req.userId) {
+      res.status(404).json({ message: 'Transaction not found' });
+      return;
+    }
+
     if (validatedData.type !== 'transfer' && validatedData.categoryId) {
-      const category = await prisma.category.findUnique({
+      const category = await prisma.category.findFirst({
         where: {
           id: validatedData.categoryId,
+          userId: req.userId,
         },
       });
 
@@ -249,9 +262,10 @@ export async function updateTransaction(req: Request, res: Response) {
       }
     }
 
-    const account = await prisma.account.findUnique({
+    const account = await prisma.account.findFirst({
       where: {
         id: validatedData.accountId,
+        userId: req.userId,
       },
     });
 
@@ -270,8 +284,8 @@ export async function updateTransaction(req: Request, res: Response) {
     }
 
     if (validatedData.type === 'transfer' && validatedData.toAccountId) {
-      const toAccount = await prisma.account.findUnique({
-        where: { id: validatedData.toAccountId },
+      const toAccount = await prisma.account.findFirst({
+        where: { id: validatedData.toAccountId, userId: req.userId },
       });
 
       if (!toAccount) {
@@ -331,9 +345,15 @@ export async function updateTransaction(req: Request, res: Response) {
   }
 }
 
-export async function deleteTransaction(req: Request, res: Response) {
+export async function deleteTransaction(req: AuthRequest, res: Response) {
   try {
     const { id } = transactionIdParamSchema.parse(req.params);
+
+    const existingTransaction = await prisma.transaction.findUnique({ where: { id } });
+    if (!existingTransaction || existingTransaction.userId !== req.userId) {
+      res.status(404).json({ message: 'Transaction not found' });
+      return;
+    }
 
     await prisma.transaction.delete({
       where: {

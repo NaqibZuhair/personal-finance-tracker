@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { to: '/', label: 'Dashboard' },
@@ -11,6 +12,13 @@ const navItems = [
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   const baseNavClass = 'rounded-lg px-4 py-2 text-sm font-semibold transition';
 
@@ -40,6 +48,15 @@ function Navbar() {
               {item.label}
             </NavLink>
           ))}
+          <div className="ml-4 flex items-center gap-4 border-l border-slate-200 pl-4">
+            <span className="text-sm text-slate-500">Hi, {user?.name}</span>
+            <button
+              onClick={handleLogout}
+              className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+            >
+              Logout
+            </button>
+          </div>
         </nav>
 
         <button
@@ -91,6 +108,15 @@ function Navbar() {
               {item.label}
             </NavLink>
           ))}
+          <div className="mt-2 flex flex-col gap-2 border-t border-slate-200 pt-4">
+            <span className="px-4 text-sm text-slate-500">Hi, {user?.name}</span>
+            <button
+              onClick={handleLogout}
+              className="text-left rounded-lg px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </nav>
     </header>

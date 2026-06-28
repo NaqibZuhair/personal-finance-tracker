@@ -1,4 +1,5 @@
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { ZodError } from 'zod';
 import prisma from '../lib/prisma';
 import {
@@ -34,9 +35,12 @@ function isForeignKeyConstraintError(error: unknown) {
   );
 }
 
-export async function getCategories(_req: Request, res: Response) {
+export async function getCategories(req: AuthRequest, res: Response) {
   try {
     const categories = await prisma.category.findMany({
+      where: {
+        userId: req.userId,
+      },
       orderBy: [
         {
           type: 'asc',
@@ -57,12 +61,15 @@ export async function getCategories(_req: Request, res: Response) {
   }
 }
 
-export async function createCategory(req: Request, res: Response) {
+export async function createCategory(req: AuthRequest, res: Response) {
   try {
     const validatedData = createCategorySchema.parse(req.body);
 
     const category = await prisma.category.create({
-      data: validatedData,
+      data: {
+        ...validatedData,
+        userId: req.userId!,
+      },
     });
 
     res.status(201).json({
@@ -91,10 +98,19 @@ export async function createCategory(req: Request, res: Response) {
   }
 }
 
-export async function updateCategory(req: Request, res: Response) {
+export async function updateCategory(req: AuthRequest, res: Response) {
   try {
     const { id } = categoryIdParamSchema.parse(req.params);
     const validatedData = updateCategorySchema.parse(req.body);
+
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
+    });
+
+    if (!existingCategory || existingCategory.userId !== req.userId) {
+      res.status(404).json({ message: 'Category not found' });
+      return;
+    }
 
     const category = await prisma.category.update({
       where: {
@@ -136,9 +152,18 @@ export async function updateCategory(req: Request, res: Response) {
   }
 }
 
-export async function deleteCategory(req: Request, res: Response) {
+export async function deleteCategory(req: AuthRequest, res: Response) {
   try {
     const { id } = categoryIdParamSchema.parse(req.params);
+
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
+    });
+
+    if (!existingCategory || existingCategory.userId !== req.userId) {
+      res.status(404).json({ message: 'Category not found' });
+      return;
+    }
 
     await prisma.category.delete({
       where: {

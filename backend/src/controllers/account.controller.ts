@@ -1,4 +1,5 @@
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { ZodError } from 'zod';
 import prisma from '../lib/prisma';
 import {
@@ -34,9 +35,10 @@ function isForeignKeyConstraintError(error: unknown) {
   );
 }
 
-export async function getAccounts(_req: Request, res: Response) {
+export async function getAccounts(req: AuthRequest, res: Response) {
   try {
     const accounts = await prisma.account.findMany({
+      where: { userId: req.userId },
       orderBy: [
         { type: 'asc' },
         { name: 'asc' },
@@ -53,9 +55,10 @@ export async function getAccounts(_req: Request, res: Response) {
   }
 }
 
-export async function getAccountBalances(_req: Request, res: Response) {
+export async function getAccountBalances(req: AuthRequest, res: Response) {
   try {
     const accounts = await prisma.account.findMany({
+      where: { userId: req.userId },
       orderBy: [
         { type: 'asc' },
         { name: 'asc' },
@@ -64,6 +67,7 @@ export async function getAccountBalances(_req: Request, res: Response) {
 
     const transactionTotals = await prisma.transaction.groupBy({
       by: ['accountId', 'type'],
+      where: { userId: req.userId },
       _sum: {
         amount: true,
       },
@@ -74,6 +78,7 @@ export async function getAccountBalances(_req: Request, res: Response) {
       where: {
         type: 'transfer',
         toAccountId: { not: null },
+        userId: req.userId,
       },
       _sum: {
         amount: true,
@@ -166,7 +171,7 @@ export async function getAccountBalances(_req: Request, res: Response) {
   }
 }
 
-export async function createAccount(req: Request, res: Response) {
+export async function createAccount(req: AuthRequest, res: Response) {
   try {
     const validatedData = createAccountSchema.parse(req.body);
 
@@ -176,6 +181,7 @@ export async function createAccount(req: Request, res: Response) {
         type: validatedData.type,
         initialBalance: validatedData.initialBalance,
         isActive: validatedData.isActive ?? true,
+        userId: req.userId!,
       },
     });
 
@@ -205,10 +211,16 @@ export async function createAccount(req: Request, res: Response) {
   }
 }
 
-export async function updateAccount(req: Request, res: Response) {
+export async function updateAccount(req: AuthRequest, res: Response) {
   try {
     const { id } = accountIdParamSchema.parse(req.params);
     const validatedData = updateAccountSchema.parse(req.body);
+
+    const existingAccount = await prisma.account.findUnique({ where: { id } });
+    if (!existingAccount || existingAccount.userId !== req.userId) {
+      res.status(404).json({ message: 'Account not found' });
+      return;
+    }
 
     const account = await prisma.account.update({
       where: { id },
@@ -253,9 +265,15 @@ export async function updateAccount(req: Request, res: Response) {
   }
 }
 
-export async function deleteAccount(req: Request, res: Response) {
+export async function deleteAccount(req: AuthRequest, res: Response) {
   try {
     const { id } = accountIdParamSchema.parse(req.params);
+
+    const existingAccount = await prisma.account.findUnique({ where: { id } });
+    if (!existingAccount || existingAccount.userId !== req.userId) {
+      res.status(404).json({ message: 'Account not found' });
+      return;
+    }
 
     await prisma.account.delete({
       where: { id },

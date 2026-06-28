@@ -1,9 +1,10 @@
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
+import { AuthRequest } from '../middleware/auth.middleware';
 import { ZodError } from 'zod';
 import prisma from '../lib/prisma';
 import { monthlySummaryQuerySchema } from '../validations/summary.validation';
 
-export async function getMonthlySummary(req: Request, res: Response) {
+export async function getMonthlySummary(req: AuthRequest, res: Response) {
   try {
     const query = monthlySummaryQuerySchema.parse(req.query);
 
@@ -22,6 +23,7 @@ export async function getMonthlySummary(req: Request, res: Response) {
           where: {
             type: 'income',
             transactionDate: dateFilter,
+            userId: req.userId,
           },
           _sum: {
             amount: true,
@@ -32,6 +34,7 @@ export async function getMonthlySummary(req: Request, res: Response) {
           where: {
             type: 'expense',
             transactionDate: dateFilter,
+            userId: req.userId,
           },
           _sum: {
             amount: true,
@@ -41,6 +44,7 @@ export async function getMonthlySummary(req: Request, res: Response) {
         prisma.transaction.count({
           where: {
             transactionDate: dateFilter,
+            userId: req.userId,
           },
         }),
       ]);
@@ -73,7 +77,7 @@ export async function getMonthlySummary(req: Request, res: Response) {
   }
 }
 
-export async function getCategorySummary(req: Request, res: Response) {
+export async function getCategorySummary(req: AuthRequest, res: Response) {
   try {
     const query = monthlySummaryQuerySchema.parse(req.query);
 
@@ -91,6 +95,7 @@ export async function getCategorySummary(req: Request, res: Response) {
       where: {
         type: 'expense',
         transactionDate: dateFilter,
+        userId: req.userId,
       },
       _sum: {
         amount: true,
@@ -153,9 +158,10 @@ export async function getCategorySummary(req: Request, res: Response) {
   }
 }
 
-export async function getRecentTransactions(_req: Request, res: Response) {
+export async function getRecentTransactions(req: AuthRequest, res: Response) {
   try {
     const transactions = await prisma.transaction.findMany({
+      where: { userId: req.userId },
       take: 5,
       include: {
         category: true,
