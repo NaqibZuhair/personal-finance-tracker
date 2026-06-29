@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 
@@ -11,7 +10,6 @@ const navItems = [
 ];
 
 function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -27,16 +25,13 @@ function Navbar() {
       ? `${baseNavClass} bg-slate-950 text-white shadow-sm`
       : `${baseNavClass} text-slate-600 hover:bg-slate-100 hover:text-slate-950`;
 
-  function closeMenu() {
-    setIsMenuOpen(false);
-  }
+
 
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link
           to="/"
-          onClick={closeMenu}
           className="text-lg font-bold text-slate-950"
         >
           Personal Finance Tracker
