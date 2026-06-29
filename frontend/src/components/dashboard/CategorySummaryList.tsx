@@ -1,4 +1,9 @@
+import { useState } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/Card';
+import { Tabs } from '../ui/Tabs';
 
 export type CategorySummaryItem = {
   categoryId: string;
@@ -7,77 +12,122 @@ export type CategorySummaryItem = {
   percentage: number;
 };
 
-type CategorySummaryListProps = {
+type Props = {
   totalExpense: number;
   categories: CategorySummaryItem[];
 };
 
-function CategorySummaryList({
-  totalExpense,
-  categories,
-}: CategorySummaryListProps) {
+// Generate an array of nice colors for the pie chart
+const COLORS = [
+  '#f43f5e', // rose-500
+  '#8b5cf6', // violet-500
+  '#3b82f6', // blue-500
+  '#10b981', // emerald-500
+  '#f59e0b', // amber-500
+  '#06b6d4', // cyan-500
+  '#ec4899', // pink-500
+  '#6366f1', // indigo-500
+];
+
+export default function CategorySummaryList({ totalExpense, categories }: Props) {
+  const [viewMode, setViewMode] = useState<'bar' | 'pie'>('pie');
+
+  // Prepare data for recharts, sort by amount descending
+  const chartData = [...categories]
+    .sort((a, b) => b.total - a.total)
+    .map((cat, index) => ({
+      name: cat.categoryName,
+      value: Number(cat.total),
+      color: COLORS[index % COLORS.length]
+    }));
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Expense by Category
-        </h2>
-        <p className="mt-1 text-sm text-slate-500">
-          See where most of your money went this month.
-        </p>
-      </div>
-
-      {categories.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-          <p className="text-sm font-medium text-slate-700">
-            No expense data for this month
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div>
+          <CardTitle>Expense by Category</CardTitle>
+          <CardDescription>See where your money went this month.</CardDescription>
+        </div>
+        <Tabs
+          value={viewMode}
+          onChange={(v) => setViewMode(v as 'bar' | 'pie')}
+          options={[
+            { value: 'pie', label: '', icon: <PieChartIcon size={16} /> },
+            { value: 'bar', label: '', icon: <BarChart3 size={16} /> }
+          ]}
+        />
+      </CardHeader>
+      
+      <CardContent>
+        <div className="mb-6 rounded-xl bg-slate-50 p-4">
+          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
+            Total Expense
           </p>
-          <p className="mt-1 text-sm text-slate-500">
-            Add expense transactions to see category insights.
+          <p className="mt-1 text-xl sm:text-2xl font-black text-slate-900">
+            {formatCurrency(totalExpense)}
           </p>
         </div>
-      ) : (
-        <div className="space-y-5">
-          <div className="rounded-xl bg-slate-50 px-4 py-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-              Total Expense
-            </p>
-            <p className="mt-1 text-xl font-bold text-slate-900">
-              {formatCurrency(totalExpense)}
-            </p>
-          </div>
 
-          <div className="space-y-4">
-            {categories.map((category) => (
-              <div key={category.categoryId}>
-                <div className="mb-2 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {category.categoryName}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {category.percentage}% of total expense
-                    </p>
+        {categories.length === 0 ? (
+          <p className="py-8 text-center text-sm text-slate-500">
+            No expenses recorded for this month.
+          </p>
+        ) : viewMode === 'pie' ? (
+          <div className="h-[300px] w-full animate-in fade-in zoom-in-95 duration-300">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  dataKey="value"
+                  nameKey="name"
+                  isAnimationActive={false}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="transparent" />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: any) => formatCurrency(Number(value))}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}
+                />
+                <Legend layout="vertical" verticalAlign="middle" align="right" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+            {chartData.map((category) => {
+              const percentage = totalExpense > 0 ? (category.value / totalExpense) * 100 : 0;
+              return (
+                <div key={category.name}>
+                  <div className="flex justify-between text-sm">
+                    <span className="font-bold text-slate-900">{category.name}</span>
+                    <span className="font-bold" style={{ color: category.color }}>
+                      {formatCurrency(category.value)}
+                    </span>
                   </div>
-
-                  <p className="text-sm font-semibold text-expense-700">
-                    {formatCurrency(category.total)}
-                  </p>
+                  <div className="mt-2 flex items-center gap-3">
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${percentage}%`, backgroundColor: category.color }}
+                      />
+                    </div>
+                    <span className="w-12 text-right text-xs font-semibold text-slate-500">
+                      {percentage.toFixed(0)}%
+                    </span>
+                  </div>
                 </div>
-
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-expense-500"
-                    style={{ width: `${Math.min(category.percentage, 100)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
-
-export default CategorySummaryList;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import TransactionForm from '../components/transactions/TransactionForm';
 import type { TransactionFormValues } from '../components/transactions/TransactionForm';
 import ButtonLink from '../components/ui/ButtonLink';
@@ -24,6 +24,10 @@ type CreateTransactionResponse = {
 
 function NewTransactionPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  const initialType = (searchParams.get('type') as 'expense' | 'income' | 'transfer') || 'expense';
+  const initialToAccountId = searchParams.get('toAccountId') || undefined;
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -148,6 +152,14 @@ function NewTransactionPage() {
             isSubmitting={isSubmitting}
             errorMessage={formErrorMessage}
             submitLabel="Create Transaction"
+            initialValues={{
+              type: initialType,
+              toAccountId: initialToAccountId,
+              amount: 0,
+              description: '',
+              transactionDate: new Date().toISOString().slice(0, 10),
+              accountId: '',
+            }}
           />
         )}
     </section>

@@ -7,6 +7,9 @@ import summaryRoutes from './routes/summary.routes';
 import transactionRoutes from './routes/transaction.routes';
 import accountRoutes from './routes/account.routes';
 import authRoutes from './routes/auth.routes';
+import goalRoutes from './routes/goal.routes';
+import budgetRoutes from './routes/budget.routes';
+import recurringRoutes from './routes/recurring.routes';
 import { requireAuth } from './middleware/auth.middleware';
 
 const app = express();
@@ -44,5 +47,8 @@ app.use('/api/accounts', requireAuth, accountRoutes);
 app.use('/api/categories', requireAuth, categoryRoutes);
 app.use('/api/transactions', requireAuth, transactionRoutes);
 app.use('/api/summary', requireAuth, summaryRoutes);
+app.use('/api/goals', requireAuth, goalRoutes);
+app.use('/api/budgets', requireAuth, budgetRoutes);
+app.use('/api/recurring', requireAuth, recurringRoutes);
 
 export default app;

@@ -4,9 +4,10 @@ import { useAuth } from '../../context/AuthContext';
 const navItems = [
   { to: '/', label: 'Dashboard' },
   { to: '/transactions', label: 'Transactions' },
-  { to: '/transactions/new', label: 'Add Transaction' },
   { to: '/accounts', label: 'Accounts' },
-  { to: '/categories', label: 'Categories' },
+  { to: '/budgets', label: 'Budgets' },
+  { to: '/goals', label: 'Goals' },
+  { to: '/recurring', label: 'Recurring' },
 ];
 
 function Navbar() {
@@ -44,7 +45,9 @@ function Navbar() {
             </NavLink>
           ))}
           <div className="ml-4 flex items-center gap-4 border-l border-slate-200 pl-4">
-            <span className="text-sm text-slate-500">Hi, {user?.name}</span>
+            <Link to="/profile" className="text-sm font-semibold text-slate-700 hover:text-primary-600 transition">
+              Hi, {user?.name}
+            </Link>
             <button
               onClick={handleLogout}
               className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"

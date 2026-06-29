@@ -126,42 +126,51 @@ function DashboardPage() {
 
       {!isLoading && !errorMessage && summary && categorySummary && (
         <>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-
-            <SummaryCard
-              label="Total Current Balance"
-              value={formatCurrency(totalCurrentBalance)}
-              description="Total money across all active accounts"
-              tone="balance"
-            />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            <div className="col-span-2 lg:col-span-2">
+              <SummaryCard
+                label="Total Balance"
+                value={formatCurrency(totalCurrentBalance)}
+                description="Total money across all active accounts"
+                tone="balance"
+              />
+            </div>
             
-            <SummaryCard
-              label="Total Income"
-              value={formatCurrency(summary.totalIncome)}
-              description={`Income recorded in ${summary.month}`}
-              tone="income"
-            />
+            <div className="col-span-1 lg:col-span-1">
+              <SummaryCard
+                label="Total Income"
+                value={formatCurrency(summary.totalIncome)}
+                description={`Income in ${summary.month}`}
+                tone="income"
+              />
+            </div>
 
-            <SummaryCard
-              label="Total Expense"
-              value={formatCurrency(summary.totalExpense)}
-              description={`Expenses recorded in ${summary.month}`}
-              tone="expense"
-            />
+            <div className="col-span-1 lg:col-span-1">
+              <SummaryCard
+                label="Total Expense"
+                value={formatCurrency(summary.totalExpense)}
+                description={`Expenses in ${summary.month}`}
+                tone="expense"
+              />
+            </div>
 
-            <SummaryCard
-              label="Monthly Balance"
-              value={formatCurrency(summary.balance)}
-              description="Income minus expenses"
-              tone="balance"
-            />
+            <div className="col-span-1 lg:col-span-2">
+              <SummaryCard
+                label="Monthly Balance"
+                value={formatCurrency(summary.totalIncome - summary.totalExpense)}
+                description="Income minus expenses"
+                tone="balance"
+              />
+            </div>
 
-            <SummaryCard
-              label="Transactions"
-              value={String(summary.transactionCount)}
-              description="Total records this month"
-              tone="neutral"
-            />
+            <div className="col-span-1 lg:col-span-2">
+              <SummaryCard
+                label="Transactions"
+                value={summary.transactionCount.toString()}
+                description="Total records this month"
+                tone="neutral"
+              />
+            </div>
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">

@@ -7,6 +7,9 @@ import NewTransactionPage from './pages/NewTransactionPage';
 import TransactionsPage from './pages/TransactionsPage';
 import AccountsPage from './pages/AccountsPage';
 import ProfilePage from './pages/ProfilePage';
+import BudgetsPage from './pages/BudgetsPage';
+import GoalsPage from './pages/GoalsPage';
+import RecurringTransactionsPage from './pages/RecurringTransactionsPage';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -30,6 +33,9 @@ function App() {
                 <Route path="/accounts" element={<AccountsPage />} />
                 <Route path="/categories" element={<CategoriesPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/budgets" element={<BudgetsPage />} />
+                <Route path="/goals" element={<GoalsPage />} />
+                <Route path="/recurring" element={<RecurringTransactionsPage />} />
               </Routes>
             </AppLayout>
           }
