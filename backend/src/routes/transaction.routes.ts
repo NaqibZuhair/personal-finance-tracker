@@ -1,8 +1,19 @@
 import { Router } from 'express';
-import { createTransaction, getTransactions, getTransactionById, updateTransaction, deleteTransaction } from '../controllers/transaction.controller';
+import {
+  createTransaction,
+  deleteTransaction,
+  getTransactionById,
+  getTransactions,
+  updateTransaction,
+  exportTransactions,
+} from '../controllers/transaction.controller';
+import { requireAuth } from '../middleware/auth.middleware';
 
 const router = Router();
 
+router.use(requireAuth);
+
+router.get('/export', exportTransactions);
 router.get('/', getTransactions);
 router.post('/', createTransaction);
 router.get('/:id', getTransactionById);

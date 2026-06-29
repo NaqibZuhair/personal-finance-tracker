@@ -385,3 +385,84 @@ export async function deleteTransaction(req: AuthRequest, res: Response) {
     });
   }
 }
+
+export async function exportTransactions(req: AuthRequest, res: Response) {
+  try {
+    const query = transactionQuerySchema.parse(req.query);
+
+    const where: Prisma.TransactionWhereInput = {
+      userId: req.userId,
+    };
+
+    if (query.type) {
+      where.type = query.type;
+    }
+
+    if (query.categoryId) {
+      where.categoryId = query.categoryId;
+    }
+
+    if (query.accountId) {
+      where.accountId = query.accountId;
+    }
+
+    if (query.search) {
+      where.description = {
+        contains: query.search,
+        mode: 'insensitive',
+      };
+    }
+
+    if (query.month) {
+      const startDate = new Date(`${query.month}-01T00:00:00.000Z`);
+      const endDate = new Date(startDate);
+      endDate.setUTCMonth(endDate.getUTCMonth() + 1);
+
+      where.transactionDate = {
+        gte: startDate,
+        lt: endDate,
+      };
+    }
+
+    const transactions = await prisma.transaction.findMany({
+      where,
+      include: {
+        category: true,
+        account: true,
+        toAccount: true,
+      },
+      orderBy: {
+        transactionDate: 'desc',
+      },
+    });
+
+    let csv = 'Date,Type,Category,Account,To Account,Amount,Description\n';
+    for (const t of transactions) {
+      const date = t.transactionDate.toISOString().split('T')[0];
+      const type = t.type;
+      const category = t.category?.name || '';
+      const account = t.account?.name || '';
+      const toAccount = t.toAccount?.name || '';
+      const amount = t.amount;
+      const description = (t.description || '').replace(/"/g, '""');
+      
+      csv += `"${date}","${type}","${category}","${account}","${toAccount}","${amount}","${description}"\n`;
+    }
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment(`transactions-${query.month || 'all'}.csv`);
+    return res.send(csv);
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        message: 'Validation failed',
+        errors: error.issues,
+      });
+      return;
+    }
+
+    res.status(500).json({
+      message: 'Failed to export transactions',
+    });
+  }
+}
