@@ -10,3 +10,7 @@ export const upsertBudgetSchema = z.object({
 export const getBudgetsQuerySchema = z.object({
   month: z.string().regex(/^\d{4}-\d{2}$/, 'Month must be in YYYY-MM format'),
 });
+
+export const budgetIdParamSchema = z.object({
+  id: z.string().uuid('Invalid budget ID'),
+});

@@ -2,7 +2,7 @@ import type { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { ZodError } from 'zod';
 import prisma from '../lib/prisma';
-import { getBudgetsQuerySchema, upsertBudgetSchema } from '../validations/budget.validation';
+import { getBudgetsQuerySchema, upsertBudgetSchema, budgetIdParamSchema } from '../validations/budget.validation';
 
 export async function getBudgets(req: AuthRequest, res: Response) {
   try {
@@ -121,5 +121,26 @@ export async function upsertBudget(req: AuthRequest, res: Response) {
       return;
     }
     res.status(500).json({ message: 'Failed to save budget' });
+  }
+}
+
+export async function deleteBudget(req: AuthRequest, res: Response) {
+  try {
+    const { id } = budgetIdParamSchema.parse(req.params);
+
+    const existingBudget = await prisma.budget.findUnique({ where: { id } });
+    if (!existingBudget || existingBudget.userId !== req.userId) {
+      res.status(404).json({ message: 'Budget not found' });
+      return;
+    }
+
+    await prisma.budget.delete({ where: { id } });
+    res.status(200).json({ message: 'Budget deleted successfully' });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({ message: 'Validation failed', errors: error.issues });
+      return;
+    }
+    res.status(500).json({ message: 'Failed to delete budget' });
   }
 }
