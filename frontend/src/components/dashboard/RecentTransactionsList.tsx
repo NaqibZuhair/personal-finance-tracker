@@ -58,11 +58,11 @@ function RecentTransactionsList({ transactions }: RecentTransactionsListProps) {
 
                 <p
                   className={`text-sm font-bold ${
-                    isIncome
-                      ? 'text-emerald-700'
+                    transaction.type === 'income'
+                      ? 'text-income-700'
                       : transaction.type === 'transfer'
-                        ? 'text-blue-700'
-                        : 'text-rose-700'
+                        ? 'text-transfer-700'
+                        : 'text-expense-700'
                   }`}
                 >
                   {isIncome ? '+' : transaction.type === 'transfer' ? '' : '-'}

@@ -115,7 +115,7 @@ function DashboardPage() {
             type="month"
             value={selectedMonth}
             onChange={(event) => setSelectedMonth(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 sm:w-56"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 sm:w-56"
           />
         </label>
       </div>

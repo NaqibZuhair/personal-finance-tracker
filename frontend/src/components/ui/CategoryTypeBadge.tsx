@@ -5,16 +5,16 @@ type CategoryTypeBadgeProps = {
 };
 
 function CategoryTypeBadge({ type }: CategoryTypeBadgeProps) {
-  const badgeClass =
+  const colorClass =
     type === 'income'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      ? 'border-income-200 bg-income-50 text-income-700'
       : type === 'expense'
-        ? 'border-rose-200 bg-rose-50 text-rose-700'
-        : 'border-blue-200 bg-blue-50 text-blue-700';
+        ? 'border-expense-200 bg-expense-50 text-expense-700'
+        : 'border-transfer-200 bg-transfer-50 text-transfer-700';
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold capitalize ${badgeClass}`}
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold capitalize ${colorClass}`}
     >
       {type}
     </span>

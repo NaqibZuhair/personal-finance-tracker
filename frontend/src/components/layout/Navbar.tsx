@@ -59,66 +59,7 @@ function Navbar() {
           </div>
         </nav>
 
-        <button
-          type="button"
-          onClick={() => setIsMenuOpen((current) => !current)}
-          className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-700 shadow-sm transition duration-200 hover:bg-slate-50 active:scale-95 md:hidden"
-          aria-label="Toggle navigation menu"
-          aria-expanded={isMenuOpen}
-        >
-          <span className="relative h-5 w-5">
-            <span
-              className={`absolute left-0 top-1 block h-0.5 w-5 rounded-full bg-current transition-all duration-300 ${
-                isMenuOpen ? 'top-2 rotate-45' : ''
-              }`}
-            />
-            <span
-              className={`absolute left-0 top-2 block h-0.5 w-5 rounded-full bg-current transition-all duration-300 ${
-                isMenuOpen ? 'opacity-0' : 'opacity-100'
-              }`}
-            />
-            <span
-              className={`absolute left-0 top-3 block h-0.5 w-5 rounded-full bg-current transition-all duration-300 ${
-                isMenuOpen ? 'top-2 -rotate-45' : ''
-              }`}
-            />
-          </span>
-        </button>
       </div>
-
-      <nav
-        className={`overflow-hidden border-t border-slate-200 bg-white transition-all duration-300 ease-in-out md:hidden ${
-          isMenuOpen
-            ? 'max-h-96 opacity-100'
-            : 'max-h-0 border-t-0 opacity-0'
-        }`}
-      >
-        <div
-          className={`mx-auto flex max-w-6xl flex-col gap-2 px-6 py-4 transition-all duration-300 ease-in-out ${
-            isMenuOpen ? 'translate-y-0' : '-translate-y-3'
-          }`}
-        >
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={closeMenu}
-              className={getNavClass}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-          <div className="mt-2 flex flex-col gap-2 border-t border-slate-200 pt-4">
-            <span className="px-4 text-sm text-slate-500">Hi, {user?.name}</span>
-            <button
-              onClick={handleLogout}
-              className="text-left rounded-lg px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </nav>
     </header>
   );
 }

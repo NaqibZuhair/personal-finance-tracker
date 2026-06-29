@@ -176,7 +176,7 @@ function TransactionForm({
             value={type}
             onChange={(event) => setType(event.target.value as TransactionType)}
             disabled={isSubmitting}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 disabled:cursor-not-allowed disabled:bg-slate-50"
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
@@ -191,7 +191,7 @@ function TransactionForm({
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value)}
               disabled={isSubmitting || filteredCategories.length === 0}
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 disabled:cursor-not-allowed disabled:bg-slate-50"
             >
               {filteredCategories.length === 0 ? (
                 <option value="">No category available</option>
@@ -214,7 +214,7 @@ function TransactionForm({
             value={accountId}
             onChange={(event) => setAccountId(event.target.value)}
             disabled={isSubmitting || accounts.length === 0}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 disabled:cursor-not-allowed disabled:bg-slate-50"
           >
             {accounts.length === 0 ? (
               <option value="">No account available</option>
@@ -237,7 +237,7 @@ function TransactionForm({
               value={toAccountId}
               onChange={(event) => setToAccountId(event.target.value)}
               disabled={isSubmitting || accounts.length === 0}
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 disabled:cursor-not-allowed disabled:bg-slate-50"
             >
               <option value="">Select destination</option>
               {accounts
@@ -260,7 +260,7 @@ function TransactionForm({
             onChange={(event) => setAmount(event.target.value)}
             placeholder="Example: 25000"
             disabled={isSubmitting}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 disabled:cursor-not-allowed disabled:bg-slate-50"
           />
         </label>
 
@@ -273,7 +273,7 @@ function TransactionForm({
             value={transactionDate}
             onChange={(event) => setTransactionDate(event.target.value)}
             disabled={isSubmitting}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 disabled:cursor-not-allowed disabled:bg-slate-50"
           />
         </label>
 
@@ -287,7 +287,7 @@ function TransactionForm({
             placeholder="Example: Makan siang, gaji bulanan, ojek ke kampus"
             disabled={isSubmitting}
             rows={4}
-            className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="mt-2 w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 disabled:cursor-not-allowed disabled:bg-slate-50"
           />
         </label>
       </div>

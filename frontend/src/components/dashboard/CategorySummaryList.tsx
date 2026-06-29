@@ -60,14 +60,14 @@ function CategorySummaryList({
                     </p>
                   </div>
 
-                  <p className="text-sm font-semibold text-rose-700">
+                  <p className="text-sm font-semibold text-expense-700">
                     {formatCurrency(category.total)}
                   </p>
                 </div>
 
                 <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                   <div
-                    className="h-full rounded-full bg-rose-500"
+                    className="h-full rounded-full bg-expense-500"
                     style={{ width: `${Math.min(category.percentage, 100)}%` }}
                   />
                 </div>

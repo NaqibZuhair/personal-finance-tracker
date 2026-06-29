@@ -20,7 +20,7 @@ function ButtonLink({
     'inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold shadow-sm transition';
 
   const variantClass = {
-    primary: 'bg-slate-900 text-white hover:bg-slate-700',
+    primary: 'bg-primary-600 text-white hover:bg-primary-700',
     secondary:
       'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
   };

@@ -131,17 +131,19 @@ function TransactionTable({
                     )}
                   </td>
 
-                  <td
-                    className={`px-6 py-4 text-right text-sm font-semibold ${
-                      isIncome
-                        ? 'text-emerald-700'
-                        : transaction.type === 'transfer'
-                          ? 'text-blue-700'
-                          : 'text-rose-700'
-                    }`}
-                  >
-                    {isIncome ? '+' : transaction.type === 'transfer' ? '' : '-'}
-                    {formatCurrency(transaction.amount)}
+                  <td className="px-6 py-4 text-right text-sm">
+                    <span
+                      className={`font-semibold ${
+                        transaction.type === 'income'
+                          ? 'text-income-700'
+                          : transaction.type === 'transfer'
+                            ? 'text-transfer-700'
+                            : 'text-expense-700'
+                      }`}
+                    >
+                      {isIncome ? '+' : transaction.type === 'transfer' ? '' : '-'}
+                      {formatCurrency(transaction.amount)}
+                    </span>
                   </td>
 
                   <td className="px-6 py-4 text-right">

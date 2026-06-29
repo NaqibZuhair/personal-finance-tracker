@@ -68,7 +68,7 @@ function TransactionFilters({
                 categoryId: '',
               });
             }}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
           >
             <option value="">All types</option>
             <option value="income">Income</option>
@@ -81,7 +81,7 @@ function TransactionFilters({
           <select
             value={value.categoryId}
             onChange={(event) => updateFilter('categoryId', event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
           >
             <option value="">All categories</option>
             {filteredCategories.map((category) => (
@@ -97,7 +97,7 @@ function TransactionFilters({
           <select
             value={value.accountId}
             onChange={(event) => updateFilter('accountId', event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
           >
             <option value="">All accounts</option>
             {accounts.map((account) => (
@@ -114,7 +114,7 @@ function TransactionFilters({
             type="month"
             value={value.month}
             onChange={(event) => updateFilter('month', event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
           />
         </label>
 
@@ -125,7 +125,7 @@ function TransactionFilters({
             value={value.search}
             onChange={(event) => updateFilter('search', event.target.value)}
             placeholder="Search description"
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
           />
         </label>
       </div>

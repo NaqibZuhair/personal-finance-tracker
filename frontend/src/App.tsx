@@ -6,6 +6,7 @@ import EditTransactionPage from './pages/EditTransactionPage';
 import NewTransactionPage from './pages/NewTransactionPage';
 import TransactionsPage from './pages/TransactionsPage';
 import AccountsPage from './pages/AccountsPage';
+import ProfilePage from './pages/ProfilePage';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/transactions/:id/edit" element={<EditTransactionPage />} />
                 <Route path="/accounts" element={<AccountsPage />} />
                 <Route path="/categories" element={<CategoriesPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
               </Routes>
             </AppLayout>
           }

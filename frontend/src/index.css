@@ -1,1 +1,56 @@
 @import "tailwindcss";
+
+@theme {
+  /* Primary: Royal Indigo (The Soul) */
+  --color-primary-50: #f4f4ff;
+  --color-primary-100: #e6e6ff;
+  --color-primary-200: #cfcfff;
+  --color-primary-300: #b0afff;
+  --color-primary-400: #8f8dff;
+  --color-primary-500: #7169fb; 
+  --color-primary-600: #5b4aee; 
+  --color-primary-700: #4a3cd1; 
+  --color-primary-800: #3c32a7; 
+  --color-primary-900: #332d84; 
+
+  /* Income: Emerald */
+  --color-income-50: #ecfdf5;
+  --color-income-100: #d1fae5;
+  --color-income-200: #a7f3d0;
+  --color-income-500: #10b981;
+  --color-income-600: #059669;
+  --color-income-700: #047857;
+  --color-income-800: #065f46;
+  --color-income-900: #064e3b;
+
+  /* Expense: Rose */
+  --color-expense-50: #fff1f2;
+  --color-expense-100: #ffe4e6;
+  --color-expense-200: #fecdd3;
+  --color-expense-500: #f43f5e;
+  --color-expense-600: #e11d48;
+  --color-expense-700: #be123c;
+  --color-expense-800: #9f1239;
+  --color-expense-900: #881337;
+
+  /* Transfer: Sky Blue */
+  --color-transfer-50: #f0f9ff;
+  --color-transfer-100: #e0f2fe;
+  --color-transfer-200: #bae6fd;
+  --color-transfer-500: #0ea5e9;
+  --color-transfer-600: #0284c7;
+  --color-transfer-700: #0369a1;
+
+  /* Neutral Backgrounds */
+  --color-background: #f8fafc; /* slate-50 */
+  --color-surface: #ffffff;
+  
+  /* Font Family (Professional Modern) */
+  --font-sans: 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif';
+}
+
+@layer base {
+  body {
+    @apply bg-background text-slate-900 antialiased;
+  }
+}
