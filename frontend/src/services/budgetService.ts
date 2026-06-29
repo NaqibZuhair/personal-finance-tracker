@@ -31,4 +31,8 @@ export const budgetService = {
     });
     return response.data;
   },
+
+  deleteBudget: async (id: string): Promise<void> => {
+    await apiClient(`/budgets/${id}`, { method: 'DELETE' });
+  },
 };

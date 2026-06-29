@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "npx prisma generate && npx prisma migrate deploy && tsc",
+    "build": "npx prisma generate && npx prisma migrate resolve --applied 20260516162307_init || true && npx prisma migrate resolve --applied 20260620144836_add_accounts || true && npx prisma migrate resolve --applied 20260620163748_make_transaction_account_required || true && npx prisma migrate resolve --applied 20260629124337_add_advanced_finance || true && npx prisma migrate deploy && tsc",
     "start": "node dist/server.js"
   },
   "keywords": [],

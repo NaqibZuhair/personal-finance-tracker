@@ -10,6 +10,7 @@ export default function RecurringTransactionsPage() {
   const [recurring, setRecurring] = useState<RecurringTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingRecurring, setEditingRecurring] = useState<RecurringTransaction | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
 
@@ -29,13 +30,20 @@ export default function RecurringTransactionsPage() {
     }
   }
 
-  const handleCreate = async (values: any) => {
+  const handleSave = async (values: any) => {
     try {
       setIsSubmitting(true);
       setFormErrorMessage('');
-      await recurringService.createRecurringTransaction(values);
+      
+      if (editingRecurring) {
+        await recurringService.updateRecurringTransaction(editingRecurring.id, values);
+      } else {
+        await recurringService.createRecurringTransaction(values);
+      }
+      
       await fetchRecurring();
       setIsFormOpen(false);
+      setEditingRecurring(null);
     } catch (error) {
       setFormErrorMessage(error instanceof Error ? error.message : 'Failed to save');
     } finally {
@@ -69,17 +77,27 @@ export default function RecurringTransactionsPage() {
           title="Subscriptions & Recurring" 
           description="Manage automated bills like Netflix, Spotify, or Kosan rent." 
         />
-        <Button onClick={() => setIsFormOpen(true)} disabled={isFormOpen}>
+        <Button onClick={() => setIsFormOpen(true)} disabled={isFormOpen || editingRecurring !== null}>
           Add Recurring
         </Button>
       </div>
 
-      {isFormOpen && (
+      {(isFormOpen || editingRecurring) && (
         <RecurringForm
-          title="New Subscription"
-          submitLabel="Save"
-          onCancel={() => setIsFormOpen(false)}
-          onSubmit={handleCreate}
+          title={editingRecurring ? "Edit Subscription" : "New Subscription"}
+          submitLabel={editingRecurring ? "Update" : "Save"}
+          initialValues={editingRecurring ? {
+            type: editingRecurring.type,
+            amount: editingRecurring.amount,
+            description: editingRecurring.description || '',
+            frequency: editingRecurring.frequency,
+            nextRunDate: editingRecurring.nextRunDate,
+            categoryId: editingRecurring.categoryId,
+            accountId: editingRecurring.accountId,
+            toAccountId: editingRecurring.toAccountId,
+          } : undefined}
+          onCancel={() => { setIsFormOpen(false); setEditingRecurring(null); }}
+          onSubmit={handleSave}
           isSubmitting={isSubmitting}
           errorMessage={formErrorMessage}
         />
@@ -126,12 +144,23 @@ export default function RecurringTransactionsPage() {
                   >
                     {item.isActive ? 'Pause' : 'Resume'}
                   </button>
-                  <button 
-                    onClick={() => handleDelete(item.id)}
-                    className="text-sm font-semibold text-rose-500 hover:text-rose-700"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => setEditingRecurring(item)}
+                      className="text-slate-400 hover:text-primary-600 transition"
+                      title="Edit Subscription"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(item.id)}
+                      className="text-sm font-semibold text-rose-500 hover:text-rose-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))

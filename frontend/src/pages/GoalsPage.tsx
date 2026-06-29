@@ -11,6 +11,7 @@ export default function GoalsPage() {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
 
@@ -33,13 +34,32 @@ export default function GoalsPage() {
     try {
       setIsSubmitting(true);
       setFormErrorMessage('');
-      const newGoal = await goalService.createGoal(values);
-      setGoals([...goals, newGoal]);
+      
+      if (editingGoal) {
+        const updated = await goalService.updateGoal(editingGoal.id, values);
+        setGoals(goals.map(g => g.id === updated.id ? { ...g, ...updated } : g));
+      } else {
+        const newGoal = await goalService.createGoal(values);
+        setGoals([...goals, newGoal]);
+      }
+      
       setIsFormOpen(false);
+      setEditingGoal(null);
     } catch (error) {
-      setFormErrorMessage(error instanceof Error ? error.message : 'Failed to create goal');
+      setFormErrorMessage(error instanceof Error ? error.message : 'Failed to save goal');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteGoal = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this goal? This cannot be undone.')) return;
+    try {
+      await goalService.deleteGoal(id);
+      setGoals(goals.filter(g => g.id !== id));
+    } catch (error) {
+      console.error('Failed to delete goal', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete goal');
     }
   };
 
@@ -50,17 +70,18 @@ export default function GoalsPage() {
           title="Savings Goals" 
           description="Track your long-term saving targets." 
         />
-        <Button onClick={() => setIsFormOpen(true)} disabled={isFormOpen}>
+        <Button onClick={() => setIsFormOpen(true)} disabled={isFormOpen || editingGoal !== null}>
           Add Goal
         </Button>
       </div>
 
-      {isFormOpen && (
+      {(isFormOpen || editingGoal) && (
         <GoalForm
-          title="Create Savings Goal"
-          description="Set up a new target to save for."
-          submitLabel="Create Goal"
-          onCancel={() => setIsFormOpen(false)}
+          title={editingGoal ? "Edit Savings Goal" : "Create Savings Goal"}
+          description={editingGoal ? "Update your target or deadline." : "Set up a new target to save for."}
+          submitLabel={editingGoal ? "Update Goal" : "Create Goal"}
+          initialValues={editingGoal ? { name: editingGoal.name, targetAmount: editingGoal.targetAmount, deadline: editingGoal.deadline || undefined } : undefined}
+          onCancel={() => { setIsFormOpen(false); setEditingGoal(null); }}
           onSubmit={handleCreateGoal}
           isSubmitting={isSubmitting}
           errorMessage={formErrorMessage}
@@ -85,12 +106,34 @@ export default function GoalsPage() {
                 <div key={goal.id} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-bold text-slate-800 text-lg">{goal.name}</h3>
-                      {goal.deadline && (
-                        <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
-                          Due {new Date(goal.deadline).toLocaleDateString()}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-slate-800 text-lg">{goal.name}</h3>
+                        {goal.deadline && (
+                          <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                            Due {new Date(goal.deadline).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => setEditingGoal(goal)}
+                          className="text-slate-400 hover:text-primary-600 transition"
+                          title="Edit Goal"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteGoal(goal.id)}
+                          className="text-slate-400 hover:text-red-500 transition"
+                          title="Delete Goal"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     
                     <div className="flex items-end justify-between mb-2">
