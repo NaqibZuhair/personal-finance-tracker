@@ -185,3 +185,78 @@ export async function getRecentTransactions(req: AuthRequest, res: Response) {
     });
   }
 }
+
+export async function getHistoricalSummary(req: AuthRequest, res: Response) {
+  try {
+    const query = monthlySummaryQuerySchema.parse(req.query);
+    
+    // Target end month
+    const endDate = new Date(`${query.month}-01T00:00:00.000Z`);
+    endDate.setUTCMonth(endDate.getUTCMonth() + 1);
+
+    // Target start month (6 months ago)
+    const startDate = new Date(`${query.month}-01T00:00:00.000Z`);
+    startDate.setUTCMonth(startDate.getUTCMonth() - 5);
+
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        userId: req.userId,
+        transactionDate: {
+          gte: startDate,
+          lt: endDate,
+        },
+        type: {
+          in: ['income', 'expense']
+        }
+      },
+      select: {
+        type: true,
+        amount: true,
+        transactionDate: true
+      }
+    });
+
+    // Initialize the last 6 months buckets
+    const months: Record<string, { income: number; expense: number }> = {};
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(startDate);
+      d.setUTCMonth(d.getUTCMonth() + i);
+      const monthStr = d.toISOString().substring(0, 7); // YYYY-MM
+      months[monthStr] = { income: 0, expense: 0 };
+    }
+
+    // Bucket the transactions
+    for (const t of transactions) {
+      const monthStr = t.transactionDate.toISOString().substring(0, 7);
+      if (months[monthStr]) {
+        if (t.type === 'income') {
+          months[monthStr].income += Number(t.amount);
+        } else if (t.type === 'expense') {
+          months[monthStr].expense += Number(t.amount);
+        }
+      }
+    }
+
+    const data = Object.keys(months).sort().map(month => ({
+      month,
+      income: months[month].income,
+      expense: months[month].expense,
+    }));
+
+    res.status(200).json({
+      data,
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        message: 'Validation failed',
+        errors: error.issues,
+      });
+      return;
+    }
+
+    res.status(500).json({
+      message: 'Failed to fetch historical summary',
+    });
+  }
+}

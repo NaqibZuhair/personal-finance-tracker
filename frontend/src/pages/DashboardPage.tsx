@@ -11,6 +11,7 @@ import type { Transaction } from '../types/transaction';
 import { formatCurrency } from '../utils/formatters';
 import { getAccountBalances } from '../lib/accountApi';
 import type { AccountBalance } from '../types/account';
+import DashboardCharts, { type HistoricalItem } from '../components/dashboard/DashboardCharts';
 
 type MonthlySummary = {
   month: string;
@@ -38,6 +39,10 @@ type RecentTransactionsResponse = {
   data: Transaction[];
 };
 
+type HistoricalSummaryResponse = {
+  data: HistoricalItem[];
+};
+
 function getCurrentMonth() {
   return new Date().toISOString().slice(0, 7);
 }
@@ -50,6 +55,7 @@ function DashboardPage() {
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>(
     [],
   );
+  const [historicalSummary, setHistoricalSummary] = useState<HistoricalItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [accountBalances, setAccountBalances] = useState<AccountBalance[]>([]);
@@ -64,22 +70,21 @@ function DashboardPage() {
           monthlyResponse,
           categoryResponse,
           recentResponse,
+          historicalResponse,
           accountBalancesData,
         ] = await Promise.all([
           apiClient<MonthlySummaryResponse>(`/summary/monthly?month=${selectedMonth}`),
           apiClient<CategorySummaryResponse>(`/summary/categories?month=${selectedMonth}`),
           apiClient<RecentTransactionsResponse>('/summary/recent'),
+          apiClient<HistoricalSummaryResponse>(`/summary/historical?month=${selectedMonth}`),
           getAccountBalances(),
         ]);
 
         setSummary(monthlyResponse.data);
         setCategorySummary(categoryResponse.data);
         setRecentTransactions(recentResponse.data);
+        setHistoricalSummary(historicalResponse.data);
         setAccountBalances(accountBalancesData);
-
-        setSummary(monthlyResponse.data);
-        setCategorySummary(categoryResponse.data);
-        setRecentTransactions(recentResponse.data);
       } catch (error) {
         setErrorMessage(
           error instanceof Error
@@ -172,6 +177,13 @@ function DashboardPage() {
               />
             </div>
           </div>
+
+          {/* Advanced Analytics Charts */}
+          <DashboardCharts 
+            accountBalances={accountBalances}
+            historicalSummary={historicalSummary}
+            categorySummary={categorySummary.categories}
+          />
 
           <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
             <CategorySummaryList
