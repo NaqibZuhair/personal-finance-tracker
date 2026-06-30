@@ -69,8 +69,11 @@ export default function DashboardCharts({
       value: c.total
     }));
 
-  const customTooltipFormatter = (value: number) => {
-    return [formatCurrency(value), ''];
+  const customTooltipFormatter = (value: any) => {
+    if (typeof value === 'number') {
+      return [formatCurrency(value), ''];
+    }
+    return [String(value), ''];
   };
 
   return (
@@ -119,7 +122,7 @@ export default function DashboardCharts({
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {accountData.map((entry, index) => (
+                    {accountData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -152,7 +155,7 @@ export default function DashboardCharts({
                     outerRadius={90}
                     dataKey="value"
                   >
-                    {categoryData.map((entry, index) => (
+                    {categoryData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} />
                     ))}
                   </Pie>
