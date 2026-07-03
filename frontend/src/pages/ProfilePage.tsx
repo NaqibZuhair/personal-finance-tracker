@@ -96,6 +96,22 @@ export default function ProfilePage() {
           </ButtonLink>
         </div>
 
+        <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors">
+          <ButtonLink to="/routines" variant="secondary" className="w-full justify-start text-left border-0 shadow-none !bg-transparent !px-2 !py-2 hover:!bg-transparent">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <span className="font-semibold text-slate-700">Manage Paycheck Routines</span>
+            </div>
+            <svg className="h-5 w-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </ButtonLink>
+        </div>
+
         <div className="p-4 hover:bg-slate-50 transition-colors">
           <button 
             onClick={() => window.open(`${import.meta.env.VITE_API_BASE_URL}/transactions/export`, '_blank')}

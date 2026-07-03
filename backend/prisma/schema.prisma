@@ -38,6 +38,7 @@ model User {
   recurringTransactions RecurringTransaction[]
   budgets               Budget[]
   savingsGoals          SavingsGoal[]
+  allocationRoutines    AllocationRoutine[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -102,8 +103,10 @@ model Account {
   includeInTotal  Boolean                @default(true)
   transactionsOut Transaction[]          @relation("TransactionFromAccount")
   transactionsIn  Transaction[]          @relation("TransactionToAccount")
-  recurringOut    RecurringTransaction[] @relation("RecurringFromAccount")
-  recurringIn     RecurringTransaction[] @relation("RecurringToAccount")
+  recurringOut    RecurringTransaction[]  @relation("RecurringFromAccount")
+  recurringIn     RecurringTransaction[]  @relation("RecurringToAccount")
+  routineItemsOut AllocationRoutineItem[] @relation("RoutineItemFromAccount")
+  routineItemsIn  AllocationRoutineItem[] @relation("RoutineItemToAccount")
 
   userId      String
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -184,4 +187,40 @@ model RecurringTransaction {
   @@index([isActive])
   @@index([userId])
   @@map("recurring_transactions")
+}
+
+model AllocationRoutine {
+  id          String                  @id @default(uuid())
+  name        String
+  description String?
+  items       AllocationRoutineItem[]
+  userId      String
+  user        User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@index([userId])
+  @@map("allocation_routines")
+}
+
+model AllocationRoutineItem {
+  id          String            @id @default(uuid())
+  amount      Decimal           @db.Decimal(12, 2)
+  description String?
+  routineId   String
+  routine     AllocationRoutine @relation(fields: [routineId], references: [id], onDelete: Cascade)
+
+  accountId   String
+  account     Account           @relation("RoutineItemFromAccount", fields: [accountId], references: [id], onDelete: Restrict)
+
+  toAccountId String
+  toAccount   Account           @relation("RoutineItemToAccount", fields: [toAccountId], references: [id], onDelete: Restrict)
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([routineId])
+  @@index([accountId])
+  @@index([toAccountId])
+  @@map("allocation_routine_items")
 }

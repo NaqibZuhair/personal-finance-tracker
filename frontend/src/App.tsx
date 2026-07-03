@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage';
 import BudgetsPage from './pages/BudgetsPage';
 import GoalsPage from './pages/GoalsPage';
 import RecurringTransactionsPage from './pages/RecurringTransactionsPage';
+import AllocationRoutinesPage from './pages/AllocationRoutinesPage';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/budgets" element={<BudgetsPage />} />
                 <Route path="/goals" element={<GoalsPage />} />
                 <Route path="/recurring" element={<RecurringTransactionsPage />} />
+                <Route path="/routines" element={<AllocationRoutinesPage />} />
               </Routes>
             </AppLayout>
           }

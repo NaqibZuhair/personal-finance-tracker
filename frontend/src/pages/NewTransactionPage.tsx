@@ -8,6 +8,7 @@ import { apiClient } from '../lib/apiClient';
 import type { Account } from '../types/account';
 import type { Category } from '../types/category';
 import type { Transaction } from '../types/transaction';
+import QuickAllocationWidget from '../components/dashboard/QuickAllocationWidget';
 
 type CategoriesResponse = {
   data: Category[];
@@ -93,6 +94,8 @@ function NewTransactionPage() {
           Back to Transactions
         </ButtonLink>
       </div>
+
+      <QuickAllocationWidget />
 
       {isLoadingData && (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
