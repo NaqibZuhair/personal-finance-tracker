@@ -7,6 +7,8 @@ import NewTransactionPage from './pages/NewTransactionPage';
 import TransactionsPage from './pages/TransactionsPage';
 import AccountsPage from './pages/AccountsPage';
 import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 import BudgetsPage from './pages/BudgetsPage';
 import GoalsPage from './pages/GoalsPage';
 import RecurringTransactionsPage from './pages/RecurringTransactionsPage';
@@ -34,6 +36,8 @@ function App() {
                 <Route path="/accounts" element={<AccountsPage />} />
                 <Route path="/categories" element={<CategoriesPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile/edit" element={<EditProfilePage />} />
+                <Route path="/profile/password" element={<ChangePasswordPage />} />
                 <Route path="/budgets" element={<BudgetsPage />} />
                 <Route path="/goals" element={<GoalsPage />} />
                 <Route path="/recurring" element={<RecurringTransactionsPage />} />

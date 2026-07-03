@@ -117,7 +117,7 @@ export default function RegisterPage() {
             </div>
           </div>
           <p className="text-xs text-slate-500 text-center">
-            Nomor WA berguna untuk pemulihan sandi via OTP & interaksi AI di WhatsApp.
+            WhatsApp number is used for OTP password recovery and AI bot notifications.
           </p>
 
           <div>
