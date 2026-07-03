@@ -12,8 +12,13 @@ export default function ProfilePage() {
   const navigate = useNavigate();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteOtp, setDeleteOtp] = useState('');
+  const [maskedWaPhone, setMaskedWaPhone] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [deleteSuccess, setDeleteSuccess] = useState('');
 
   if (!user) {
     return null;
@@ -24,12 +29,37 @@ export default function ProfilePage() {
     navigate('/login');
   };
 
-  const handleDeleteAccount = async () => {
+  const handleRequestDeleteOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleteError('');
+    setDeleteSuccess('');
+    setDeleteLoading(true);
+
+    try {
+      const res = await apiClient<{ message: string; waPhone: string }>('/auth/account/delete-otp', {
+        method: 'POST',
+        body: { password: deletePassword },
+      });
+      setMaskedWaPhone(res.waPhone);
+      setDeleteSuccess(res.message);
+      setDeleteStep(2);
+    } catch (err: any) {
+      setDeleteError(err.message || 'Failed to request verification OTP');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
     setDeleteError('');
     setDeleteLoading(true);
 
     try {
-      await apiClient('/auth/account', { method: 'DELETE' });
+      await apiClient('/auth/account', {
+        method: 'DELETE',
+        body: { password: deletePassword, otp: deleteOtp },
+      });
       await logout();
       navigate('/login');
     } catch (err: any) {
@@ -309,18 +339,23 @@ export default function ProfilePage() {
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900">
-                  Confirm Account Deletion
+                  {deleteStep === 1 ? 'Security Verification' : 'Confirm Account Deletion'}
                 </h3>
               </div>
               <button
                 type="button"
-                onClick={() => setShowDeleteModal(false)}
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteStep(1);
+                  setDeleteError('');
+                  setDeleteSuccess('');
+                }}
                 className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -330,35 +365,127 @@ export default function ProfilePage() {
             </div>
 
             {deleteError && <ErrorAlert message={deleteError} />}
+            {deleteSuccess && (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
+                {deleteSuccess}
+              </div>
+            )}
 
-            <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
-              <p>
-                Are you absolutely sure you want to delete your account <strong className="text-slate-900">{user.email}</strong>?
-              </p>
-              <p className="rounded-xl bg-rose-50 p-3 text-xs font-medium text-rose-800 border border-rose-100">
-                All transaction histories, account balances, budgets, savings goals, and paycheck allocation routines will be permanently erased.
-              </p>
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setShowDeleteModal(false)}
-                className="w-1/2 py-2.5 justify-center"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="danger"
-                disabled={deleteLoading}
-                onClick={handleDeleteAccount}
-                className="w-1/2 py-2.5 justify-center"
-              >
-                {deleteLoading ? 'Deleting...' : 'Yes, Delete Account'}
-              </Button>
-            </div>
+            {!user.waPhone ? (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-medium text-amber-800 leading-relaxed">
+                  For bank-level security, we require a WhatsApp OTP confirmation to permanently erase an account. You currently do not have a WhatsApp number linked to your profile.
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setShowDeleteModal(false)}
+                    className="w-1/2 py-2.5 justify-center"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      navigate('/profile/edit');
+                    }}
+                    className="w-1/2 py-2.5 justify-center bg-primary-600 text-white hover:bg-primary-700"
+                  >
+                    Link WhatsApp First
+                  </Button>
+                </div>
+              </div>
+            ) : deleteStep === 1 ? (
+              <form onSubmit={handleRequestDeleteOtp} className="space-y-4">
+                <div className="space-y-2 text-sm text-slate-600 leading-relaxed">
+                  <p>
+                    You are initiating permanent deletion for <strong className="text-slate-900">{user.email}</strong>.
+                  </p>
+                  <p className="rounded-xl bg-rose-50 p-3 text-xs font-medium text-rose-800 border border-rose-100">
+                    To prevent unauthorized deletion, please enter your current login password. We will send a 6-digit verification code to your WhatsApp.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Current Login Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="Enter your current password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setShowDeleteModal(false)}
+                    className="w-1/2 py-2.5 justify-center"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={deleteLoading}
+                    className="w-1/2 py-2.5 justify-center bg-primary-600 text-white hover:bg-primary-700 disabled:bg-primary-400"
+                  >
+                    {deleteLoading ? 'Verifying...' : 'Send OTP to WhatsApp'}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleDeleteAccount} className="space-y-4">
+                <div className="space-y-2 text-sm text-slate-600 leading-relaxed">
+                  <p className="rounded-xl bg-rose-50 p-3 text-xs font-medium text-rose-800 border border-rose-100">
+                    Warning: Entering the OTP will immediately and permanently erase your account, transaction histories, budgets, and savings goals.
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Enter the 6-digit verification code sent to your WhatsApp ({maskedWaPhone || '+' + user.waPhone}).
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    6-Digit Verification Code (OTP)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="123456"
+                    value={deleteOtp}
+                    onChange={(e) => setDeleteOtp(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-center text-lg font-bold tracking-widest text-slate-900 placeholder-slate-300 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setDeleteStep(1);
+                      setDeleteOtp('');
+                      setDeleteError('');
+                    }}
+                    className="w-1/3 py-2.5 justify-center"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="danger"
+                    disabled={deleteLoading || deleteOtp.length !== 6}
+                    className="w-2/3 py-2.5 justify-center"
+                  >
+                    {deleteLoading ? 'Erasing Data...' : 'Permanently Delete Account'}
+                  </Button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

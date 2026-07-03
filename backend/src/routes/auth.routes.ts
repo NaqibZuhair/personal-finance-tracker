@@ -7,6 +7,7 @@ import {
   updateProfile,
   changePassword,
   deleteAccount,
+  requestDeleteAccountOtp,
   forgotPassword,
   resetPassword,
   waVerify,
@@ -27,6 +28,7 @@ router.post('/reset-password', resetPassword);
 router.get('/me', requireAuth, getMe);
 router.put('/profile', requireAuth, updateProfile);
 router.put('/password', requireAuth, changePassword);
+router.post('/account/delete-otp', requireAuth, requestDeleteAccountOtp);
 router.delete('/account', requireAuth, deleteAccount);
 
 // Bot-Ready Turnkey Routes (Protected by X-Bot-Secret header in controller)

@@ -40,3 +40,12 @@ export const waLoginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
   waPhone: z.string().min(5, 'WhatsApp phone number is required'),
 });
+
+export const deleteAccountOtpSchema = z.object({
+  password: z.string().min(1, 'Current password is required'),
+});
+
+export const deleteAccountConfirmSchema = z.object({
+  password: z.string().min(1, 'Current password is required'),
+  otp: z.string().length(6, 'OTP must be exactly 6 digits'),
+});

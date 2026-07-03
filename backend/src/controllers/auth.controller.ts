@@ -12,6 +12,8 @@ import {
   resetPasswordSchema,
   waVerifySchema,
   waLoginSchema,
+  deleteAccountOtpSchema,
+  deleteAccountConfirmSchema,
 } from '../validations/auth.validation';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { normalizeWaPhone } from '../lib/phone';
@@ -294,6 +296,76 @@ export async function changePassword(req: AuthRequest, res: Response) {
   }
 }
 
+export async function requestDeleteAccountOtp(req: AuthRequest, res: Response) {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const { password } = deleteAccountOtpSchema.parse(req.body);
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      res.status(401).json({ message: 'Invalid current password' });
+      return;
+    }
+
+    if (!user.waPhone) {
+      res.status(400).json({
+        message: 'WhatsApp number required. Please link a WhatsApp number in Edit Profile before requesting account deletion.',
+      });
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    await prisma.passwordResetOtp.create({
+      data: {
+        userId: user.id,
+        otp,
+        expiresAt,
+      },
+    });
+
+    try {
+      const waMsg = `⚠️ *KONFIRMASI PENGHAPUSAN AKUN - Personal Finance Tracker*\n\nHalo ${user.name},\nAnda meminta penghapusan akun permanen. Kode verifikasi Anda adalah:\n\n*${otp}*\n\nBerlaku 5 menit. Jika ini bukan Anda, SEGERA ganti password Anda!`;
+      await fetch(`${WA_GATEWAY_URL}/api/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target: user.waPhone,
+          message: waMsg,
+        }),
+      });
+    } catch (sendErr) {
+      console.error('Failed to send Account Deletion WhatsApp OTP:', sendErr);
+    }
+
+    res.status(200).json({
+      message: 'Verification OTP sent to your WhatsApp.',
+      waPhone: user.waPhone.replace(/^(\d{4})\d+(\d{2})$/, '$1****$2'),
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({ message: 'Validation failed', errors: error.issues });
+      return;
+    }
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 export async function deleteAccount(req: AuthRequest, res: Response) {
   try {
     const userId = req.userId;
@@ -302,13 +374,51 @@ export async function deleteAccount(req: AuthRequest, res: Response) {
       return;
     }
 
+    const { password, otp } = deleteAccountConfirmSchema.parse(req.body);
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      res.status(401).json({ message: 'Invalid current password' });
+      return;
+    }
+
+    const validOtp = await prisma.passwordResetOtp.findFirst({
+      where: {
+        userId: user.id,
+        otp,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    if (!validOtp) {
+      res.status(400).json({ message: 'Invalid or expired verification OTP code.' });
+      return;
+    }
+
+    await prisma.passwordResetOtp.deleteMany({
+      where: { userId: user.id },
+    });
+
     await prisma.user.delete({
       where: { id: userId },
     });
 
     res.clearCookie('token');
-    res.status(200).json({ message: 'Account deleted successfully' });
+    res.status(200).json({ message: 'Account permanently deleted' });
   } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({ message: 'Validation failed', errors: error.issues });
+      return;
+    }
     res.status(500).json({ message: 'Internal server error' });
   }
 }
