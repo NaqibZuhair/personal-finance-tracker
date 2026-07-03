@@ -59,6 +59,7 @@ function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [accountBalances, setAccountBalances] = useState<AccountBalance[]>([]);
+  const [showAllAssets, setShowAllAssets] = useState(false);
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -99,7 +100,11 @@ function DashboardPage() {
     fetchDashboardData();
   }, [selectedMonth]);
 
-  const totalCurrentBalance = accountBalances.reduce(
+  const filteredAccounts = showAllAssets
+    ? accountBalances
+    : accountBalances.filter((acc) => acc.includeInTotal !== false);
+
+  const totalCurrentBalance = filteredAccounts.reduce(
     (total, account) => total + account.currentBalance,
     0,
   );
@@ -133,12 +138,21 @@ function DashboardPage() {
         <>
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <div className="col-span-2 lg:col-span-2">
-              <SummaryCard
-                label="Total Balance"
-                value={formatCurrency(totalCurrentBalance)}
-                description="Total money across all active accounts"
-                tone="balance"
-              />
+              <div className="relative h-full">
+                <SummaryCard
+                  label={showAllAssets ? "Total Net Worth (All Assets)" : "Daily Spending Balance"}
+                  value={formatCurrency(totalCurrentBalance)}
+                  description={showAllAssets ? "Includes savings & excluded accounts" : "Excludes savings & hidden accounts"}
+                  tone="balance"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAllAssets((prev) => !prev)}
+                  className="absolute right-4 top-4 rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-semibold text-primary-700 transition hover:bg-primary-200"
+                >
+                  {showAllAssets ? "Daily Only" : "See All Assets"}
+                </button>
+              </div>
             </div>
             
             <div className="col-span-1 lg:col-span-1">

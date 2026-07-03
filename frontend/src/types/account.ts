@@ -6,6 +6,7 @@ export type Account = {
   type: AccountType;
   initialBalance: string | number;
   isActive: boolean;
+  includeInTotal?: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -19,6 +20,7 @@ export type AccountBalance = {
   totalExpense: number;
   currentBalance: number;
   isActive: boolean;
+  includeInTotal?: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -28,6 +30,7 @@ export type CreateAccountInput = {
   type: AccountType;
   initialBalance: number;
   isActive?: boolean;
+  includeInTotal?: boolean;
 };
 
 export type UpdateAccountInput = {
@@ -35,4 +38,5 @@ export type UpdateAccountInput = {
   type: AccountType;
   initialBalance: number;
   isActive: boolean;
+  includeInTotal?: boolean;
 };

@@ -21,6 +21,7 @@ type AccountFormState = {
   type: AccountType;
   initialBalance: string;
   isActive: boolean;
+  includeInTotal: boolean;
 };
 
 const initialFormState: AccountFormState = {
@@ -28,6 +29,7 @@ const initialFormState: AccountFormState = {
   type: 'bank',
   initialBalance: '0',
   isActive: true,
+  includeInTotal: true,
 };
 
 const accountTypeLabel: Record<AccountType, string> = {
@@ -99,6 +101,7 @@ function AccountsPage() {
       type: account.type,
       initialBalance: String(account.initialBalance),
       isActive: account.isActive,
+      includeInTotal: account.includeInTotal ?? true,
     });
     setIsFormOpen(true);
   }
@@ -125,6 +128,7 @@ function AccountsPage() {
       type: formState.type,
       initialBalance,
       isActive: formState.isActive,
+      includeInTotal: formState.includeInTotal,
     };
 
     try {
@@ -135,6 +139,7 @@ function AccountsPage() {
         await updateAccount(editingAccount.id, {
           ...payload,
           isActive: formState.isActive,
+          includeInTotal: formState.includeInTotal,
         });
       } else {
         await createAccount(payload);
@@ -277,6 +282,20 @@ function AccountsPage() {
               />
               Active account
             </label>
+
+            <label className="flex items-center gap-2 self-end text-sm text-slate-700">
+              <input
+                type="checkbox"
+                checked={formState.includeInTotal}
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    includeInTotal: event.target.checked,
+                  }))
+                }
+              />
+              Include in Total Spending
+            </label>
           </div>
 
           <div className="flex gap-2">
@@ -322,9 +341,16 @@ function AccountsPage() {
                   </p>
                 </div>
 
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                  {accountTypeLabel[account.type]}
-                </span>
+                <div className="flex gap-2">
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {accountTypeLabel[account.type]}
+                  </span>
+                  {account.includeInTotal === false && (
+                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+                      Excluded from Total
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="mt-5 grid gap-3 text-sm">

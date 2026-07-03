@@ -8,6 +8,7 @@ export const createAccountSchema = z.object({
     .min(0, 'Initial balance cannot be negative')
     .default(0),
   isActive: z.boolean().optional(),
+  includeInTotal: z.boolean().optional(),
 });
 
 export const updateAccountSchema = z.object({
@@ -17,6 +18,7 @@ export const updateAccountSchema = z.object({
     .number()
     .min(0, 'Initial balance cannot be negative'),
   isActive: z.boolean(),
+  includeInTotal: z.boolean().optional(),
 });
 
 export const accountIdParamSchema = z.object({

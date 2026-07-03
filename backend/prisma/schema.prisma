@@ -99,6 +99,7 @@ model Account {
   type            AccountType
   initialBalance  Decimal                @default(0) @db.Decimal(12, 2)
   isActive        Boolean                @default(true)
+  includeInTotal  Boolean                @default(true)
   transactionsOut Transaction[]          @relation("TransactionFromAccount")
   transactionsIn  Transaction[]          @relation("TransactionToAccount")
   recurringOut    RecurringTransaction[] @relation("RecurringFromAccount")

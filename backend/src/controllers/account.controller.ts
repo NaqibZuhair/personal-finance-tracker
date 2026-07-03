@@ -156,6 +156,7 @@ export async function getAccountBalances(req: AuthRequest, res: Response) {
         totalExpense: totals.totalExpense,
         currentBalance,
         isActive: account.isActive,
+        includeInTotal: account.includeInTotal,
         createdAt: account.createdAt,
         updatedAt: account.updatedAt,
       };
@@ -181,6 +182,7 @@ export async function createAccount(req: AuthRequest, res: Response) {
         type: validatedData.type,
         initialBalance: validatedData.initialBalance,
         isActive: validatedData.isActive ?? true,
+        includeInTotal: validatedData.includeInTotal ?? true,
         userId: req.userId!,
       },
     });
@@ -229,6 +231,7 @@ export async function updateAccount(req: AuthRequest, res: Response) {
         type: validatedData.type,
         initialBalance: validatedData.initialBalance,
         isActive: validatedData.isActive,
+        includeInTotal: validatedData.includeInTotal,
       },
     });
 
