@@ -6,6 +6,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [waPhone, setWaPhone] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,7 +19,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      await register({ name, email, password });
+      await register({ name, email, password, waPhone: waPhone || undefined });
       navigate('/');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
@@ -94,13 +95,30 @@ export default function RegisterPage() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="relative block w-full appearance-none rounded-b-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm"
+                className="relative block w-full appearance-none border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            <div>
+              <label htmlFor="wa-phone" className="sr-only">
+                WhatsApp Number (Optional)
+              </label>
+              <input
+                id="wa-phone"
+                name="waPhone"
+                type="tel"
+                className="relative block w-full appearance-none rounded-b-md border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-500 focus:z-10 focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm"
+                placeholder="WhatsApp Number (e.g. 08123456789 - Optional)"
+                value={waPhone}
+                onChange={(e) => setWaPhone(e.target.value)}
+              />
+            </div>
           </div>
+          <p className="text-xs text-slate-500 text-center">
+            Nomor WA berguna untuk pemulihan sandi via OTP & interaksi AI di WhatsApp.
+          </p>
 
           <div>
             <button

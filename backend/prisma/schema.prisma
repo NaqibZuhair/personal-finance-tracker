@@ -31,6 +31,7 @@ model User {
   email        String @unique
   passwordHash String
   name         String
+  waPhone      String? @unique
 
   accounts              Account[]
   categories            Category[]
@@ -39,6 +40,7 @@ model User {
   budgets               Budget[]
   savingsGoals          SavingsGoal[]
   allocationRoutines    AllocationRoutine[]
+  passwordResetOtps     PasswordResetOtp[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -223,4 +225,17 @@ model AllocationRoutineItem {
   @@index([accountId])
   @@index([toAccountId])
   @@map("allocation_routine_items")
+}
+
+model PasswordResetOtp {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([otp])
+  @@map("password_reset_otps")
 }
