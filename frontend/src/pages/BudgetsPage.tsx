@@ -5,9 +5,11 @@ import BudgetForm from '../components/budgets/BudgetForm';
 import { budgetService } from '../services/budgetService';
 import type { Budget } from '../services/budgetService';
 import { formatCurrency } from '../utils/formatters';
+import Modal from '../components/ui/Modal';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function BudgetsPage() {
-  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const currentMonth = new Date().toISOString().slice(0, 7);
   const [month] = useState(currentMonth);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,6 +17,8 @@ export default function BudgetsPage() {
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
+  const [deletingId, setDeletingId] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function fetchBudgets() {
@@ -36,7 +40,6 @@ export default function BudgetsPage() {
       setIsSubmitting(true);
       setFormErrorMessage('');
       const newBudget = await budgetService.upsertBudget(values);
-      // Remove old version if it existed, and add new
       setBudgets((prev) => {
         const filtered = prev.filter(b => b.categoryId !== newBudget.categoryId);
         return [...filtered, newBudget].sort((a, b) => b.amount - a.amount);
@@ -50,13 +53,15 @@ export default function BudgetsPage() {
   };
 
   const handleDeleteBudget = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this budget?')) return;
     try {
+      setIsDeleting(true);
       await budgetService.deleteBudget(id);
-      setBudgets(budgets.filter(b => b.id !== id));
+      setBudgets((prev) => prev.filter(b => b.id !== id));
+      setDeletingId('');
     } catch (error) {
       console.error('Failed to delete budget', error);
-      alert('Failed to delete budget');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -72,11 +77,18 @@ export default function BudgetsPage() {
         </Button>
       </div>
 
-      {(isFormOpen || editingBudget) && (
+      <Modal
+        isOpen={isFormOpen || Boolean(editingBudget)}
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingBudget(null);
+        }}
+        title={editingBudget ? 'Edit Category Budget' : 'Set Category Budget'}
+      >
         <BudgetForm
-          title={editingBudget ? "Edit Category Budget" : "Set Category Budget"}
-          description={editingBudget ? `Update your budget limit for this category` : `Set a limit for expenses in ${month}`}
-          submitLabel={editingBudget ? "Update Budget" : "Save Budget"}
+          title={editingBudget ? 'Edit Category Budget' : 'Set Category Budget'}
+          description={editingBudget ? 'Update your budget limit for this category' : `Set a limit for expenses in ${month}`}
+          submitLabel={editingBudget ? 'Update Budget' : 'Save Budget'}
           month={month}
           initialValues={editingBudget ? { categoryId: editingBudget.categoryId, amount: editingBudget.amount } : undefined}
           onCancel={() => { setIsFormOpen(false); setEditingBudget(null); }}
@@ -87,7 +99,7 @@ export default function BudgetsPage() {
           isSubmitting={isSubmitting}
           errorMessage={formErrorMessage}
         />
-      )}
+      </Modal>
 
       {isLoading ? (
         <div className="flex h-32 items-center justify-center">
@@ -127,7 +139,7 @@ export default function BudgetsPage() {
                         </svg>
                       </button>
                       <button 
-                        onClick={() => handleDeleteBudget(budget.id)}
+                        onClick={() => setDeletingId(budget.id)}
                         className="text-slate-400 hover:text-red-500 transition"
                         title="Delete Budget"
                       >
@@ -152,6 +164,16 @@ export default function BudgetsPage() {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(deletingId)}
+        onClose={() => setDeletingId('')}
+        onConfirm={() => deletingId && handleDeleteBudget(deletingId)}
+        title="Delete Budget"
+        message="Are you sure you want to delete this budget?"
+        confirmText="Delete"
+        isLoading={isDeleting}
+      />
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Card, CardContent } from '../ui/Card';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import { getRoutines, executeRoutine } from '../../lib/routineApi';
 import type { AllocationRoutine } from '../../types/routine';
 import { formatCurrency } from '../../utils/formatters';
@@ -12,6 +13,7 @@ type QuickAllocationWidgetProps = {
 export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAllocationWidgetProps) {
   const [routines, setRoutines] = useState<AllocationRoutine[]>([]);
   const [executingId, setExecutingId] = useState<string | null>(null);
+  const [confirmingRoutine, setConfirmingRoutine] = useState<AllocationRoutine | null>(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -29,11 +31,9 @@ export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAlloca
     }
   }
 
-  async function handleExecute(routine: AllocationRoutine) {
-    if (!window.confirm(`Jalankan rutinitas "${routine.name}" sekarang?\nIni akan otomatis mencatat ${routine.items.length} transaksi transfer.`)) {
-      return;
-    }
+  async function executeRoutineAction(routine: AllocationRoutine) {
     try {
+      setConfirmingRoutine(null);
       setExecutingId(routine.id);
       setErrorMessage('');
       const msg = await executeRoutine(routine.id);
@@ -148,7 +148,7 @@ export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAlloca
 
                 <button
                   type="button"
-                  onClick={() => handleExecute(routine)}
+                  onClick={() => setConfirmingRoutine(routine)}
                   disabled={isExecuting}
                   className={`w-full flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-semibold text-white shadow-2xs transition ${
                     isExecuting
@@ -165,6 +165,17 @@ export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAlloca
             );
           })}
         </div>
+
+        <ConfirmDialog
+          isOpen={Boolean(confirmingRoutine)}
+          onClose={() => setConfirmingRoutine(null)}
+          onConfirm={() => confirmingRoutine && executeRoutineAction(confirmingRoutine)}
+          title="Execute Routine"
+          message={`Are you sure you want to run "${confirmingRoutine?.name}"?`}
+          confirmText="Run Now"
+          confirmVariant="primary"
+          isLoading={Boolean(executingId)}
+        />
       </CardContent>
     </Card>
   );

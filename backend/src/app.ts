@@ -17,7 +17,7 @@ import { apiLimiter } from './middleware/rateLimiter';
 
 const app = express();
 
-app.use(helmet()); // Set secure HTTP headers (XSS, Clickjacking protection)
+app.use(helmet());
 
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 const allowedOrigins = [
@@ -62,7 +62,6 @@ app.get('/', (_req, res) => {
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
 
-// Protected routes
 app.use('/api/accounts', requireAuth, accountRoutes);
 app.use('/api/categories', requireAuth, categoryRoutes);
 app.use('/api/transactions', requireAuth, transactionRoutes);

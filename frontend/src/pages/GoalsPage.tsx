@@ -6,6 +6,8 @@ import GoalForm from '../components/goals/GoalForm';
 import { goalService } from '../services/goalService';
 import type { SavingsGoal } from '../services/goalService';
 import { formatCurrency } from '../utils/formatters';
+import Modal from '../components/ui/Modal';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function GoalsPage() {
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
@@ -14,6 +16,8 @@ export default function GoalsPage() {
   const [editingGoal, setEditingGoal] = useState<SavingsGoal | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
+  const [deletingId, setDeletingId] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     async function fetchGoals() {
@@ -53,13 +57,15 @@ export default function GoalsPage() {
   };
 
   const handleDeleteGoal = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this goal? This cannot be undone.')) return;
     try {
+      setIsDeleting(true);
       await goalService.deleteGoal(id);
       setGoals(goals.filter(g => g.id !== id));
+      setDeletingId('');
     } catch (error) {
       console.error('Failed to delete goal', error);
-      alert(error instanceof Error ? error.message : 'Failed to delete goal');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -75,18 +81,25 @@ export default function GoalsPage() {
         </Button>
       </div>
 
-      {(isFormOpen || editingGoal) && (
+      <Modal
+        isOpen={isFormOpen || Boolean(editingGoal)}
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingGoal(null);
+        }}
+        title={editingGoal ? 'Edit Savings Goal' : 'Create Savings Goal'}
+      >
         <GoalForm
-          title={editingGoal ? "Edit Savings Goal" : "Create Savings Goal"}
-          description={editingGoal ? "Update your target or deadline." : "Set up a new target to save for."}
-          submitLabel={editingGoal ? "Update Goal" : "Create Goal"}
+          title={editingGoal ? 'Edit Savings Goal' : 'Create Savings Goal'}
+          description={editingGoal ? 'Update your target or deadline.' : 'Set up a new target to save for.'}
+          submitLabel={editingGoal ? 'Update Goal' : 'Create Goal'}
           initialValues={editingGoal ? { name: editingGoal.name, targetAmount: editingGoal.targetAmount, deadline: editingGoal.deadline || undefined } : undefined}
           onCancel={() => { setIsFormOpen(false); setEditingGoal(null); }}
           onSubmit={handleCreateGoal}
           isSubmitting={isSubmitting}
           errorMessage={formErrorMessage}
         />
-      )}
+      </Modal>
 
       {isLoading ? (
         <div className="flex h-32 items-center justify-center">
@@ -125,7 +138,7 @@ export default function GoalsPage() {
                           </svg>
                         </button>
                         <button 
-                          onClick={() => handleDeleteGoal(goal.id)}
+                          onClick={() => setDeletingId(goal.id)}
                           className="text-slate-400 hover:text-red-500 transition"
                           title="Delete Goal"
                         >
@@ -176,6 +189,16 @@ export default function GoalsPage() {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(deletingId)}
+        onClose={() => setDeletingId('')}
+        onConfirm={() => deletingId && handleDeleteGoal(deletingId)}
+        title="Delete Goal"
+        message="Are you sure you want to delete this goal?"
+        confirmText="Delete"
+        isLoading={isDeleting}
+      />
     </section>
   );
 }

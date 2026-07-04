@@ -5,6 +5,8 @@ import { Card, CardContent } from '../components/ui/Card';
 import EmptyState from '../components/ui/EmptyState';
 import ErrorAlert from '../components/ui/ErrorAlert';
 import LoadingCard from '../components/ui/LoadingCard';
+import Modal from '../components/ui/Modal';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 import { getAccounts } from '../lib/accountApi';
 import {
   getRoutines,
@@ -25,7 +27,6 @@ export default function AllocationRoutinesPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Form State
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRoutine, setEditingRoutine] = useState<AllocationRoutine | null>(null);
   const [formName, setFormName] = useState('');
@@ -34,8 +35,10 @@ export default function AllocationRoutinesPage() {
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Executing state
   const [executingId, setExecutingId] = useState<string | null>(null);
+  const [deletingRoutine, setDeletingRoutine] = useState<AllocationRoutine | null>(null);
+  const [confirmingExecuteRoutine, setConfirmingExecuteRoutine] = useState<AllocationRoutine | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -166,23 +169,25 @@ export default function AllocationRoutinesPage() {
     }
   }
 
-  async function handleDelete(routine: AllocationRoutine) {
-    if (!window.confirm(`Delete routine "${routine.name}"?`)) return;
+  async function executeDelete(routine: AllocationRoutine) {
     try {
+      setIsDeleting(true);
       await deleteRoutine(routine.id);
       setSuccessMessage(`Routine "${routine.name}" deleted`);
+      setDeletingRoutine(null);
       await fetchData();
       setTimeout(() => setSuccessMessage(''), 5000);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to delete routine');
+      setDeletingRoutine(null);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
-  async function handleExecute(routine: AllocationRoutine) {
-    if (!window.confirm(`⚡ Jalankan Rutinitas "${routine.name}"?\nIni akan otomatis membuat ${routine.items.length} transaksi transfer sekarang.`)) {
-      return;
-    }
+  async function executeRoutineAction(routine: AllocationRoutine) {
     try {
+      setConfirmingExecuteRoutine(null);
       setExecutingId(routine.id);
       setErrorMessage('');
       const msg = await executeRoutine(routine.id);
@@ -234,140 +239,138 @@ export default function AllocationRoutinesPage() {
         />
       )}
 
-      {isFormOpen && (
-        <Card className="border-2 border-primary-500/20 bg-slate-50/50 shadow-lg">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">
-              {editingRoutine ? 'Edit Allocation Routine' : 'Create New Allocation Routine'}
-            </h3>
-            {formError && <div className="mb-4 text-sm text-red-600 font-medium">{formError}</div>}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <label className="block">
-                  <span className="text-sm font-medium text-slate-700">Routine Name *</span>
-                  <input
-                    type="text"
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value)}
-                    placeholder="e.g. Sisihan Cair Harian"
-                    required
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-sm font-medium text-slate-700">Description (Optional)</span>
-                  <input
-                    type="text"
-                    value={formDescription}
-                    onChange={(e) => setFormDescription(e.target.value)}
-                    placeholder="e.g. 10% Dana Darurat, 5% Reksadana"
-                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-                  />
-                </label>
-              </div>
+      <Modal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        title={editingRoutine ? 'Edit Allocation Routine' : 'Create New Allocation Routine'}
+        maxWidth="max-w-3xl"
+      >
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {formError && <div className="text-sm text-red-600 font-medium">{formError}</div>}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Routine Name *</span>
+              <input
+                type="text"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                placeholder="e.g. Sisihan Cair Harian"
+                required
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Description (Optional)</span>
+              <input
+                type="text"
+                value={formDescription}
+                onChange={(e) => setFormDescription(e.target.value)}
+                placeholder="e.g. 10% Dana Darurat, 5% Reksadana"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              />
+            </label>
+          </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-slate-800">Transfer Items</span>
-                  <button
-                    type="button"
-                    onClick={handleAddItemRow}
-                    className="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1"
-                  >
-                    <Plus size={14} /> Add Another Transfer
-                  </button>
-                </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-bold text-slate-800">Transfer Items</span>
+              <button
+                type="button"
+                onClick={handleAddItemRow}
+                className="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1"
+              >
+                <Plus size={14} /> Add Another Transfer
+              </button>
+            </div>
 
-                <div className="space-y-3">
-                  {formItems.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center"
-                    >
-                      <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <label className="block">
-                          <span className="text-xs text-slate-500">From Account</span>
-                          <select
-                            value={item.accountId}
-                            onChange={(e) => handleItemChange(idx, 'accountId', e.target.value)}
-                            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
-                          >
-                            {accounts.map((acc) => (
-                              <option key={acc.id} value={acc.id}>
-                                {acc.name} ({acc.type})
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-
-                        <label className="block">
-                          <span className="text-xs text-slate-500">To Account</span>
-                          <select
-                            value={item.toAccountId}
-                            onChange={(e) => handleItemChange(idx, 'toAccountId', e.target.value)}
-                            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
-                          >
-                            {accounts.map((acc) => (
-                              <option key={acc.id} value={acc.id}>
-                                {acc.name} ({acc.type})
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-
-                        <label className="block">
-                          <span className="text-xs text-slate-500">Amount (Rp)</span>
-                          <input
-                            type="number"
-                            min="1000"
-                            step="1000"
-                            value={item.amount}
-                            onChange={(e) => handleItemChange(idx, 'amount', Number(e.target.value))}
-                            required
-                            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
-                          />
-                        </label>
-                      </div>
-
-                      <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                        <input
-                          type="text"
-                          value={item.description || ''}
-                          onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
-                          placeholder="Note (optional)"
-                          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs text-slate-600 outline-none w-full sm:w-36"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveItemRow(idx)}
-                          className="p-1.5 text-slate-400 hover:text-red-600 transition"
-                          title="Remove item"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setIsFormOpen(false)}
-                  disabled={isSubmitting}
+            <div className="space-y-3">
+              {formItems.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center"
                 >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Saving...' : editingRoutine ? 'Update Routine' : 'Save Routine'}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
+                  <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <label className="block">
+                      <span className="text-xs text-slate-500">From Account</span>
+                      <select
+                        value={item.accountId}
+                        onChange={(e) => handleItemChange(idx, 'accountId', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
+                      >
+                        {accounts.map((acc) => (
+                          <option key={acc.id} value={acc.id}>
+                            {acc.name} ({acc.type})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="text-xs text-slate-500">To Account</span>
+                      <select
+                        value={item.toAccountId}
+                        onChange={(e) => handleItemChange(idx, 'toAccountId', e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
+                      >
+                        {accounts.map((acc) => (
+                          <option key={acc.id} value={acc.id}>
+                            {acc.name} ({acc.type})
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="text-xs text-slate-500">Amount (Rp)</span>
+                      <input
+                        type="number"
+                        min="1000"
+                        step="1000"
+                        value={item.amount}
+                        onChange={(e) => handleItemChange(idx, 'amount', Number(e.target.value))}
+                        required
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
+                      />
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                    <input
+                      type="text"
+                      value={item.description || ''}
+                      onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
+                      placeholder="Note (optional)"
+                      className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs text-slate-600 outline-none w-full sm:w-36"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveItemRow(idx)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 transition"
+                      title="Remove item"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsFormOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : editingRoutine ? 'Update Routine' : 'Save Routine'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {!isLoading && routines.length > 0 && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -407,7 +410,7 @@ export default function AllocationRoutinesPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDelete(routine)}
+                          onClick={() => setDeletingRoutine(routine)}
                           className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition"
                           title="Delete routine"
                         >
@@ -449,12 +452,12 @@ export default function AllocationRoutinesPage() {
                   <div className="pt-2">
                     <button
                       type="button"
-                      onClick={() => handleExecute(routine)}
+                      onClick={() => setConfirmingExecuteRoutine(routine)}
                       disabled={isExecuting}
-                      className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 font-semibold text-sm text-white shadow-2xs transition-all duration-200 ${
+                      className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 font-semibold text-sm text-white shadow-md shadow-primary-500/20 transition-all duration-200 ${
                         isExecuting
                           ? 'bg-slate-400 cursor-not-allowed'
-                          : 'bg-slate-900 hover:bg-primary-600 active:scale-[0.99]'
+                          : 'bg-primary-600 hover:bg-primary-700 active:scale-[0.99]'
                       }`}
                     >
                       <Zap size={16} className={isExecuting ? 'animate-spin' : ''} />
@@ -467,6 +470,27 @@ export default function AllocationRoutinesPage() {
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(deletingRoutine)}
+        onClose={() => setDeletingRoutine(null)}
+        onConfirm={() => deletingRoutine && executeDelete(deletingRoutine)}
+        title="Delete Routine"
+        message={`Are you sure you want to delete "${deletingRoutine?.name}"?`}
+        confirmText="Delete"
+        isLoading={isDeleting}
+      />
+
+      <ConfirmDialog
+        isOpen={Boolean(confirmingExecuteRoutine)}
+        onClose={() => setConfirmingExecuteRoutine(null)}
+        onConfirm={() => confirmingExecuteRoutine && executeRoutineAction(confirmingExecuteRoutine)}
+        title="Execute Routine"
+        message={`Are you sure you want to run "${confirmingExecuteRoutine?.name}"?`}
+        confirmText="Run Now"
+        confirmVariant="primary"
+        isLoading={Boolean(executingId)}
+      />
     </section>
   );
 }

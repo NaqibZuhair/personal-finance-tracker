@@ -3,11 +3,8 @@ import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { to: '/', label: 'Dashboard' },
-  { to: '/transactions', label: 'Transactions' },
+  { to: '/transactions', label: 'History' },
   { to: '/accounts', label: 'Accounts' },
-  { to: '/budgets', label: 'Budgets' },
-  { to: '/goals', label: 'Goals' },
-  { to: '/recurring', label: 'Recurring' },
 ];
 
 function Navbar() {
@@ -19,21 +16,19 @@ function Navbar() {
     navigate('/login');
   };
 
-  const baseNavClass = 'rounded-lg px-4 py-2 text-sm font-semibold transition';
+  const baseNavClass = 'rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200';
 
   const getNavClass = ({ isActive }: { isActive: boolean }) =>
     isActive
-      ? `${baseNavClass} bg-slate-950 text-white shadow-sm`
-      : `${baseNavClass} text-slate-600 hover:bg-slate-100 hover:text-slate-950`;
-
-
+      ? `${baseNavClass} bg-primary-600 text-white shadow-md shadow-primary-500/25`
+      : `${baseNavClass} text-slate-600 hover:bg-primary-50 hover:text-primary-600`;
 
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+    <header className="border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-40">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link
           to="/"
-          className="text-lg font-bold text-slate-950"
+          className="text-lg font-extrabold bg-gradient-to-r from-primary-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent transition hover:opacity-90"
         >
           Personal Finance Tracker
         </Link>
@@ -44,19 +39,18 @@ function Navbar() {
               {item.label}
             </NavLink>
           ))}
-          <div className="ml-4 flex items-center gap-4 border-l border-slate-200 pl-4">
+          <div className="ml-4 flex items-center gap-4 border-l border-slate-200/80 pl-4">
             <Link to="/profile" className="text-sm font-semibold text-slate-700 hover:text-primary-600 transition">
               Hi, {user?.name}
             </Link>
             <button
               onClick={handleLogout}
-              className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+              className="rounded-xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-100 active:scale-95 shadow-2xs"
             >
               Logout
             </button>
           </div>
         </nav>
-
       </div>
     </header>
   );

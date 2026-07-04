@@ -7,6 +7,7 @@ import EmptyState from '../components/ui/EmptyState';
 import ErrorAlert from '../components/ui/ErrorAlert';
 import LoadingCard from '../components/ui/LoadingCard';
 import PageHeader from '../components/ui/PageHeader';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 import { apiClient } from '../lib/apiClient';
 import type { Category } from '../types/category';
 import type { Transaction } from '../types/transaction';
@@ -211,6 +212,16 @@ function TransactionsPage() {
           onConfirmDelete={handleDeleteTransaction}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingDeleteId)}
+        onClose={handleCancelDelete}
+        onConfirm={() => pendingDeleteId && handleDeleteTransaction(pendingDeleteId)}
+        title="Delete Transaction"
+        message="Are you sure you want to delete this transaction?"
+        confirmText="Delete"
+        isLoading={Boolean(deletingTransactionId)}
+      />
     </section>
   );
 }

@@ -4,6 +4,8 @@ import EmptyState from '../components/ui/EmptyState';
 import ErrorAlert from '../components/ui/ErrorAlert';
 import LoadingCard from '../components/ui/LoadingCard';
 import PageHeader from '../components/ui/PageHeader';
+import Modal from '../components/ui/Modal';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 import {
   createAccount,
   deleteAccount,
@@ -53,6 +55,7 @@ function AccountsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingAccountId, setDeletingAccountId] = useState('');
+  const [pendingDeleteId, setPendingDeleteId] = useState('');
   const [editingAccount, setEditingAccount] = useState<AccountBalance | null>(
     null,
   );
@@ -158,22 +161,18 @@ function AccountsPage() {
     }
   }
 
-  async function handleDeleteAccount(accountId: string) {
-    const isConfirmed = window.confirm(
-      'Delete this account? Accounts used by transactions cannot be deleted.',
-    );
-
-    if (!isConfirmed) return;
-
+  async function executeDeleteAccount(accountId: string) {
     try {
       setDeletingAccountId(accountId);
       setDeleteErrorMessage('');
       await deleteAccount(accountId);
+      setPendingDeleteId('');
       await fetchAccounts();
     } catch (error) {
       setDeleteErrorMessage(
         error instanceof Error ? error.message : 'Failed to delete account',
       );
+      setPendingDeleteId('');
     } finally {
       setDeletingAccountId('');
     }
@@ -197,16 +196,17 @@ function AccountsPage() {
         <Button onClick={handleOpenCreateForm}>Add Account</Button>
       </div>
 
-      {isFormOpen && (
+      <Modal
+        isOpen={isFormOpen}
+        onClose={handleCancelForm}
+        title={editingAccount ? 'Edit Account' : 'Add Account'}
+      >
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+          className="space-y-4"
         >
           <div>
-            <h2 className="text-lg font-semibold text-slate-950">
-              {editingAccount ? 'Edit Account' : 'Add Account'}
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="text-sm text-slate-500">
               Create a source of money such as BCA, GoPay, Dana, or Cash.
             </p>
           </div>
@@ -298,7 +298,7 @@ function AccountsPage() {
             </label>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : 'Save Account'}
             </Button>
@@ -307,7 +307,7 @@ function AccountsPage() {
             </Button>
           </div>
         </form>
-      )}
+      </Modal>
 
       {deleteErrorMessage && <ErrorAlert message={deleteErrorMessage} />}
 
@@ -379,7 +379,7 @@ function AccountsPage() {
                   type="button"
                   variant="danger"
                   disabled={deletingAccountId === account.id}
-                  onClick={() => handleDeleteAccount(account.id)}
+                  onClick={() => setPendingDeleteId(account.id)}
                 >
                   {deletingAccountId === account.id ? 'Deleting...' : 'Delete'}
                 </Button>
@@ -388,6 +388,16 @@ function AccountsPage() {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingDeleteId)}
+        onClose={() => setPendingDeleteId('')}
+        onConfirm={() => pendingDeleteId && executeDeleteAccount(pendingDeleteId)}
+        title="Delete Account"
+        message="Are you sure you want to delete this account?"
+        confirmText="Delete"
+        isLoading={Boolean(deletingAccountId)}
+      />
     </div>
   );
 }

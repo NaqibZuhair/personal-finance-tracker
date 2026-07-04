@@ -5,6 +5,8 @@ import RecurringForm from '../components/recurring/RecurringForm';
 import { recurringService } from '../services/recurringService';
 import type { RecurringTransaction } from '../services/recurringService';
 import { formatCurrency } from '../utils/formatters';
+import Modal from '../components/ui/Modal';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function RecurringTransactionsPage() {
   const [recurring, setRecurring] = useState<RecurringTransaction[]>([]);
@@ -13,6 +15,8 @@ export default function RecurringTransactionsPage() {
   const [editingRecurring, setEditingRecurring] = useState<RecurringTransaction | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
+  const [deletingId, setDeletingId] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchRecurring();
@@ -61,12 +65,15 @@ export default function RecurringTransactionsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this subscription?')) return;
     try {
+      setIsDeleting(true);
       await recurringService.deleteRecurringTransaction(id);
-      fetchRecurring();
+      await fetchRecurring();
+      setDeletingId('');
     } catch (error) {
       console.error('Failed to delete', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -82,10 +89,17 @@ export default function RecurringTransactionsPage() {
         </Button>
       </div>
 
-      {(isFormOpen || editingRecurring) && (
+      <Modal
+        isOpen={isFormOpen || Boolean(editingRecurring)}
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingRecurring(null);
+        }}
+        title={editingRecurring ? 'Edit Subscription' : 'New Subscription'}
+      >
         <RecurringForm
-          title={editingRecurring ? "Edit Subscription" : "New Subscription"}
-          submitLabel={editingRecurring ? "Update" : "Save"}
+          title={editingRecurring ? 'Edit Subscription' : 'New Subscription'}
+          submitLabel={editingRecurring ? 'Update' : 'Save'}
           initialValues={editingRecurring ? {
             type: editingRecurring.type,
             amount: editingRecurring.amount,
@@ -101,7 +115,7 @@ export default function RecurringTransactionsPage() {
           isSubmitting={isSubmitting}
           errorMessage={formErrorMessage}
         />
-      )}
+      </Modal>
 
       {isLoading ? (
         <div className="flex h-32 items-center justify-center">
@@ -155,7 +169,7 @@ export default function RecurringTransactionsPage() {
                       </svg>
                     </button>
                     <button 
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => setDeletingId(item.id)}
                       className="text-sm font-semibold text-rose-500 hover:text-rose-700"
                     >
                       Delete
@@ -167,6 +181,16 @@ export default function RecurringTransactionsPage() {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(deletingId)}
+        onClose={() => setDeletingId('')}
+        onConfirm={() => deletingId && handleDelete(deletingId)}
+        title="Delete Subscription"
+        message="Are you sure you want to delete this subscription?"
+        confirmText="Delete"
+        isLoading={isDeleting}
+      />
     </section>
   );
 }
