@@ -7,12 +7,14 @@ import ButtonLink from '../components/ui/ButtonLink';
 import Button from '../components/ui/Button';
 import ErrorAlert from '../components/ui/ErrorAlert';
 import Modal from '../components/ui/Modal';
+import ExportModal from '../components/transactions/ExportModal';
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteOtp, setDeleteOtp] = useState('');
@@ -276,16 +278,16 @@ export default function ProfilePage() {
 
           <div className="p-4 hover:bg-slate-50 transition-colors">
             <button
-              onClick={() => window.open(`${import.meta.env.VITE_API_BASE_URL}/transactions/export`, '_blank')}
+              onClick={() => setIsExportModalOpen(true)}
               className="flex w-full items-center justify-between border-0 shadow-none bg-transparent px-2 py-2"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                   </svg>
                 </div>
-                <span className="font-semibold text-slate-700">Download Backup CSV</span>
+                <span className="font-semibold text-slate-700">Export & Backup Financial Data</span>
               </div>
             </button>
           </div>
@@ -469,6 +471,19 @@ export default function ProfilePage() {
           )}
         </div>
       </Modal>
+
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onExport={(format) => {
+          window.open(`${import.meta.env.VITE_API_BASE_URL}/transactions/export?format=${format}`, '_blank');
+        }}
+        onPrint={() => window.open('/transactions/preview', '_blank')}
+        title="Full Account Backup"
+        description="Download your complete transaction history across all accounts and categories since the beginning of time."
+        printLabel="Spreadsheet Preview & Print (.pdf)"
+        printDescription="Open a clean spreadsheet preview in a new tab to inspect or print full history"
+      />
     </section>
   );
 }

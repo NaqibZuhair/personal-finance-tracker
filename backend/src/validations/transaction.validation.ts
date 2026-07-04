@@ -55,4 +55,5 @@ export const transactionQuerySchema = z.object({
     .regex(/^\d{4}-\d{2}$/, 'Month must use YYYY-MM format')
     .optional(),
   search: z.string().optional(),
+  format: z.enum(['xlsx', 'csv']).optional().default('xlsx'),
 });

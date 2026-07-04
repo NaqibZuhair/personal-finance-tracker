@@ -13,6 +13,7 @@ import BudgetsPage from './pages/BudgetsPage';
 import GoalsPage from './pages/GoalsPage';
 import RecurringTransactionsPage from './pages/RecurringTransactionsPage';
 import AllocationRoutinesPage from './pages/AllocationRoutinesPage';
+import TransactionPrintPreviewPage from './pages/TransactionPrintPreviewPage';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
@@ -24,6 +25,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="/transactions/preview" element={<TransactionPrintPreviewPage />} />
         <Route
           path="/*"
           element={
