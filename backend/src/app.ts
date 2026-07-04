@@ -12,17 +12,36 @@ import budgetRoutes from './routes/budget.routes';
 import recurringRoutes from './routes/recurring.routes';
 import routineRoutes from './routes/routine.routes';
 import { requireAuth } from './middleware/auth.middleware';
+import helmet from 'helmet';
+import { apiLimiter } from './middleware/rateLimiter';
 
 const app = express();
 
+app.use(helmet()); // Set secure HTTP headers (XSS, Clickjacking protection)
+
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const allowedOrigins = [
+  frontendUrl.endsWith('/') ? frontendUrl.slice(0, -1) : frontendUrl,
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
 
 app.use(
   cors({
-    origin: frontendUrl.endsWith('/') ? frontendUrl.slice(0, -1) : frontendUrl,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Blocked by CORS Policy'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Bot-Secret', 'Cookie'],
   })
 );
+
+app.use(apiLimiter);
 app.use(express.json());
 app.use(cookieParser());
 
