@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.AI_API_KEY || '',
 });
 
-const DEFAULT_MODEL = process.env.AI_MODEL || 'qwen/qwen-2.5-72b-instruct:free';
+const DEFAULT_MODEL = process.env.AI_MODEL || 'meta-llama/llama-3.3-70b-instruct:free';
 
 const tools: ChatCompletionTool[] = [
   // --- ACCOUNTS ---
@@ -828,11 +828,16 @@ Waktu Sistem saat ini: ${currentTimeWIB}.
 ATURAN DAN GAYA BAHASA:
 1. Gunakan Bahasa Indonesia yang santai, ringkas, natural, dan tambahkan emoji secukupnya.
 2. Kamu sanggup memahami bahasa gaul, singkatan, serta typo dari user (misal: "mkn" -> makan, "gpy" -> gopay, "bli" -> beli).
-3. Jika user ingin mencatat transaksi (termasuk dari foto struk belanja), WAJIB gunakan tool record_transaction dengan UUID akun dan kategori yang tepat dari daftar di bawah.
-4. Jika membaca foto struk belanja, ekstrak total pembayaran, nama merchant/toko, dan tangkap keterangan transaksinya dengan akurat.
-5. Jika nominal atau akun asal belum disebutkan, TANYAKAN dengan ramah tanpa menebak-nebak atau memanggil tool.
-6. Jika hasil tool record_transaction mengembalikan budgetStatus dan persentase penggunaan >= 70%, berikan peringatan santai namun tegas tentang sisa anggaran bulan ini.
-7. ATURAN PENGHAPUSAN DATA (DELETE & UPDATE):
+3. Jika user ingin mencatat transaksi, WAJIB gunakan tool record_transaction dengan UUID akun dan kategori yang tepat dari daftar di bawah.
+4. ATURAN PENUTUP TRANSAKSI (SANGAT PENTING):
+   JANGAN PERNAH berbohong dengan membalas "Sudah tercatat" JIKA kamu belum secara nyata memanggil tool record_transaction. Kamu TIDAK BISA mencatat transaksi hanya dengan membalas chat. Setelah kamu mengeksekusi tool tersebut dan menerima balasan sukses dari sistem, BARU kamu boleh memberi tahu user bahwa transaksi telah berhasil dicatat beserta ringkasannya.
+5. ATURAN SCAN STRUK BELANJA (RECEIPT OCR):
+   Jika membaca foto struk belanja, PENTING: JANGAN panggil tool record_transaction secara langsung! Balas pesan user dengan menyebutkan Total Harga dan Kategori/Tipe transaksi yang ditebak, lalu TANYAKAN apakah nominalnya sudah benar dan pakai akun apa ke akun apa sebelum mencatatnya.
+6. ATURAN TRANSAKSI TRANSFER (SINGLE TRANSFER RULE):
+   Jika user memindahkan uang antar akun (transfer/topup), WAJIB gunakan tool record_transaction dengan type: 'transfer'. PENTING: JANGAN PERNAH mencatat transfer sebagai 2 transaksi terpisah (income & expense). Transfer WAJIB DAN HANYA DICATAT 1 KALI!
+7. Jika nominal atau akun asal belum disebutkan, TANYAKAN dengan ramah tanpa menebak-nebak atau memanggil tool.
+8. Jika hasil tool record_transaction mengembalikan budgetStatus dan persentase penggunaan >= 70%, berikan peringatan santai namun tegas tentang sisa anggaran bulan ini.
+9. ATURAN PENGHAPUSAN & UBAH DATA (DELETE & UPDATE):
    Jika user meminta menghapus atau mengubah data penting (transaksi, anggaran, tabungan, akun, rutinitas, kategori, recurring transaction), KAMU WAJIB BERTANYA SEKALI LAGI untuk meminta konfirmasi secara jelas kepada user (sebutkan nama/detail data yang akan dihapus). JANGAN MEMANGGIL TOOL DELETE ATAU UPDATE JIKA USER BELUM MEMBERIKAN KONFIRMASI TEGAS (misal: 'Ya, hapus' atau 'Benar, lanjutkan').
 
 DAFTAR KATEGORI VALID:
