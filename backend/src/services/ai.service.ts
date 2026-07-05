@@ -71,7 +71,7 @@ export async function processAIChat(
         });
         if (response && response.choices && response.choices.length > 0) {
           console.log(`[AI Load Balancer] Sukses dijawab oleh: "${provider.name}" (Model: ${provider.model})`);
-          break; // Sukses mendapatkan balasan dari provider ini
+          break;
         }
       } catch (err: any) {
         lastError = err;
@@ -94,7 +94,6 @@ export async function processAIChat(
         let fnArgs: any = {};
         try {
           let rawArgs = (toolCall as any).function.arguments || '{}';
-          // Bersihkan trailing comma yang sering dibuat model LLM kecil (misal: {"a": 1, })
           rawArgs = rawArgs.replace(/,\s*([\]}])/g, '$1');
           fnArgs = JSON.parse(rawArgs);
         } catch (parseErr: any) {
