@@ -380,15 +380,55 @@ const tools: ChatCompletionTool[] = [
   },
 ];
 
+async function getAccountsWithBalances(userId: string) {
+  const accounts = await prisma.account.findMany({
+    where: { userId, isActive: true },
+    orderBy: { name: 'asc' },
+  });
+
+  const [txOut, txIn, trIn] = await Promise.all([
+    prisma.transaction.groupBy({
+      by: ['accountId'],
+      where: { userId, type: { in: ['expense', 'transfer'] } },
+      _sum: { amount: true },
+    }),
+    prisma.transaction.groupBy({
+      by: ['accountId'],
+      where: { userId, type: 'income' },
+      _sum: { amount: true },
+    }),
+    prisma.transaction.groupBy({
+      by: ['toAccountId'],
+      where: { userId, type: 'transfer', toAccountId: { not: null } },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  const outMap = new Map(txOut.map((t) => [t.accountId, Number(t._sum.amount || 0)]));
+  const inMap = new Map(txIn.map((t) => [t.accountId, Number(t._sum.amount || 0)]));
+  const trInMap = new Map(trIn.map((t) => [t.toAccountId!, Number(t._sum.amount || 0)]));
+
+  return accounts.map((acc) => {
+    const init = Number(acc.initialBalance);
+    const inc = inMap.get(acc.id) || 0;
+    const exp = outMap.get(acc.id) || 0;
+    const tIn = trInMap.get(acc.id) || 0;
+    const currentBalance = init + inc - exp + tIn;
+    return {
+      id: acc.id,
+      name: acc.name,
+      type: acc.type,
+      currentBalance,
+      formattedBalance: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(currentBalance),
+    };
+  });
+}
+
 async function executeTool(userId: string, toolName: string, args: Record<string, any>) {
   switch (toolName) {
     // --- ACCOUNTS ---
     case 'get_accounts': {
-      return await prisma.account.findMany({
-        where: { userId, isActive: true },
-        select: { id: true, name: true, type: true, initialBalance: true },
-        orderBy: { name: 'asc' },
-      });
+      return await getAccountsWithBalances(userId);
     }
     case 'create_account': {
       return await prisma.account.create({
@@ -814,11 +854,11 @@ export async function processAIChat(
   image?: string
 ) {
   const [accounts, categories] = await Promise.all([
-    prisma.account.findMany({ where: { userId, isActive: true }, select: { id: true, name: true, type: true } }),
+    getAccountsWithBalances(userId),
     prisma.category.findMany({ where: { userId }, select: { id: true, name: true, type: true } }),
   ]);
 
-  const accountMapping = accounts.map((a) => `[ID: "${a.id}" | ${a.name} (${a.type})]`).join('\n');
+  const accountMapping = accounts.map((a: any) => `[ID: "${a.id}" | ${a.name} (${a.type}) - Saldo Nyata Saat Ini: ${a.formattedBalance}]`).join('\n');
   const categoryMapping = categories.map((c) => `[ID: "${c.id}" | ${c.name} (${c.type})]`).join('\n');
   const currentTimeWIB = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
 
@@ -828,9 +868,11 @@ Waktu Sistem saat ini: ${currentTimeWIB}.
 ATURAN DAN GAYA BAHASA:
 1. Gunakan Bahasa Indonesia yang santai, ringkas, natural, dan tambahkan emoji secukupnya.
 2. Kamu sanggup memahami bahasa gaul, singkatan, serta typo dari user (misal: "mkn" -> makan, "gpy" -> gopay, "bli" -> beli).
-3. Jika user ingin mencatat transaksi, WAJIB gunakan tool record_transaction dengan UUID akun dan kategori yang tepat dari daftar di bawah.
-4. ATURAN PENUTUP TRANSAKSI (SANGAT PENTING):
-   JANGAN PERNAH berbohong dengan membalas "Sudah tercatat" JIKA kamu belum secara nyata memanggil tool record_transaction. Kamu TIDAK BISA mencatat transaksi hanya dengan membalas chat. Setelah kamu mengeksekusi tool tersebut dan menerima balasan sukses dari sistem, BARU kamu boleh memberi tahu user bahwa transaksi telah berhasil dicatat beserta ringkasannya.
+3. PENTING - ATURAN JUJUR & ANTI-HALUSINASI SALDO:
+   - JANGAN PERNAH bilang "berhasil dicatat", "sudah dicatat", atau "sudah disimpan" JIKA KAMU BELUM SECARA NYATA MEMANGGIL TOOL record_transaction! Kalau kamu baru mau menanyakan akun pembayaran atau kategori, katakan saja: "Mau dicatat pakai akun apa dan kategori apa?" JANGAN PERNAH MENGKLAIM SUDAH DICATAT!
+   - JANGAN PERNAH menebak, mengira-ngira, atau menghitung matematika sendiri untuk saldo akun! Saldo nyata setiap akun tertera dengan jelas di DAFTAR METODE PEMBAYARAN VALID di bawah (contoh: "- Saldo Nyata Saat Ini: -Rp 118.000"). Bacalah saldo tersebut apa adanya dengan jujur! Jika saldo minus (-Rp 118.000), katakan dengan jujur -Rp 118.000!
+4. ATURAN PENUTUP TRANSAKSI:
+   Setelah kamu memanggil tool record_transaction dan tool berhasil dieksekusi oleh sistem, sistem akan otomatis meracik balasan ringkasan. Kamu tidak perlu membuat balasan halusinasi sendiri!
 5. ATURAN SCAN STRUK BELANJA (RECEIPT OCR):
    Jika membaca foto struk belanja, PENTING: JANGAN panggil tool record_transaction secara langsung! Balas pesan user dengan menyebutkan Total Harga dan Kategori/Tipe transaksi yang ditebak, lalu TANYAKAN apakah nominalnya sudah benar dan pakai akun apa ke akun apa sebelum mencatatnya.
 6. ATURAN TRANSAKSI TRANSFER (SINGLE TRANSFER RULE):
