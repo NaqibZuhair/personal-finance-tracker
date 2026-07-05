@@ -860,7 +860,22 @@ export async function processAIChat(
 
   const accountMapping = accounts.map((a: any) => `[ID: "${a.id}" | ${a.name} (${a.type}) - Saldo Nyata Saat Ini: ${a.formattedBalance}]`).join('\n');
   const categoryMapping = categories.map((c) => `[ID: "${c.id}" | ${c.name} (${c.type})]`).join('\n');
-  const currentTimeWIB = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+  
+  const nowWIB = new Date();
+  const dateStrWIB = nowWIB.toLocaleDateString('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const timeStrWIB = nowWIB.toLocaleTimeString('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const isoDateWIB = new Date(nowWIB.getTime() + 7 * 3600 * 1000).toISOString().split('T')[0];
+  const currentTimeWIB = `${dateStrWIB}, pukul ${timeStrWIB} WIB (ISO Date: ${isoDateWIB})`;
 
   const systemInstruction = `Kamu adalah Asisten Keuangan Pribadi yang cerdas, ramah, dan proaktif di dalam aplikasi Personal Finance Tracker.
 Waktu Sistem saat ini: ${currentTimeWIB}.
@@ -868,9 +883,10 @@ Waktu Sistem saat ini: ${currentTimeWIB}.
 ATURAN DAN GAYA BAHASA:
 1. Gunakan Bahasa Indonesia yang santai, ringkas, natural, dan tambahkan emoji secukupnya.
 2. Kamu sanggup memahami bahasa gaul, singkatan, serta typo dari user (misal: "mkn" -> makan, "gpy" -> gopay, "bli" -> beli).
-3. PENTING - ATURAN JUJUR & ANTI-HALUSINASI SALDO:
+3. PENTING - ATURAN JUJUR, SALDO & TANGGAL TRANSAKSI:
    - JANGAN PERNAH bilang "berhasil dicatat", "sudah dicatat", atau "sudah disimpan" JIKA KAMU BELUM SECARA NYATA MEMANGGIL TOOL record_transaction! Kalau kamu baru mau menanyakan akun pembayaran atau kategori, katakan saja: "Mau dicatat pakai akun apa dan kategori apa?" JANGAN PERNAH MENGKLAIM SUDAH DICATAT!
    - JANGAN PERNAH menebak, mengira-ngira, atau menghitung matematika sendiri untuk saldo akun! Saldo nyata setiap akun tertera dengan jelas di DAFTAR METODE PEMBAYARAN VALID di bawah (contoh: "- Saldo Nyata Saat Ini: -Rp 118.000"). Bacalah saldo tersebut apa adanya dengan jujur! Jika saldo minus (-Rp 118.000), katakan dengan jujur -Rp 118.000!
+   - ATURAN TANGGAL: Saat memanggil tool record_transaction, jika user tidak menyebutkan tanggal spesifik, gunakan format ISO (YYYY-MM-DD) yang sesuai dengan Waktu Sistem saat ini (${isoDateWIB}). JANGAN PERNAH menukar bulan dan hari (misal 5 Juli adalah 2026-07-05, BUKAN 2026-05-07)!
 4. ATURAN PENUTUP TRANSAKSI:
    Setelah kamu memanggil tool record_transaction dan tool berhasil dieksekusi oleh sistem, sistem akan otomatis meracik balasan ringkasan. Kamu tidak perlu membuat balasan halusinasi sendiri!
 5. ATURAN SCAN STRUK BELANJA (RECEIPT OCR):
@@ -963,7 +979,7 @@ ${accountMapping}`;
             if (trx.category?.name) reply += `🏷️ **Kategori:** ${trx.category.name}\n`;
             if (trx.account?.name) reply += `💳 **Akun:** ${trx.account.name}\n`;
             if (trx.toAccount?.name) reply += `🎯 **Ke Akun:** ${trx.toAccount.name}\n`;
-            reply += `📅 **Tanggal:** ${new Date(trx.transactionDate).toLocaleDateString('id-ID')}\n`;
+            reply += `📅 **Tanggal:** ${new Date(trx.transactionDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}\n`;
 
             if (b && b.percentage >= 70) {
               reply += `\n⚠️ **Peringatan Anggaran (${b.categoryName}):**\n`;
