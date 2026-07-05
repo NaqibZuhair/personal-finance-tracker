@@ -6,18 +6,19 @@ import { z } from 'zod';
 const chatSchema = z.object({
   message: z.string().min(1, 'Message is required'),
   history: z.array(z.any()).optional().default([]),
+  image: z.string().optional(),
 });
 
 export async function handleAIChat(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const { message, history } = chatSchema.parse(req.body);
+    const { message, history, image } = chatSchema.parse(req.body);
 
     if (!req.userId) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
-    const result = await processAIChat(req.userId, message, history);
+    const result = await processAIChat(req.userId, message, history, image);
 
     res.status(200).json({
       message: 'Successfully processed AI chat',

@@ -807,7 +807,12 @@ async function executeTool(userId: string, toolName: string, args: Record<string
   }
 }
 
-export async function processAIChat(userId: string, message: string, history: ChatCompletionMessageParam[] = []) {
+export async function processAIChat(
+  userId: string,
+  message: string,
+  history: ChatCompletionMessageParam[] = [],
+  image?: string
+) {
   const [accounts, categories] = await Promise.all([
     prisma.account.findMany({ where: { userId, isActive: true }, select: { id: true, name: true, type: true } }),
     prisma.category.findMany({ where: { userId }, select: { id: true, name: true, type: true } }),
@@ -823,10 +828,11 @@ Waktu Sistem saat ini: ${currentTimeWIB}.
 ATURAN DAN GAYA BAHASA:
 1. Gunakan Bahasa Indonesia yang santai, ringkas, natural, dan tambahkan emoji secukupnya.
 2. Kamu sanggup memahami bahasa gaul, singkatan, serta typo dari user (misal: "mkn" -> makan, "gpy" -> gopay, "bli" -> beli).
-3. Jika user ingin mencatat transaksi, WAJIB gunakan tool record_transaction dengan UUID akun dan kategori yang tepat dari daftar di bawah.
-4. Jika nominal atau akun asal belum disebutkan, TANYAKAN dengan ramah tanpa menebak-nebak atau memanggil tool.
-5. Jika hasil tool record_transaction mengembalikan budgetStatus dan persentase penggunaan >= 70%, berikan peringatan santai namun tegas tentang sisa anggaran bulan ini.
-6. ATURAN PENGHAPUSAN DATA (DELETE & UPDATE):
+3. Jika user ingin mencatat transaksi (termasuk dari foto struk belanja), WAJIB gunakan tool record_transaction dengan UUID akun dan kategori yang tepat dari daftar di bawah.
+4. Jika membaca foto struk belanja, ekstrak total pembayaran, nama merchant/toko, dan tangkap keterangan transaksinya dengan akurat.
+5. Jika nominal atau akun asal belum disebutkan, TANYAKAN dengan ramah tanpa menebak-nebak atau memanggil tool.
+6. Jika hasil tool record_transaction mengembalikan budgetStatus dan persentase penggunaan >= 70%, berikan peringatan santai namun tegas tentang sisa anggaran bulan ini.
+7. ATURAN PENGHAPUSAN DATA (DELETE & UPDATE):
    Jika user meminta menghapus atau mengubah data penting (transaksi, anggaran, tabungan, akun, rutinitas, kategori, recurring transaction), KAMU WAJIB BERTANYA SEKALI LAGI untuk meminta konfirmasi secara jelas kepada user (sebutkan nama/detail data yang akan dihapus). JANGAN MEMANGGIL TOOL DELETE ATAU UPDATE JIKA USER BELUM MEMBERIKAN KONFIRMASI TEGAS (misal: 'Ya, hapus' atau 'Benar, lanjutkan').
 
 DAFTAR KATEGORI VALID:
@@ -835,11 +841,22 @@ ${categoryMapping}
 DAFTAR METODE PEMBAYARAN VALID:
 ${accountMapping}`;
 
+  const userContent: any = image
+    ? [
+        { type: 'text', text: message || 'Tolong baca dan catat struk ini' },
+        { type: 'image_url', image_url: { url: image.startsWith('data:') ? image : `data:image/jpeg;base64,${image}` } },
+      ]
+    : message;
+
   const messages: ChatCompletionMessageParam[] = [
     { role: 'system', content: systemInstruction },
     ...history.slice(-6),
-    { role: 'user', content: message },
+    { role: 'user', content: userContent },
   ];
+
+  const activeModel = image
+    ? process.env.AI_VISION_MODEL || 'qwen/qwen-2-vl-72b-instruct:free'
+    : DEFAULT_MODEL;
 
   const executedTools: string[] = [];
   let currentMessages = [...messages];
@@ -847,7 +864,7 @@ ${accountMapping}`;
 
   for (let iteration = 0; iteration < 4; iteration++) {
     const response = await openai.chat.completions.create({
-      model: DEFAULT_MODEL,
+      model: activeModel,
       messages: currentMessages,
       tools,
       tool_choice: 'auto',
