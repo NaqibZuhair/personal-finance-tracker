@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.AI_API_KEY || '',
 });
 
-const DEFAULT_MODEL = process.env.AI_MODEL || 'meta-llama/llama-3.3-70b-instruct:free';
+const DEFAULT_MODEL = process.env.AI_MODEL || 'openrouter/free';
 
 const tools: ChatCompletionTool[] = [
   // --- ACCOUNTS ---
