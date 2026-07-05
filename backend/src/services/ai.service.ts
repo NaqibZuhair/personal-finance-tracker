@@ -917,22 +917,39 @@ ${accountMapping}`;
     { role: 'user', content: userContent },
   ];
 
-  const activeModel = image
-    ? process.env.AI_VISION_MODEL || 'qwen/qwen-2-vl-72b-instruct:free'
-    : DEFAULT_MODEL;
+  const modelsToTry = image
+    ? [process.env.AI_VISION_MODEL || 'qwen/qwen-2-vl-72b-instruct:free', 'openrouter/free']
+    : Array.from(new Set([DEFAULT_MODEL, 'nvidia/nemotron-3-nano-30b-a3b:free', 'openrouter/free', 'qwen/qwen-2.5-coder-32b-instruct:free', 'meta-llama/llama-3.3-70b-instruct:free']));
 
   const executedTools: string[] = [];
   let currentMessages = [...messages];
   let finalResponseText = '';
 
   for (let iteration = 0; iteration < 4; iteration++) {
-    const response = await openai.chat.completions.create({
-      model: activeModel,
-      messages: currentMessages,
-      tools,
-      tool_choice: 'auto',
-      temperature: 0.3,
-    });
+    let response: any = null;
+    let lastError: any = null;
+
+    for (const modelName of modelsToTry) {
+      try {
+        response = await openai.chat.completions.create({
+          model: modelName,
+          messages: currentMessages,
+          tools,
+          tool_choice: 'auto',
+          temperature: 0.3,
+        });
+        if (response && response.choices && response.choices.length > 0) {
+          break; // Sukses mendapatkan balasan dari model ini
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[AI Service] Gagal dengan model ${modelName}: ${err.message || err}. Mencoba model fallback berikutnya...`);
+      }
+    }
+
+    if (!response || !response.choices || response.choices.length === 0) {
+      throw lastError || new Error('Semua model AI gagal memberikan balasan.');
+    }
 
     const choice = response.choices[0];
     const messageObj = choice.message;
