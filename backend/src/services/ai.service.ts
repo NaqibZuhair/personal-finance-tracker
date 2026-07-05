@@ -7,7 +7,7 @@ const openai = new OpenAI({
   apiKey: process.env.AI_API_KEY || '',
 });
 
-const DEFAULT_MODEL = process.env.AI_MODEL || 'openrouter/free';
+const DEFAULT_MODEL = process.env.AI_MODEL || 'nvidia/nemotron-3-nano-30b-a3b:free';
 
 const tools: ChatCompletionTool[] = [
   // --- ACCOUNTS ---
@@ -909,6 +909,31 @@ ${accountMapping}`;
             tool_call_id: toolCall.id,
             content: JSON.stringify(toolResult),
           });
+
+          if (fnName === 'record_transaction' && (toolResult as any).transaction) {
+            const trx = (toolResult as any).transaction;
+            const b = (toolResult as any).budgetStatus;
+            const amtStr = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(trx.amount);
+            const trxType = trx.type === 'income' ? 'Pemasukan 💰' : trx.type === 'expense' ? 'Pengeluaran 💸' : 'Transfer 🔄';
+            let reply = `✅ **${trxType} Berhasil Dicatat!**\n\n`;
+            reply += `📝 **Keterangan:** ${trx.description}\n`;
+            reply += `💵 **Nominal:** ${amtStr}\n`;
+            if (trx.category?.name) reply += `🏷️ **Kategori:** ${trx.category.name}\n`;
+            if (trx.account?.name) reply += `💳 **Akun:** ${trx.account.name}\n`;
+            if (trx.toAccount?.name) reply += `🎯 **Ke Akun:** ${trx.toAccount.name}\n`;
+            reply += `📅 **Tanggal:** ${new Date(trx.transactionDate).toLocaleDateString('id-ID')}\n`;
+
+            if (b && b.percentage >= 70) {
+              reply += `\n⚠️ **Peringatan Anggaran (${b.categoryName}):**\n`;
+              reply += `Penggunaan bulan ini sudah mencapai **${b.percentage}%** (${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(b.spent)} / ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(b.limit)}). Yuk hemat-hemat! 🛑`;
+            }
+
+            finalResponseText = reply;
+            break;
+          } else if (fnName === 'delete_transaction') {
+            finalResponseText = '🗑️ **Transaksi Berhasil Dihapus!** Data keuangan kamu sudah diperbarui ya. ✅';
+            break;
+          }
         } catch (error: any) {
           currentMessages.push({
             role: 'tool',
