@@ -2,12 +2,90 @@ import OpenAI from 'openai';
 import prisma from '../lib/prisma';
 import type { ChatCompletionTool, ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
-const openai = new OpenAI({
-  baseURL: process.env.AI_BASE_URL || 'https://openrouter.ai/api/v1',
-  apiKey: process.env.AI_API_KEY || '',
-});
-
 const DEFAULT_MODEL = process.env.AI_MODEL || 'nvidia/nemotron-3-nano-30b-a3b:free';
+
+interface AIProvider {
+  name: string;
+  client: OpenAI;
+  model: string;
+}
+
+const getAIProviders = (isVision: boolean = false): AIProvider[] => {
+  const providers: AIProvider[] = [];
+  const createClient = (baseURL: string, apiKey: string) => new OpenAI({ baseURL, apiKey });
+
+  // 1. Cek CEREBRAS API KEYS (2000 tok/sec, 1 Juta tok/hari)
+  const cerebrasKeys = (process.env.CEREBRAS_API_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean);
+  if (!isVision && cerebrasKeys.length > 0) {
+    cerebrasKeys.forEach((key, idx) => {
+      providers.push({
+        name: `Cerebras Cloud (#${idx + 1}) ⚡`,
+        client: createClient('https://api.cerebras.ai/v1', key),
+        model: process.env.CEREBRAS_MODEL || 'llama-3.3-70b',
+      });
+    });
+  }
+
+  // 2. Cek GEMINI API KEYS (Google Studio - 1.500 req/hari per akun!)
+  const geminiKeys = (process.env.GEMINI_API_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean);
+  if (geminiKeys.length > 0) {
+    geminiKeys.forEach((key, idx) => {
+      providers.push({
+        name: `Google Gemini AI (#${idx + 1}) 🌟`,
+        client: createClient('https://generativelanguage.googleapis.com/v1beta/openai/', key),
+        model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+      });
+    });
+  }
+
+  // 3. Cek GROQ API KEYS
+  const groqKeys = (process.env.GROQ_API_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean);
+  if (groqKeys.length > 0) {
+    groqKeys.forEach((key, idx) => {
+      providers.push({
+        name: `Groq Cloud (#${idx + 1}) 🔥`,
+        client: createClient('https://api.groq.com/openai/v1', key),
+        model: isVision ? 'llama-3.2-11b-vision-preview' : (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'),
+      });
+    });
+  }
+
+  // 4. Cek OPENROUTER API KEYS
+  const openRouterKeys = (process.env.OPENROUTER_API_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean);
+  if (openRouterKeys.length > 0) {
+    openRouterKeys.forEach((key, idx) => {
+      const models = isVision
+        ? [process.env.AI_VISION_MODEL || 'qwen/qwen-2-vl-72b-instruct:free', 'openrouter/free']
+        : [DEFAULT_MODEL, 'openrouter/free', 'qwen/qwen-2.5-coder-32b-instruct:free', 'meta-llama/llama-3.3-70b-instruct:free'];
+      models.forEach((m) => {
+        providers.push({
+          name: `OpenRouter (#${idx + 1} - ${m}) 🌐`,
+          client: createClient('https://openrouter.ai/api/v1', key),
+          model: m,
+        });
+      });
+    });
+  }
+
+  // 5. Fallback Default dari variabel AI_API_KEY / AI_BASE_URL tunggal
+  if (process.env.AI_API_KEY) {
+    const defaultBaseURL = process.env.AI_BASE_URL || 'https://openrouter.ai/api/v1';
+    const defaultName = defaultBaseURL.includes('google') ? 'Default Gemini AI' : defaultBaseURL.includes('groq') ? 'Default Groq AI' : defaultBaseURL.includes('cerebras') ? 'Default Cerebras AI' : 'Default OpenRouter';
+    const models = isVision
+      ? [process.env.AI_VISION_MODEL || 'qwen/qwen-2-vl-72b-instruct:free', 'openrouter/free']
+      : Array.from(new Set([DEFAULT_MODEL, 'nvidia/nemotron-3-nano-30b-a3b:free', 'openrouter/free', 'qwen/qwen-2.5-coder-32b-instruct:free', 'meta-llama/llama-3.3-70b-instruct:free']));
+    
+    models.forEach((m) => {
+      providers.push({
+        name: `${defaultName} (${m})`,
+        client: createClient(defaultBaseURL, process.env.AI_API_KEY!),
+        model: m,
+      });
+    });
+  }
+
+  return providers;
+};
 
 const tools: ChatCompletionTool[] = [
   // --- ACCOUNTS ---
@@ -917,9 +995,7 @@ ${accountMapping}`;
     { role: 'user', content: userContent },
   ];
 
-  const modelsToTry = image
-    ? [process.env.AI_VISION_MODEL || 'qwen/qwen-2-vl-72b-instruct:free', 'openrouter/free']
-    : Array.from(new Set([DEFAULT_MODEL, 'nvidia/nemotron-3-nano-30b-a3b:free', 'openrouter/free', 'qwen/qwen-2.5-coder-32b-instruct:free', 'meta-llama/llama-3.3-70b-instruct:free']));
+  const providers = getAIProviders(!!image);
 
   const executedTools: string[] = [];
   let currentMessages = [...messages];
@@ -929,26 +1005,27 @@ ${accountMapping}`;
     let response: any = null;
     let lastError: any = null;
 
-    for (const modelName of modelsToTry) {
+    for (const provider of providers) {
       try {
-        response = await openai.chat.completions.create({
-          model: modelName,
+        response = await provider.client.chat.completions.create({
+          model: provider.model,
           messages: currentMessages,
           tools,
           tool_choice: 'auto',
           temperature: 0.3,
         });
         if (response && response.choices && response.choices.length > 0) {
-          break; // Sukses mendapatkan balasan dari model ini
+          console.log(`[AI Load Balancer] Sukses dijawab oleh: "${provider.name}" (Model: ${provider.model})`);
+          break; // Sukses mendapatkan balasan dari provider ini
         }
       } catch (err: any) {
         lastError = err;
-        console.warn(`[AI Service] Gagal dengan model ${modelName}: ${err.message || err}. Mencoba model fallback berikutnya...`);
+        console.warn(`[AI Load Balancer] Gagal pada "${provider.name}": ${err.message || err}. Bergeser ke provider berikutnya...`);
       }
     }
 
     if (!response || !response.choices || response.choices.length === 0) {
-      throw lastError || new Error('Semua model AI gagal memberikan balasan.');
+      throw lastError || new Error('Semua AI Provider & API Keys (Gemini, Cerebras, OpenRouter, Groq) gagal memberikan balasan.');
     }
 
     const choice = response.choices[0];
