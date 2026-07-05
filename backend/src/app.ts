@@ -11,6 +11,7 @@ import goalRoutes from './routes/goal.routes';
 import budgetRoutes from './routes/budget.routes';
 import recurringRoutes from './routes/recurring.routes';
 import routineRoutes from './routes/routine.routes';
+import aiRoutes from './routes/ai.routes';
 import { requireAuth } from './middleware/auth.middleware';
 import helmet from 'helmet';
 import { apiLimiter } from './middleware/rateLimiter';
@@ -70,5 +71,6 @@ app.use('/api/goals', requireAuth, goalRoutes);
 app.use('/api/budgets', requireAuth, budgetRoutes);
 app.use('/api/recurring', requireAuth, recurringRoutes);
 app.use('/api/routines', requireAuth, routineRoutes);
+app.use('/api/ai', requireAuth, aiRoutes);
 
 export default app;
