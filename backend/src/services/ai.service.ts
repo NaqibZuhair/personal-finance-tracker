@@ -884,7 +884,22 @@ ${accountMapping}`;
 
       for (const toolCall of messageObj.tool_calls) {
         const fnName = (toolCall as any).function.name;
-        const fnArgs = JSON.parse((toolCall as any).function.arguments || '{}');
+        let fnArgs: any = {};
+        try {
+          let rawArgs = (toolCall as any).function.arguments || '{}';
+          // Bersihkan trailing comma yang sering dibuat model LLM kecil (misal: {"a": 1, })
+          rawArgs = rawArgs.replace(/,\s*([\]}])/g, '$1');
+          fnArgs = JSON.parse(rawArgs);
+        } catch (parseErr: any) {
+          console.warn(`[AI] Malformed JSON arguments for ${fnName}:`, (toolCall as any).function.arguments);
+          currentMessages.push({
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: JSON.stringify({ error: `Format JSON argumen tidak valid (${parseErr.message}). Tolong panggil ulang tool dengan JSON argumen yang benar tanpa trailing comma.` }),
+          });
+          continue;
+        }
+
         executedTools.push(fnName);
 
         try {
