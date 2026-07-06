@@ -108,7 +108,7 @@ export default function BudgetsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {budgets.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
+            <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500 dark:border-slate-700 dark:text-slate-400 dark:bg-slate-800/40">
               You haven't set up any budgets for {month} yet.
             </div>
           ) : (
@@ -122,16 +122,16 @@ export default function BudgetsPage() {
               else if (isWarning) barColor = 'bg-yellow-500';
 
               return (
-                <div key={budget.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div key={budget.id} className="rounded-2xl border border-slate-200/80 bg-white/90 p-5 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-slate-800">{budget.category?.name}</h3>
+                    <h3 className="font-semibold text-slate-800 dark:text-white">{budget.category?.name}</h3>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-slate-500">
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
                         {formatCurrency(budget.spentAmount)} / {formatCurrency(budget.amount)}
                       </span>
                       <button 
                         onClick={() => setEditingBudget(budget)}
-                        className="text-slate-400 hover:text-primary-600 transition"
+                        className="text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
                         title="Edit Budget"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,7 +140,7 @@ export default function BudgetsPage() {
                       </button>
                       <button 
                         onClick={() => setDeletingId(budget.id)}
-                        className="text-slate-400 hover:text-red-500 transition"
+                        className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition"
                         title="Delete Budget"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,13 +149,13 @@ export default function BudgetsPage() {
                       </button>
                     </div>
                   </div>
-                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${barColor}`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
-                  <p className="mt-2 text-xs text-slate-500 text-right">
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 text-right">
                     {percentage.toFixed(0)}% used
                   </p>
                 </div>

@@ -108,7 +108,7 @@ export default function GoalsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {goals.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
+            <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500 dark:border-slate-700 dark:text-slate-400 dark:bg-slate-800/40">
               You haven't set up any savings goals yet.
             </div>
           ) : (
@@ -116,13 +116,13 @@ export default function GoalsPage() {
               const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
 
               return (
-                <div key={goal.id} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div key={goal.id} className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white/90 p-5 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md">
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-800 text-lg">{goal.name}</h3>
+                        <h3 className="font-bold text-slate-800 dark:text-white text-lg">{goal.name}</h3>
                         {goal.deadline && (
-                          <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                          <span className="text-xs font-medium text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-100 dark:border-slate-700">
                             Due {new Date(goal.deadline).toLocaleDateString()}
                           </span>
                         )}
@@ -130,7 +130,7 @@ export default function GoalsPage() {
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={() => setEditingGoal(goal)}
-                          className="text-slate-400 hover:text-primary-600 transition"
+                          className="text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
                           title="Edit Goal"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +139,7 @@ export default function GoalsPage() {
                         </button>
                         <button 
                           onClick={() => setDeletingId(goal.id)}
-                          className="text-slate-400 hover:text-red-500 transition"
+                          className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition"
                           title="Delete Goal"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -151,22 +151,22 @@ export default function GoalsPage() {
                     
                     <div className="flex items-end justify-between mb-2">
                       <div>
-                        <p className="text-sm font-medium text-slate-500 mb-1">Saved</p>
-                        <p className="text-2xl font-black text-primary-600">{formatCurrency(goal.currentAmount)}</p>
+                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Saved</p>
+                        <p className="text-2xl font-black text-primary-600 dark:text-primary-400">{formatCurrency(goal.currentAmount)}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-medium text-slate-400 mb-1">Target</p>
-                        <p className="text-sm font-bold text-slate-700">{formatCurrency(goal.targetAmount)}</p>
+                        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">Target</p>
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{formatCurrency(goal.targetAmount)}</p>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-4">
-                    <div className="flex items-center justify-between mb-1 text-xs font-semibold text-slate-500">
+                    <div className="flex items-center justify-between mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
                       <span>Progress</span>
                       <span>{percentage.toFixed(1)}%</span>
                     </div>
-                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                       <div
                         className="h-full rounded-full bg-primary-500 transition-all duration-1000 ease-out"
                         style={{ width: `${percentage}%` }}
@@ -174,7 +174,7 @@ export default function GoalsPage() {
                     </div>
                   </div>
                   
-                  <div className="mt-5 border-t border-slate-100 pt-4">
+                  <div className="mt-5 border-t border-slate-100 dark:border-slate-800 pt-4">
                     <ButtonLink 
                       to={`/transactions/new?type=transfer&toAccountId=${goal.accountId}`} 
                       className="w-full justify-center"

@@ -86,24 +86,24 @@ export default function ProfilePage() {
       />
 
       {/* User Overview Card */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+      <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6 dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-100 text-2xl font-bold text-primary-700">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-100 text-2xl font-bold text-primary-700 dark:bg-primary-500/20 dark:text-primary-300">
             {initials}
           </div>
           <div className="space-y-1">
-            <h2 className="text-xl font-bold text-slate-900">{user.name}</h2>
-            <div className="flex flex-wrap items-center gap-2.5 text-sm text-slate-500">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{user.name}</h2>
+            <div className="flex flex-wrap items-center gap-2.5 text-sm text-slate-500 dark:text-slate-400">
               <span>{user.email}</span>
               {user.waPhone ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
                   <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
                     <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.118 1.528 5.85L.036 23.964l6.233-1.488C7.942 23.418 9.92 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm5.95 17.153c-.25.7-1.45 1.346-2.025 1.433-.575.087-1.125.13-3.625-.91-3.025-1.258-4.975-4.358-5.125-4.558-.15-.2-1.225-1.633-1.225-3.117 0-1.483.775-2.217 1.05-2.517.275-.3.6-.375.8-.375.2 0 .4.004.575.013.187.008.438-.07.688.53.25.6 1 2.45 1.088 2.625.088.175.15.38.025.61-.125.23-.188.375-.375.59-.188.216-.388.483-.558.65-.188.188-.388.39-.163.775.225.388 1.008 1.666 2.167 2.698 1.492 1.33 2.748 1.74 3.136 1.933.388.193.613.16.838-.1.225-.26.963-1.125 1.225-1.512.263-.388.525-.325.888-.192.363.133 2.313 1.092 2.713 1.292.4.2.663.3.763.467.1.167.1 0.967-.15 1.667z"/>
                   </svg>
                   +{user.waPhone}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                   No WhatsApp Linked
                 </span>
               )}
@@ -121,21 +121,21 @@ export default function ProfilePage() {
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 px-1">
           Account Settings
         </h3>
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors">
+        <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm overflow-hidden dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md">
+          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors dark:border-slate-800/80 dark:hover:bg-slate-800/50">
             <ButtonLink
               to="/profile/edit"
               variant="secondary"
               className="w-full justify-start text-left border-0 shadow-none !bg-transparent !px-2 !py-2 hover:!bg-transparent"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
                 <div>
-                  <span className="block font-semibold text-slate-700">Personal Information</span>
+                  <span className="block font-semibold text-slate-700 dark:text-slate-200">Personal Information</span>
                   <span className="block text-xs font-normal text-slate-400">Update display name and WhatsApp number</span>
                 </div>
               </div>
@@ -145,20 +145,20 @@ export default function ProfilePage() {
             </ButtonLink>
           </div>
 
-          <div className="p-4 hover:bg-slate-50 transition-colors">
+          <div className="p-4 hover:bg-slate-50 transition-colors dark:hover:bg-slate-800/50">
             <ButtonLink
               to="/profile/password"
               variant="secondary"
               className="w-full justify-start text-left border-0 shadow-none !bg-transparent !px-2 !py-2 hover:!bg-transparent"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <div>
-                  <span className="block font-semibold text-slate-700">Security Password</span>
+                  <span className="block font-semibold text-slate-700 dark:text-slate-200">Security Password</span>
                   <span className="block text-xs font-normal text-slate-400">Change login security password</span>
                 </div>
               </div>
@@ -175,20 +175,20 @@ export default function ProfilePage() {
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 px-1">
           Financial Management
         </h3>
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors">
+        <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm overflow-hidden dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md">
+          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors dark:border-slate-800/80 dark:hover:bg-slate-800/50">
             <ButtonLink
               to="/categories"
               variant="secondary"
               className="w-full justify-start text-left border-0 shadow-none !bg-transparent !px-2 !py-2 hover:!bg-transparent"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
                 </div>
-                <span className="font-semibold text-slate-700">Manage Categories</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">Manage Categories</span>
               </div>
               <svg className="h-5 w-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -196,19 +196,19 @@ export default function ProfilePage() {
             </ButtonLink>
           </div>
 
-          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors">
+          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors dark:border-slate-800/80 dark:hover:bg-slate-800/50">
             <ButtonLink
               to="/budgets"
               variant="secondary"
               className="w-full justify-start text-left border-0 shadow-none !bg-transparent !px-2 !py-2 hover:!bg-transparent"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 0118 0z" />
                   </svg>
                 </div>
-                <span className="font-semibold text-slate-700">Manage Budgets</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">Manage Budgets</span>
               </div>
               <svg className="h-5 w-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -216,19 +216,19 @@ export default function ProfilePage() {
             </ButtonLink>
           </div>
 
-          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors">
+          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors dark:border-slate-800/80 dark:hover:bg-slate-800/50">
             <ButtonLink
               to="/goals"
               variant="secondary"
               className="w-full justify-start text-left border-0 shadow-none !bg-transparent !px-2 !py-2 hover:!bg-transparent"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                   </svg>
                 </div>
-                <span className="font-semibold text-slate-700">Manage Goals</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">Manage Goals</span>
               </div>
               <svg className="h-5 w-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -236,19 +236,19 @@ export default function ProfilePage() {
             </ButtonLink>
           </div>
 
-          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors">
+          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors dark:border-slate-800/80 dark:hover:bg-slate-800/50">
             <ButtonLink
               to="/recurring"
               variant="secondary"
               className="w-full justify-start text-left border-0 shadow-none !bg-transparent !px-2 !py-2 hover:!bg-transparent"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                 </div>
-                <span className="font-semibold text-slate-700">Manage Subscriptions</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">Manage Subscriptions</span>
               </div>
               <svg className="h-5 w-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -256,19 +256,19 @@ export default function ProfilePage() {
             </ButtonLink>
           </div>
 
-          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors">
+          <div className="border-b border-slate-100 p-4 hover:bg-slate-50 transition-colors dark:border-slate-800/80 dark:hover:bg-slate-800/50">
             <ButtonLink
               to="/routines"
               variant="secondary"
               className="w-full justify-start text-left border-0 shadow-none !bg-transparent !px-2 !py-2 hover:!bg-transparent"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <span className="font-semibold text-slate-700">Manage Paycheck Routines</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">Manage Paycheck Routines</span>
               </div>
               <svg className="h-5 w-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -276,18 +276,18 @@ export default function ProfilePage() {
             </ButtonLink>
           </div>
 
-          <div className="p-4 hover:bg-slate-50 transition-colors">
+          <div className="p-4 hover:bg-slate-50 transition-colors dark:hover:bg-slate-800/50">
             <button
               onClick={() => setIsExportModalOpen(true)}
               className="flex w-full items-center justify-between border-0 shadow-none bg-transparent px-2 py-2"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                   </svg>
                 </div>
-                <span className="font-semibold text-slate-700">Export & Backup Financial Data</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">Export & Backup Financial Data</span>
               </div>
             </button>
           </div>
@@ -296,23 +296,23 @@ export default function ProfilePage() {
 
       {/* Danger Zone & Logout */}
       <div className="space-y-3 pt-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-rose-600 px-1">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400 px-1">
           Danger Zone
         </h3>
-        <div className="rounded-2xl border border-rose-200 bg-white shadow-sm overflow-hidden">
-          <div className="p-4 hover:bg-rose-50/40 transition-colors">
+        <div className="rounded-2xl border border-rose-200/80 bg-white/90 shadow-sm overflow-hidden dark:border-rose-500/20 dark:bg-slate-900/80 backdrop-blur-md">
+          <div className="p-4 hover:bg-rose-50/40 transition-colors dark:hover:bg-rose-500/10">
             <button
               onClick={() => setShowDeleteModal(true)}
               className="flex w-full items-center justify-between border-0 shadow-none bg-transparent px-2 py-2 text-left"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </div>
                 <div>
-                  <span className="block font-semibold text-rose-600">Delete Account</span>
+                  <span className="block font-semibold text-rose-600 dark:text-rose-400">Delete Account</span>
                   <span className="block text-xs font-normal text-slate-400">Permanently erase all your financial data</span>
                 </div>
               </div>
@@ -326,7 +326,7 @@ export default function ProfilePage() {
         <div className="pt-4">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-expense-50 px-5 py-4 text-sm font-bold text-expense-600 transition hover:bg-expense-100 active:scale-95"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-expense-50 px-5 py-4 text-sm font-bold text-expense-600 transition hover:bg-expense-100 active:scale-95 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

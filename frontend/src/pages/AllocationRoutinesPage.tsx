@@ -249,35 +249,35 @@ export default function AllocationRoutinesPage() {
           {formError && <div className="text-sm text-red-600 font-medium">{formError}</div>}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Routine Name *</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Routine Name *</span>
               <input
                 type="text"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 placeholder="e.g. Sisihan Cair Harian"
                 required
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-primary-900"
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Description (Optional)</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Description (Optional)</span>
               <input
                 type="text"
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
                 placeholder="e.g. 10% Dana Darurat, 5% Reksadana"
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-primary-900"
               />
             </label>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-slate-800">Transfer Items</span>
+              <span className="text-sm font-bold text-slate-800 dark:text-white">Transfer Items</span>
               <button
                 type="button"
                 onClick={handleAddItemRow}
-                className="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                className="text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 flex items-center gap-1"
               >
                 <Plus size={14} /> Add Another Transfer
               </button>
@@ -287,15 +287,15 @@ export default function AllocationRoutinesPage() {
               {formItems.map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center"
+                  className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-800"
                 >
                   <div className="flex-1 grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <label className="block">
-                      <span className="text-xs text-slate-500">From Account</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">From Account</span>
                       <select
                         value={item.accountId}
                         onChange={(e) => handleItemChange(idx, 'accountId', e.target.value)}
-                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                       >
                         {accounts.map((acc) => (
                           <option key={acc.id} value={acc.id}>
@@ -306,11 +306,11 @@ export default function AllocationRoutinesPage() {
                     </label>
 
                     <label className="block">
-                      <span className="text-xs text-slate-500">To Account</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">To Account</span>
                       <select
                         value={item.toAccountId}
                         onChange={(e) => handleItemChange(idx, 'toAccountId', e.target.value)}
-                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                       >
                         {accounts.map((acc) => (
                           <option key={acc.id} value={acc.id}>
@@ -321,7 +321,7 @@ export default function AllocationRoutinesPage() {
                     </label>
 
                     <label className="block">
-                      <span className="text-xs text-slate-500">Amount (Rp)</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">Amount (Rp)</span>
                       <input
                         type="number"
                         min="1000"
@@ -329,23 +329,23 @@ export default function AllocationRoutinesPage() {
                         value={item.amount}
                         onChange={(e) => handleItemChange(idx, 'amount', Number(e.target.value))}
                         required
-                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none"
+                        className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                       />
                     </label>
                   </div>
 
-                  <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-700">
                     <input
                       type="text"
                       value={item.description || ''}
                       onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
                       placeholder="Note (optional)"
-                      className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs text-slate-600 outline-none w-full sm:w-36"
+                      className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs text-slate-600 outline-none w-full sm:w-36 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                     />
                     <button
                       type="button"
                       onClick={() => handleRemoveItemRow(idx)}
-                      className="p-1.5 text-slate-400 hover:text-red-600 transition"
+                      className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition"
                       title="Remove item"
                     >
                       <Trash2 size={16} />
@@ -356,7 +356,7 @@ export default function AllocationRoutinesPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
             <Button
               type="button"
               variant="secondary"
@@ -385,25 +385,25 @@ export default function AllocationRoutinesPage() {
             return (
               <Card
                 key={routine.id}
-                className="flex flex-col justify-between hover:shadow-md transition-shadow border border-slate-200/80 bg-white overflow-hidden"
+                className="flex flex-col justify-between hover:shadow-md transition-shadow border border-slate-200/80 bg-white/90 dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md overflow-hidden"
               >
                 <CardContent className="p-6 flex flex-col justify-between h-full space-y-6">
                   <div>
                     <div className="flex items-start justify-between gap-4 mb-2">
                       <div>
-                        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600"><Zap size={18} /></span>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-950/40 dark:text-primary-400"><Zap size={18} /></span>
                           {routine.name}
                         </h3>
                         {routine.description && (
-                          <p className="text-xs text-slate-500 mt-1">{routine.description}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{routine.description}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => handleOpenEditForm(routine)}
-                          className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition"
+                          className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition"
                           title="Edit routine"
                         >
                           <Edit2 size={16} />
@@ -411,7 +411,7 @@ export default function AllocationRoutinesPage() {
                         <button
                           type="button"
                           onClick={() => setDeletingRoutine(routine)}
-                          className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition"
+                          className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 dark:hover:text-red-400 transition"
                           title="Delete routine"
                         >
                           <Trash2 size={16} />
@@ -419,28 +419,28 @@ export default function AllocationRoutinesPage() {
                       </div>
                     </div>
 
-                    <div className="mt-4 rounded-xl bg-slate-50 p-4 border border-slate-100">
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 pb-2 border-b border-slate-200/60">
+                    <div className="mt-4 rounded-xl bg-slate-50 p-4 border border-slate-100 dark:bg-slate-800/50 dark:border-slate-800">
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 pb-2 border-b border-slate-200/60 dark:border-slate-700/60">
                         <span>Allocation Split ({routine.items.length} transfers)</span>
-                        <span className="text-slate-900 font-bold">{formatCurrency(totalAmount)}</span>
+                        <span className="text-slate-900 dark:text-white font-bold">{formatCurrency(totalAmount)}</span>
                       </div>
 
                       <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
                         {routine.items.map((item) => (
                           <div
                             key={item.id}
-                            className="flex items-center justify-between text-xs text-slate-700 bg-white p-2 rounded-lg border border-slate-100 shadow-2xs"
+                            className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800 shadow-2xs"
                           >
                             <div className="flex items-center gap-1.5 truncate font-medium">
                               <span className="truncate max-w-[90px] sm:max-w-[120px]" title={item.account?.name || getAccountName(item.accountId)}>
                                 {item.account?.name || getAccountName(item.accountId)}
                               </span>
-                              <ArrowRight size={12} className="text-slate-400 shrink-0" />
-                              <span className="font-semibold text-primary-700 truncate max-w-[90px] sm:max-w-[120px]" title={item.toAccount?.name || getAccountName(item.toAccountId)}>
+                              <ArrowRight size={12} className="text-slate-400 dark:text-slate-500 shrink-0" />
+                              <span className="font-semibold text-primary-700 dark:text-primary-400 truncate max-w-[90px] sm:max-w-[120px]" title={item.toAccount?.name || getAccountName(item.toAccountId)}>
                                 {item.toAccount?.name || getAccountName(item.toAccountId)}
                               </span>
                             </div>
-                            <span className="font-bold text-slate-900 shrink-0 ml-2">
+                            <span className="font-bold text-slate-900 dark:text-white shrink-0 ml-2">
                               {formatCurrency(Number(item.amount))}
                             </span>
                           </div>

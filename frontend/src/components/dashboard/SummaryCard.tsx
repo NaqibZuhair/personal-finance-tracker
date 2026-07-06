@@ -15,17 +15,17 @@ function SummaryCard({
   tone = 'neutral',
 }: SummaryCardProps) {
   const toneColors = {
-    neutral: 'text-slate-900',
-    income: 'text-income-600',
-    expense: 'text-expense-600',
-    balance: 'text-primary-600',
+    neutral: 'text-slate-900 dark:text-slate-100',
+    income: 'text-income-600 dark:text-income-400',
+    expense: 'text-expense-600 dark:text-expense-400',
+    balance: 'text-primary-600 dark:text-primary-400',
   };
 
   const toneBackgrounds = {
-    neutral: 'bg-slate-100',
-    income: 'bg-income-50',
-    expense: 'bg-expense-50',
-    balance: 'bg-primary-50',
+    neutral: 'bg-slate-100 dark:bg-slate-800/80',
+    income: 'bg-income-50 dark:bg-income-500/10',
+    expense: 'bg-expense-50 dark:bg-expense-500/10',
+    balance: 'bg-primary-50 dark:bg-primary-500/10',
   };
 
   const toneIcons = {
@@ -50,7 +50,7 @@ function SummaryCard({
           </div>
           
           <div className="min-w-0">
-            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 truncate" title={label}>
+            <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate" title={label}>
               {label}
             </p>
             <p className={`mt-0.5 sm:mt-1 text-base sm:text-2xl font-black truncate ${toneColors[tone]}`} title={value}>
@@ -59,7 +59,7 @@ function SummaryCard({
           </div>
         </div>
         
-        <p className="mt-3 text-[10px] sm:text-xs font-medium text-slate-500 truncate" title={description}>
+        <p className="mt-3 text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 truncate" title={description}>
           {description}
         </p>
       </CardContent>

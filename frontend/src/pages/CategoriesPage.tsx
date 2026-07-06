@@ -261,15 +261,15 @@ function CategoryGroup({
   onConfirmDelete,
 }: CategoryGroupProps) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-        <p className="mt-1 text-sm text-slate-500">{description}</p>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h2>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
       </div>
 
       <div className="space-y-3">
         {categories.length === 0 ? (
-          <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-500">
+          <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
             No categories in this group.
           </p>
         ) : (
@@ -280,14 +280,14 @@ function CategoryGroup({
             return (
               <div
                 key={category.id}
-                className="rounded-xl border border-slate-100 bg-slate-50 p-4"
+                className="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/40"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="font-medium text-slate-900">
+                    <h3 className="font-medium text-slate-900 dark:text-white">
                       {category.name}
                     </h3>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                       Category ID: {category.id.slice(0, 8)}
                     </p>
                   </div>
@@ -317,11 +317,11 @@ function CategoryGroup({
                 </div>
 
                 {isPendingDelete && (
-                  <div className="mt-4 rounded-xl border border-rose-100 bg-white p-4">
-                    <p className="text-sm font-medium text-slate-900">
+                  <div className="mt-4 rounded-xl border border-rose-100 bg-white p-4 dark:border-rose-500/20 dark:bg-slate-900">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">
                       Delete this category?
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                       This action cannot be undone. Categories used by
                       transactions cannot be deleted.
                     </p>

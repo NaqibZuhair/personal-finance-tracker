@@ -44,33 +44,33 @@ export default function GoalForm({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-6 shadow-sm">
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-900">{title}</h2>
-        <p className="mt-1 text-sm text-slate-500">{description}</p>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{title}</h2>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>
       </div>
 
       {errorMessage && (
-        <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">
+        <div className="mb-6 rounded-xl bg-red-50 dark:bg-rose-950/40 border border-red-200 dark:border-rose-900/50 p-4 text-sm text-red-600 dark:text-rose-300">
           {errorMessage}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Goal Name</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Goal Name</span>
           <input
             type="text"
             required
             placeholder="e.g. New Laptop"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
+            className="mt-2 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-4 py-3 text-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-900/40"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Target Amount</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Target Amount</span>
           <input
             type="number"
             required
@@ -78,17 +78,17 @@ export default function GoalForm({
             placeholder="e.g. 15000000"
             value={targetAmount}
             onChange={(e) => setTargetAmount(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
+            className="mt-2 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-4 py-3 text-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-900/40"
           />
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Deadline (Optional)</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Deadline (Optional)</span>
           <input
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
+            className="mt-2 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-3 text-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 dark:focus:ring-primary-900/40"
           />
         </label>
 

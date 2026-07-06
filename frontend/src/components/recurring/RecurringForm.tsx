@@ -81,13 +81,13 @@ export default function RecurringForm({
   const filteredCategories = categories.filter((c) => c.type === type);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mb-6">
+    <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 p-6 shadow-sm mb-6">
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{title}</h2>
       </div>
 
       {errorMessage && (
-        <div className="mb-6 rounded-xl bg-red-50 p-4 text-sm text-red-600">
+        <div className="mb-6 rounded-xl bg-red-50 dark:bg-rose-950/40 border border-red-200 dark:border-rose-900/50 p-4 text-sm text-red-600 dark:text-rose-300">
           {errorMessage}
         </div>
       )}
@@ -95,11 +95,11 @@ export default function RecurringForm({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Type</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Type</span>
             <select
               value={type}
               onChange={(e) => setType(e.target.value as TransactionType)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-primary-500"
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-2 text-sm outline-none focus:border-primary-500"
             >
               <option value="expense">Expense (e.g. Netflix, Rent)</option>
               <option value="income">Income (e.g. Salary, Interest)</option>
@@ -108,11 +108,11 @@ export default function RecurringForm({
           </label>
 
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Frequency</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Frequency</span>
             <select
               value={frequency}
               onChange={(e) => setFrequency(e.target.value as RecurringFrequency)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-primary-500"
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-2 text-sm outline-none focus:border-primary-500"
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -122,36 +122,36 @@ export default function RecurringForm({
           </label>
 
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Amount</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Amount</span>
             <input
               type="number"
               required
               min="1"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-primary-500"
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-4 py-2 text-sm outline-none focus:border-primary-500"
             />
           </label>
 
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Next Run Date</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Next Run Date</span>
             <input
               type="date"
               required
               value={nextRunDate}
               onChange={(e) => setNextRunDate(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-primary-500"
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-2 text-sm outline-none focus:border-primary-500"
             />
           </label>
 
           {type !== 'transfer' && (
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Category</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Category</span>
               <select
                 required
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-primary-500"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-2 text-sm outline-none focus:border-primary-500"
               >
                 <option value="" disabled>Select category</option>
                 {filteredCategories.map((c) => (
@@ -162,12 +162,12 @@ export default function RecurringForm({
           )}
 
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">{type === 'transfer' ? 'From Account' : 'Account'}</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{type === 'transfer' ? 'From Account' : 'Account'}</span>
             <select
               required
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-primary-500"
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-2 text-sm outline-none focus:border-primary-500"
             >
               <option value="" disabled>Select account</option>
               {accounts.filter(a => a.isActive).map((a) => (
@@ -175,15 +175,14 @@ export default function RecurringForm({
               ))}
             </select>
           </label>
-
           {type === 'transfer' && (
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">To Account</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">To Account</span>
               <select
                 required
                 value={toAccountId}
                 onChange={(e) => setToAccountId(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-primary-500"
+                className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-2 text-sm outline-none focus:border-primary-500"
               >
                 <option value="" disabled>Select destination</option>
                 {accounts.filter(a => a.isActive && a.id !== accountId).map((a) => (
@@ -192,14 +191,14 @@ export default function RecurringForm({
               </select>
             </label>
           )}
-          
+
           <label className="block md:col-span-2">
-            <span className="text-sm font-medium text-slate-700">Description (Optional)</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Description (Optional)</span>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm outline-none focus:border-primary-500"
+              className="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 px-4 py-2 text-sm outline-none focus:border-primary-500"
             />
           </label>
         </div>

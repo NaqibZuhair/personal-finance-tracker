@@ -46,12 +46,12 @@ function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-xs rounded-3xl bg-white p-6 shadow-2xl space-y-4 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+      <div className="w-full max-w-xs rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 shadow-2xl space-y-4 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
         <DialogIcon variant={confirmVariant as DialogIconVariant} size={28} />
 
         <div className="space-y-1 w-full">
-          <h3 className="text-base font-bold text-slate-900">{title}</h3>
-          <p className="text-xs leading-normal text-slate-500">{message}</p>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">{title}</h3>
+          <p className="text-xs leading-normal text-slate-500 dark:text-slate-400">{message}</p>
         </div>
 
         <div className="flex items-center justify-center gap-2 pt-2 w-full">
@@ -59,7 +59,7 @@ function ConfirmDialog({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="flex-1 rounded-xl py-2 px-3 font-semibold text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition disabled:opacity-50 whitespace-nowrap truncate"
+            className="flex-1 rounded-xl py-2 px-3 font-semibold text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-300 transition disabled:opacity-50 whitespace-nowrap truncate"
           >
             Cancel
           </button>

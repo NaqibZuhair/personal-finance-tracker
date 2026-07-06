@@ -55,24 +55,24 @@ export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAlloca
 
   if (routines.length === 0) {
     return (
-      <Card className="border border-slate-200 bg-slate-50/50 shadow-2xs">
+      <Card className="border border-slate-200 bg-slate-50/50 shadow-2xs dark:border-slate-800 dark:bg-slate-900/50">
         <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-slate-900">One-Click Paycheck Routines</h4>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-white">One-Click Paycheck Routines</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                 Automate your daily or irregular income allocations into savings and emergency funds with a single click.
               </p>
             </div>
           </div>
           <Link
             to="/routines"
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-slate-800 transition shrink-0"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 transition shrink-0"
           >
             Create Routine
           </Link>
@@ -82,31 +82,31 @@ export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAlloca
   }
 
   return (
-    <Card className="border border-slate-200 bg-white shadow-2xs overflow-hidden">
+    <Card className="border border-slate-200 bg-white shadow-2xs overflow-hidden dark:border-slate-800 dark:bg-slate-900/80 backdrop-blur-md">
       <CardContent className="p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-900">Quick Allocation Routines</h3>
-              <p className="text-xs text-slate-500">Execute multi-account transfers instantly</p>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Quick Allocation Routines</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Execute multi-account transfers instantly</p>
             </div>
           </div>
           <Link
             to="/routines"
-            className="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 transition"
+            className="text-xs font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 flex items-center gap-1 transition"
           >
             Manage Routines &rarr;
           </Link>
         </div>
 
         {successMessage && (
-          <div className="mb-4 flex items-center gap-2 rounded-xl bg-emerald-50 p-3.5 text-xs font-medium text-emerald-800 border border-emerald-200">
-            <svg className="h-4 w-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <div className="mb-4 flex items-center gap-2 rounded-xl bg-emerald-50 p-3.5 text-xs font-medium text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
+            <svg className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             <span>{successMessage}</span>
@@ -114,7 +114,7 @@ export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAlloca
         )}
 
         {errorMessage && (
-          <div className="mb-4 rounded-xl bg-rose-50 p-3.5 text-xs font-medium text-rose-800 border border-rose-200">
+          <div className="mb-4 rounded-xl bg-rose-50 p-3.5 text-xs font-medium text-rose-800 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20">
             {errorMessage}
           </div>
         )}
@@ -130,18 +130,18 @@ export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAlloca
             return (
               <div
                 key={routine.id}
-                className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/50 p-4 hover:border-slate-300 hover:bg-white transition shadow-2xs group"
+                className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/50 p-4 hover:border-slate-300 hover:bg-white transition shadow-2xs group dark:border-slate-800/80 dark:bg-slate-800/50 dark:hover:border-slate-700 dark:hover:bg-slate-800"
               >
                 <div className="mb-4">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold text-xs text-slate-900 truncate group-hover:text-primary-600 transition" title={routine.name}>
+                    <span className="font-semibold text-xs text-slate-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition" title={routine.name}>
                       {routine.name}
                     </span>
-                    <span className="text-[10px] font-medium text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-full shrink-0">
+                    <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-700 px-2 py-0.5 rounded-full shrink-0">
                       {routine.items.length} items
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-slate-900 mt-1.5">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white mt-1.5">
                     {formatCurrency(totalAmount)}
                   </p>
                 </div>
@@ -152,8 +152,8 @@ export default function QuickAllocationWidget({ onRoutineExecuted }: QuickAlloca
                   disabled={isExecuting}
                   className={`w-full flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-semibold text-white shadow-2xs transition ${
                     isExecuting
-                      ? 'bg-slate-400 cursor-not-allowed'
-                      : 'bg-primary-600 hover:bg-primary-700 active:scale-[0.98]'
+                      ? 'bg-slate-400 dark:bg-slate-600 cursor-not-allowed'
+                      : 'bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 active:scale-[0.98]'
                   }`}
                 >
                   <svg className={`h-3.5 w-3.5 ${isExecuting ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

@@ -157,11 +157,11 @@ export default function TransactionPrintPreviewPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 p-6 font-sans">
-        <div className="rounded-2xl bg-white p-8 shadow-lg text-center max-w-sm w-full">
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-[#090d16] p-6 font-sans">
+        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-lg text-center max-w-sm w-full">
           <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
-          <h3 className="mt-4 font-bold text-slate-800">Generating Preview...</h3>
-          <p className="text-sm text-slate-500 mt-1">Preparing clean spreadsheet layout for printing.</p>
+          <h3 className="mt-4 font-bold text-slate-800 dark:text-white">Generating Preview...</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Preparing clean spreadsheet layout for printing.</p>
         </div>
       </div>
     );
@@ -169,18 +169,18 @@ export default function TransactionPrintPreviewPage() {
 
   if (errorMessage) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 p-6 font-sans">
-        <div className="rounded-2xl bg-white p-8 shadow-lg text-center max-w-md w-full">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-[#090d16] p-6 font-sans">
+        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 shadow-lg text-center max-w-md w-full">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400">
             <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h3 className="mt-4 font-bold text-slate-800">Preview Error</h3>
-          <p className="text-sm text-rose-600 mt-2">{errorMessage}</p>
+          <h3 className="mt-4 font-bold text-slate-800 dark:text-white">Preview Error</h3>
+          <p className="text-sm text-rose-600 dark:text-rose-400 mt-2">{errorMessage}</p>
           <button
             onClick={() => window.close()}
-            className="mt-6 rounded-xl bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-slate-700 transition"
+            className="mt-6 rounded-xl bg-slate-800 dark:bg-slate-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-slate-700 dark:hover:bg-slate-600 transition"
           >
             Close Window
           </button>
@@ -190,9 +190,9 @@ export default function TransactionPrintPreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans pb-12">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#090d16] text-slate-800 dark:text-slate-100 font-sans pb-12 print:bg-white print:text-black">
       {/* Top Floating Action Bar (Hidden in Print) */}
-      <div className="no-print sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 py-4 shadow-sm">
+      <div className="no-print sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-6 py-4 shadow-sm">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -204,14 +204,14 @@ export default function TransactionPrintPreviewPage() {
                   window.history.back();
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Close Preview
             </button>
-            <span className="text-sm font-bold text-slate-700 hidden sm:inline">
+            <span className="text-sm font-bold text-slate-700 dark:text-white hidden sm:inline">
               Spreadsheet Report Preview
             </span>
           </div>
@@ -224,9 +224,9 @@ export default function TransactionPrintPreviewPage() {
                 exportParams.set('format', 'xlsx');
                 window.open(`${import.meta.env.VITE_API_BASE_URL}/transactions/export?${exportParams.toString()}`, '_blank');
               }}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-700 transition"
             >
-              <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Download Excel (.xlsx)
@@ -247,66 +247,66 @@ export default function TransactionPrintPreviewPage() {
       </div>
 
       {/* Printable Sheet Container */}
-      <div className="print-area mx-auto mt-6 max-w-6xl rounded-2xl border border-slate-200 bg-white p-8 shadow-xl sm:p-12">
+      <div className="print-area mx-auto mt-6 max-w-6xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 print:bg-white print:border-slate-200 p-8 shadow-xl sm:p-12 transition-all duration-200">
         {/* Document Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-slate-200 pb-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between border-b border-slate-200 dark:border-slate-800 print:border-slate-200 pb-6">
           <div>
             <div className="flex items-center gap-2.5">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white font-black text-xl shadow-md">
                 Rp
               </div>
               <div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-2xl font-black text-slate-900 dark:text-white print:text-black tracking-tight">
                   Personal Finance Tracker
                 </h1>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary-600">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary-600 dark:text-primary-400 print:text-primary-600">
                   Executive Financial Spreadsheet Report
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="text-left sm:text-right text-xs text-slate-500 space-y-1">
-            <p><span className="font-semibold text-slate-700">Filter Scope:</span> {filterText}</p>
-            <p><span className="font-semibold text-slate-700">Total Records:</span> {transactions.length} transactions</p>
-            <p><span className="font-semibold text-slate-700">Generated Date:</span> {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+          <div className="text-left sm:text-right text-xs text-slate-500 dark:text-slate-400 print:text-slate-500 space-y-1">
+            <p><span className="font-semibold text-slate-700 dark:text-slate-300 print:text-slate-700">Filter Scope:</span> {filterText}</p>
+            <p><span className="font-semibold text-slate-700 dark:text-slate-300 print:text-slate-700">Total Records:</span> {transactions.length} transactions</p>
+            <p><span className="font-semibold text-slate-700 dark:text-slate-300 print:text-slate-700">Generated Date:</span> {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
           </div>
         </div>
 
         {/* Financial Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Total Income</p>
-            <p className="mt-1 text-xl font-bold text-emerald-700 font-mono">+{formatCurrency(summary.income)}</p>
+          <div className="rounded-xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-500/10 print:bg-emerald-50/50 print:border-emerald-100 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 print:text-emerald-700">Total Income</p>
+            <p className="mt-1 text-xl font-bold text-emerald-700 dark:text-emerald-400 print:text-emerald-700 font-mono">+{formatCurrency(summary.income)}</p>
           </div>
-          <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-rose-700">Total Expense</p>
-            <p className="mt-1 text-xl font-bold text-rose-700 font-mono">-{formatCurrency(summary.expense)}</p>
+          <div className="rounded-xl border border-rose-100 dark:border-rose-500/20 bg-rose-50/50 dark:bg-rose-500/10 print:bg-rose-50/50 print:border-rose-100 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-400 print:text-rose-700">Total Expense</p>
+            <p className="mt-1 text-xl font-bold text-rose-700 dark:text-rose-400 print:text-rose-700 font-mono">-{formatCurrency(summary.expense)}</p>
           </div>
-          <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary-700">Net Flow / Balance</p>
-            <p className="mt-1 text-xl font-bold text-primary-700 font-mono">{formatCurrency(summary.net)}</p>
+          <div className="rounded-xl border border-primary-100 dark:border-primary-500/20 bg-primary-50/50 dark:bg-primary-500/10 print:bg-primary-50/50 print:border-primary-100 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary-700 dark:text-primary-400 print:text-primary-700">Net Flow / Balance</p>
+            <p className="mt-1 text-xl font-bold text-primary-700 dark:text-primary-400 print:text-primary-700 font-mono">{formatCurrency(summary.net)}</p>
           </div>
         </div>
 
-        {/* The Clean Spreadsheet Table (No Action buttons, No horizontal scroll clipping in print) */}
-        <div className="mt-8">
-          <table className="w-full border-collapse border border-slate-200 text-left text-sm">
+        {/* The Clean Spreadsheet Table */}
+        <div className="mt-8 overflow-x-auto">
+          <table className="w-full border-collapse border border-slate-200 dark:border-slate-800 print:border-slate-200 text-left text-sm">
             <thead>
-              <tr className="bg-slate-100 text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-200">
-                <th className="border border-slate-200 px-3 py-3 w-12 text-center">No.</th>
-                <th className="border border-slate-200 px-4 py-3">Date</th>
-                <th className="border border-slate-200 px-4 py-3">Type</th>
-                <th className="border border-slate-200 px-4 py-3">Category</th>
-                <th className="border border-slate-200 px-4 py-3">Account</th>
-                <th className="border border-slate-200 px-4 py-3">Description</th>
-                <th className="border border-slate-200 px-4 py-3 text-right">Amount</th>
+              <tr className="bg-slate-100 dark:bg-slate-800/80 print:bg-slate-100 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 print:text-slate-700 border-b border-slate-200 dark:border-slate-800 print:border-slate-200">
+                <th className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-3 py-3 w-12 text-center">No.</th>
+                <th className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3">Date</th>
+                <th className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3">Type</th>
+                <th className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3">Category</th>
+                <th className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3">Account</th>
+                <th className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3">Description</th>
+                <th className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3 text-right">Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 print:divide-slate-200">
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="border border-slate-200 px-4 py-8 text-center text-slate-500 italic">
+                  <td colSpan={7} className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-8 text-center text-slate-500 dark:text-slate-400 italic">
                     No transaction records found matching the criteria.
                   </td>
                 </tr>
@@ -315,35 +315,35 @@ export default function TransactionPrintPreviewPage() {
                   const isIncome = t.type === 'income';
                   const isTransfer = t.type === 'transfer';
                   return (
-                    <tr key={t.id} className="even:bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
-                      <td className="border border-slate-200 px-3 py-3 text-center font-mono text-xs text-slate-500">
+                    <tr key={t.id} className="even:bg-slate-50/50 dark:even:bg-slate-800/40 print:even:bg-slate-50/50 hover:bg-slate-100/50 dark:hover:bg-slate-800/60 print:hover:bg-slate-100/50 transition-colors">
+                      <td className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-3 py-3 text-center font-mono text-xs text-slate-500 dark:text-slate-400 print:text-slate-500">
                         {index + 1}
                       </td>
-                      <td className="border border-slate-200 px-4 py-3 font-medium text-slate-700 whitespace-nowrap">
+                      <td className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3 font-medium text-slate-700 dark:text-slate-300 print:text-slate-700 whitespace-nowrap">
                         {formatDate(t.transactionDate)}
                       </td>
-                      <td className="border border-slate-200 px-4 py-3">
+                      <td className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3">
                         <CategoryTypeBadge type={t.type} />
                       </td>
-                      <td className="border border-slate-200 px-4 py-3 text-slate-700 font-medium">
+                      <td className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3 text-slate-700 dark:text-slate-300 print:text-slate-700 font-medium">
                         {isTransfer ? 'Transfer' : t.category?.name ?? 'Uncategorized'}
                       </td>
-                      <td className="border border-slate-200 px-4 py-3 text-slate-600">
+                      <td className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3 text-slate-600 dark:text-slate-400 print:text-slate-600">
                         {isTransfer
                           ? `${t.account?.name ?? '?'} → ${t.toAccount?.name ?? '?'}`
                           : t.account?.name ?? '-'}
                       </td>
-                      <td className="border border-slate-200 px-4 py-3 text-slate-600 max-w-xs truncate">
+                      <td className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3 text-slate-600 dark:text-slate-400 print:text-slate-600 max-w-xs truncate">
                         {t.description || '-'}
                       </td>
-                      <td className="border border-slate-200 px-4 py-3 text-right font-mono font-bold whitespace-nowrap">
+                      <td className="border border-slate-200 dark:border-slate-800 print:border-slate-200 px-4 py-3 text-right font-mono font-bold whitespace-nowrap">
                         <span
                           className={
                             isIncome
-                              ? 'text-emerald-600'
+                              ? 'text-emerald-600 dark:text-emerald-400 print:text-emerald-600'
                               : isTransfer
-                                ? 'text-primary-600'
-                                : 'text-rose-600'
+                                ? 'text-primary-600 dark:text-primary-400 print:text-primary-600'
+                                : 'text-rose-600 dark:text-rose-400 print:text-rose-600'
                           }
                         >
                           {isIncome ? '+' : isTransfer ? '' : '-'}
@@ -359,7 +359,7 @@ export default function TransactionPrintPreviewPage() {
         </div>
 
         {/* Document Footer Note */}
-        <div className="mt-12 border-t border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+        <div className="mt-12 border-t border-slate-200 dark:border-slate-800 print:border-slate-200 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 dark:text-slate-500 print:text-slate-400 gap-2">
           <p>Confidential Financial Record &bull; Personal Finance Tracker App</p>
           <p>End of Report &bull; Total Items: {transactions.length}</p>
         </div>

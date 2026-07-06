@@ -124,44 +124,44 @@ export default function RecurringTransactionsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {recurring.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
+            <div className="col-span-full rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500 dark:border-slate-700 dark:text-slate-400 dark:bg-slate-800/40">
               You haven't set up any recurring transactions yet.
             </div>
           ) : (
             recurring.map((item) => (
-              <div key={item.id} className={`rounded-2xl border p-5 shadow-sm transition ${item.isActive ? 'bg-white border-slate-200' : 'bg-slate-50 border-slate-200 opacity-70'}`}>
+              <div key={item.id} className={`rounded-2xl border p-5 shadow-sm transition ${item.isActive ? 'bg-white/90 border-slate-200/80 dark:bg-slate-900/80 dark:border-slate-800/80 backdrop-blur-md' : 'bg-slate-50/80 border-slate-200/80 dark:bg-slate-900/40 dark:border-slate-800/60 opacity-70'}`}>
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="font-bold text-slate-800 text-lg">
+                    <h3 className="font-bold text-slate-800 dark:text-white text-lg">
                       {item.description || item.category?.name || 'Recurring'}
                     </h3>
-                    <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded-md ${item.type === 'expense' ? 'bg-rose-100 text-rose-700' : item.type === 'income' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                    <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded-md ${item.type === 'expense' ? 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border dark:border-rose-500/20' : item.type === 'income' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border dark:border-emerald-500/20' : 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border dark:border-blue-500/20'}`}>
                       {item.frequency.toUpperCase()}
                     </span>
                   </div>
                   <div className="text-right">
-                    <p className={`font-black ${item.type === 'expense' ? 'text-rose-600' : 'text-slate-900'}`}>
+                    <p className={`font-black ${item.type === 'expense' ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'}`}>
                       {formatCurrency(item.amount)}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 text-sm text-slate-500">
-                  <p>Next run: <strong className="text-slate-700">{new Date(item.nextRunDate).toLocaleDateString()}</strong></p>
+                <div className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                  <p>Next run: <strong className="text-slate-700 dark:text-slate-200">{new Date(item.nextRunDate).toLocaleDateString()}</strong></p>
                   <p>Account: {item.account?.name}</p>
                 </div>
 
-                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+                <div className="mt-5 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
                   <button 
                     onClick={() => toggleActive(item.id, item.isActive)}
-                    className={`text-sm font-semibold ${item.isActive ? 'text-amber-600 hover:text-amber-700' : 'text-emerald-600 hover:text-emerald-700'}`}
+                    className={`text-sm font-semibold ${item.isActive ? 'text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300' : 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300'}`}
                   >
                     {item.isActive ? 'Pause' : 'Resume'}
                   </button>
                   <div className="flex items-center gap-4">
                     <button 
                       onClick={() => setEditingRecurring(item)}
-                      className="text-slate-400 hover:text-primary-600 transition"
+                      className="text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
                       title="Edit Subscription"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +170,7 @@ export default function RecurringTransactionsPage() {
                     </button>
                     <button 
                       onClick={() => setDeletingId(item.id)}
-                      className="text-sm font-semibold text-rose-500 hover:text-rose-700"
+                      className="text-sm font-semibold text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300"
                     >
                       Delete
                     </button>

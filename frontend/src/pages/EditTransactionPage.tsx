@@ -91,6 +91,7 @@ function EditTransactionPage() {
       type: transaction.type,
       amount: Number(transaction.amount),
       description: transaction.description ?? '',
+      tags: transaction.tags ?? [],
       transactionDate: formatDateForInput(transaction.transactionDate),
       categoryId: transaction.categoryId ?? undefined,
       accountId: transaction.accountId ?? fallbackAccount?.id ?? '',

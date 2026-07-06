@@ -3,12 +3,12 @@ import { NavLink } from 'react-router';
 export default function BottomNav() {
   const getNavClass = ({ isActive }: { isActive: boolean }) => {
     return `flex flex-col items-center justify-center gap-1 w-full h-full transition-colors ${
-      isActive ? 'text-primary-600' : 'text-slate-400 hover:text-slate-600'
+      isActive ? 'text-primary-600 dark:text-primary-400' : 'text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300'
     }`;
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-t border-slate-200/50 bg-white/80 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-t border-slate-200/50 bg-white/80 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-md dark:border-slate-800/80 dark:bg-[#090d16]/90 transition-colors duration-300 md:hidden">
       
       {/* Dashboard Tab */}
       <NavLink to="/" className={getNavClass} end>
@@ -48,7 +48,7 @@ export default function BottomNav() {
       <div className="relative -top-5 flex w-full justify-center">
         <NavLink
           to="/transactions/new"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-500/40 ring-4 ring-white transition-transform active:scale-95"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-500/40 ring-4 ring-white dark:ring-[#090d16] transition-transform active:scale-95 hover:scale-105"
         >
           <svg
             className="h-7 w-7"

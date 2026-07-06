@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Primary: Royal Indigo (The Soul) */
   --color-primary-50: #f4f4ff;
@@ -12,6 +14,7 @@
   --color-primary-700: #4a3cd1; 
   --color-primary-800: #3c32a7; 
   --color-primary-900: #332d84; 
+  --color-primary-950: #1e1952;
 
   /* Income: Emerald */
   --color-income-50: #ecfdf5;
@@ -51,7 +54,17 @@
 
 @layer base {
   body {
-    @apply bg-background text-slate-900 antialiased;
+    @apply bg-background text-slate-900 antialiased transition-colors duration-300 dark:bg-[#090d16] dark:text-slate-100;
+  }
+}
+
+/* Micro-animations and Glassmorphism Utilities */
+@layer utilities {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-lg dark:bg-slate-900/70 dark:border-slate-800/80 dark:shadow-slate-950/50 transition-all duration-200;
+  }
+  .glass-card-hover {
+    @apply hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] transition-all duration-200;
   }
 }
 

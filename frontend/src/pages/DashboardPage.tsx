@@ -25,6 +25,8 @@ type CategorySummary = {
   month: string;
   totalExpense: number;
   categories: CategorySummaryItem[];
+  totalIncome?: number;
+  incomeCategories?: CategorySummaryItem[];
 };
 
 type MonthlySummaryResponse = {
@@ -118,14 +120,14 @@ function DashboardPage() {
         />
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Summary Month
           </span>
           <input
             type="month"
             value={selectedMonth}
             onChange={(event) => setSelectedMonth(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 sm:w-56"
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-100 dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:focus:ring-primary-900/40 sm:w-56"
           />
         </label>
       </div>
@@ -148,7 +150,7 @@ function DashboardPage() {
                 <button
                   type="button"
                   onClick={() => setShowAllAssets((prev) => !prev)}
-                  className="absolute right-4 top-4 rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-semibold text-primary-700 transition hover:bg-primary-200"
+                  className="absolute right-4 top-4 rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-semibold text-primary-700 transition hover:bg-primary-200 dark:bg-primary-500/20 dark:text-primary-300 dark:hover:bg-primary-500/30"
                 >
                   {showAllAssets ? "Daily Only" : "See All Assets"}
                 </button>
@@ -199,10 +201,12 @@ function DashboardPage() {
             categorySummary={categorySummary.categories}
           />
 
-          <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <CategorySummaryList
               totalExpense={categorySummary.totalExpense}
               categories={categorySummary.categories}
+              totalIncome={categorySummary.totalIncome || 0}
+              incomeCategories={categorySummary.incomeCategories || []}
             />
 
             <RecentTransactionsList transactions={recentTransactions} />

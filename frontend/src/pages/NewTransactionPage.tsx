@@ -160,6 +160,7 @@ function NewTransactionPage() {
               toAccountId: initialToAccountId,
               amount: 0,
               description: '',
+              tags: [],
               transactionDate: new Date().toISOString().slice(0, 10),
               accountId: '',
             }}

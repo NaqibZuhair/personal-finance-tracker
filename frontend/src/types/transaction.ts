@@ -10,6 +10,7 @@ export type Transaction = {
   type: TransactionType;
   amount: string;
   description: string | null;
+  tags?: string[];
   transactionDate: string;
   categoryId?: string | null;
   category?: Category | null;
