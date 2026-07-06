@@ -90,48 +90,60 @@ export async function getCategorySummary(req: AuthRequest, res: Response) {
       lt: endDate,
     };
 
-    const groupedExpenses = await prisma.transaction.groupBy({
-      by: ['categoryId'],
-      where: {
-        type: 'expense',
-        transactionDate: dateFilter,
-        userId: req.userId,
-      },
-      _sum: {
-        amount: true,
-      },
-    });
+    const [groupedExpenses, groupedIncomes] = await Promise.all([
+      prisma.transaction.groupBy({
+        by: ['categoryId'],
+        where: {
+          type: 'expense',
+          transactionDate: dateFilter,
+          userId: req.userId,
+        },
+        _sum: { amount: true },
+      }),
+      prisma.transaction.groupBy({
+        by: ['categoryId'],
+        where: {
+          type: 'income',
+          transactionDate: dateFilter,
+          userId: req.userId,
+        },
+        _sum: { amount: true },
+      }),
+    ]);
 
-    const totalExpense = groupedExpenses.reduce((total, item) => {
-      return total + Number(item._sum.amount ?? 0);
-    }, 0);
+    const totalExpense = groupedExpenses.reduce((total, item) => total + Number(item._sum.amount ?? 0), 0);
+    const totalIncome = groupedIncomes.reduce((total, item) => total + Number(item._sum.amount ?? 0), 0);
 
-    const categoryIds = groupedExpenses
-      .map((item) => item.categoryId)
-      .filter((id): id is string => id !== null);
+    const expenseCategoryIds = groupedExpenses.map((item) => item.categoryId).filter((id): id is string => id !== null);
+    const incomeCategoryIds = groupedIncomes.map((item) => item.categoryId).filter((id): id is string => id !== null);
+    const allCategoryIds = Array.from(new Set([...expenseCategoryIds, ...incomeCategoryIds]));
 
     const categories = await prisma.category.findMany({
-      where: {
-        id: {
-          in: categoryIds,
-        },
-      },
+      where: { id: { in: allCategoryIds } },
     });
 
-    const categorySummary = groupedExpenses
+    const expenseSummary = groupedExpenses
       .map((item) => {
-        const category = categories.find(
-          (currentCategory) => currentCategory.id === item.categoryId,
-        );
-
+        const category = categories.find((c) => c.id === item.categoryId);
         const total = Number(item._sum.amount ?? 0);
-
         return {
           categoryId: item.categoryId,
           categoryName: category?.name ?? 'Unknown Category',
           total,
-          percentage:
-            totalExpense > 0 ? Number(((total / totalExpense) * 100).toFixed(2)) : 0,
+          percentage: totalExpense > 0 ? Number(((total / totalExpense) * 100).toFixed(2)) : 0,
+        };
+      })
+      .sort((a, b) => b.total - a.total);
+
+    const incomeSummary = groupedIncomes
+      .map((item) => {
+        const category = categories.find((c) => c.id === item.categoryId);
+        const total = Number(item._sum.amount ?? 0);
+        return {
+          categoryId: item.categoryId,
+          categoryName: category?.name ?? 'Unknown Category',
+          total,
+          percentage: totalIncome > 0 ? Number(((total / totalIncome) * 100).toFixed(2)) : 0,
         };
       })
       .sort((a, b) => b.total - a.total);
@@ -140,7 +152,9 @@ export async function getCategorySummary(req: AuthRequest, res: Response) {
       data: {
         month: query.month,
         totalExpense,
-        categories: categorySummary,
+        categories: expenseSummary,
+        totalIncome,
+        incomeCategories: incomeSummary,
       },
     });
   } catch (error) {

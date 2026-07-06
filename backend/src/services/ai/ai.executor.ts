@@ -44,6 +44,20 @@ export async function getAccountsWithBalances(userId: string) {
   });
 }
 
+export async function getUserUniqueTags(userId: string): Promise<string[]> {
+  const txs = await prisma.transaction.findMany({
+    where: { userId, tags: { isEmpty: false } },
+    select: { tags: true },
+  });
+  const tagSet = new Set<string>();
+  txs.forEach((tx) => {
+    if (tx.tags && Array.isArray(tx.tags)) {
+      tx.tags.forEach((t) => typeof t === 'string' && tagSet.add(t.toLowerCase().trim()));
+    }
+  });
+  return Array.from(tagSet).sort();
+}
+
 export async function executeTool(userId: string, toolName: string, args: Record<string, any>) {
   switch (toolName) {
     // --- ACCOUNTS ---
@@ -96,8 +110,14 @@ export async function executeTool(userId: string, toolName: string, args: Record
 
     // --- TRANSACTIONS ---
     case 'record_transaction': {
-      const { amount, type, categoryId, accountId, toAccountId, description, transactionDate } = args;
+      const { amount, type, categoryId, accountId, toAccountId, description, transactionDate, tags } = args;
       const parsedDate = transactionDate ? new Date(transactionDate) : new Date();
+
+      const cleanTags = Array.isArray(tags)
+        ? tags
+            .map((t: any) => (typeof t === 'string' ? t.replace(/^#/, '').toLowerCase().trim() : ''))
+            .filter(Boolean)
+        : [];
 
       const trx = await prisma.transaction.create({
         data: {
@@ -109,6 +129,7 @@ export async function executeTool(userId: string, toolName: string, args: Record
           toAccountId: type === 'transfer' ? toAccountId || null : null,
           description: description || (type === 'income' ? 'Pemasukan' : type === 'expense' ? 'Pengeluaran' : 'Transfer'),
           transactionDate: parsedDate,
+          tags: cleanTags,
         },
         include: {
           category: { select: { name: true } },
@@ -164,6 +185,9 @@ export async function executeTool(userId: string, toolName: string, args: Record
         const endDate = new Date(startDate);
         endDate.setUTCMonth(endDate.getUTCMonth() + 1);
         where.transactionDate = { gte: startDate, lt: endDate };
+      }
+      if (args.tag) {
+        where.tags = { has: args.tag.replace(/^#/, '').toLowerCase().trim() };
       }
 
       return await prisma.transaction.findMany({
