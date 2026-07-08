@@ -32,6 +32,7 @@ model User {
   passwordHash String
   name         String
   waPhone      String? @unique
+  aiMemory     String?
 
   accounts              Account[]
   categories            Category[]
@@ -71,6 +72,8 @@ model Transaction {
   type            TransactionType
   amount          Decimal         @db.Decimal(12, 2)
   description     String?
+  merchantName    String?
+  lineItems       Json?
   tags            String[]        @default([])
   transactionDate DateTime
 

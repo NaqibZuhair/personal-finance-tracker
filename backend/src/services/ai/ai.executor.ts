@@ -110,7 +110,7 @@ export async function executeTool(userId: string, toolName: string, args: Record
 
     // --- TRANSACTIONS ---
     case 'record_transaction': {
-      const { amount, type, categoryId, accountId, toAccountId, description, transactionDate, tags } = args;
+      const { amount, type, categoryId, accountId, toAccountId, description, merchantName, lineItems, transactionDate, tags } = args;
       const parsedDate = transactionDate ? new Date(transactionDate) : new Date();
 
       const cleanTags = Array.isArray(tags)
@@ -128,6 +128,8 @@ export async function executeTool(userId: string, toolName: string, args: Record
           accountId,
           toAccountId: type === 'transfer' ? toAccountId || null : null,
           description: description || (type === 'income' ? 'Pemasukan' : type === 'expense' ? 'Pengeluaran' : 'Transfer'),
+          merchantName: merchantName || null,
+          lineItems: lineItems || null,
           transactionDate: parsedDate,
           tags: cleanTags,
         },
@@ -485,8 +487,62 @@ export async function executeTool(userId: string, toolName: string, args: Record
         totalExpense: Number(t._sum.amount || 0),
       })).sort((a, b) => b.totalExpense - a.totalExpense);
     }
+    case 'save_user_memory': {
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { aiMemory: true } });
+      let currentMem = user?.aiMemory ? `${user.aiMemory}\n- ${args.memory}` : `- ${args.memory}`;
+      if (currentMem.length > 1000) {
+        currentMem = currentMem.slice(0, 1000);
+      }
+      await prisma.user.update({
+        where: { id: userId },
+        data: { aiMemory: currentMem },
+      });
+      return { message: '🧠 Habit / catatan berhasil disimpan ke dalam Memori Jangka Panjang AI (Batas 1000 karakter terjaga)!', savedMemory: args.memory };
+    }
 
     default:
       throw new Error(`Tool ${toolName} tidak dikenali`);
   }
+}
+
+export async function getUserAIMemoryAndHabits(userId: string): Promise<string> {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { aiMemory: true, name: true } });
+  
+  // Hitung habit belanja 30 hari terakhir
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const recentTrx = await prisma.transaction.findMany({
+    where: { userId, type: 'expense', transactionDate: { gte: thirtyDaysAgo } },
+    select: { amount: true, description: true, merchantName: true, category: { select: { name: true } } },
+    orderBy: { transactionDate: 'desc' },
+    take: 50,
+  });
+
+  const totalSpent = recentTrx.reduce((acc, t) => acc + Number(t.amount), 0);
+  const avgDaily = Math.round(totalSpent / 30);
+  
+  // Cari kategori & merchant tersering
+  const catCounts: Record<string, number> = {};
+  const merchCounts: Record<string, number> = {};
+  recentTrx.forEach((t) => {
+    const cat = t.category?.name || 'Lainnya';
+    catCounts[cat] = (catCounts[cat] || 0) + 1;
+    if (t.merchantName) {
+      merchCounts[t.merchantName] = (merchCounts[t.merchantName] || 0) + 1;
+    }
+  });
+
+  const topCat = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Belum ada';
+  const topMerch = Object.entries(merchCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Belum ada';
+
+  let habitReport = `[STATISTIK HABIT 30 HARI TERAKHIR]:\n`;
+  habitReport += `- Total Pengeluaran 30 Hari: Rp ${totalSpent.toLocaleString('id-ID')}\n`;
+  habitReport += `- Rata-rata Pengeluaran Harian: Rp ${avgDaily.toLocaleString('id-ID')}\n`;
+  habitReport += `- Kategori Paling Sering: "${topCat}"\n`;
+  habitReport += `- Tempat/Merchant Paling Sering: "${topMerch}"\n\n`;
+  habitReport += `[CATATAN KHUSUS & INGATAN JANGKA PANJANG AI (AI MEMORY)]:\n`;
+  habitReport += user?.aiMemory || 'Belum ada catatan memori khusus yang disimpan oleh user.';
+
+  return habitReport;
 }

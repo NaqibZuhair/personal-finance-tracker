@@ -199,6 +199,7 @@ export async function getMe(req: AuthRequest, res: Response) {
         name: user.name,
         email: user.email,
         waPhone: user.waPhone,
+        aiMemory: user.aiMemory,
       },
     });
   } catch (error) {
@@ -214,7 +215,7 @@ export async function updateProfile(req: AuthRequest, res: Response) {
       return;
     }
 
-    const { name, waPhone } = updateProfileSchema.parse(req.body);
+    const { name, waPhone, aiMemory } = updateProfileSchema.parse(req.body);
     const cleanedPhone = normalizeWaPhone(waPhone);
 
     if (cleanedPhone) {
@@ -235,6 +236,7 @@ export async function updateProfile(req: AuthRequest, res: Response) {
       data: {
         ...(name !== undefined && { name }),
         ...(waPhone !== undefined && { waPhone: cleanedPhone }),
+        ...(aiMemory !== undefined && { aiMemory }),
       },
     });
 
@@ -245,6 +247,7 @@ export async function updateProfile(req: AuthRequest, res: Response) {
         name: updated.name,
         email: updated.email,
         waPhone: updated.waPhone,
+        aiMemory: updated.aiMemory,
       },
     });
   } catch (error) {

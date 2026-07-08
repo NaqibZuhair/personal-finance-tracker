@@ -18,6 +18,13 @@ export async function apiClient<T>(
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    const text = await response.text();
+    console.error(`[API Client Non-JSON Response for ${path}]:`, text.slice(0, 200));
+    throw new Error('⚠️ Koneksi ke server API gagal (respons bukan JSON). Pastikan server backend aktif atau coba refresh halaman.');
+  }
+
   const result = await response.json();
 
   if (!response.ok) {

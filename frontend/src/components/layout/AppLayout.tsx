@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import Navbar from './Navbar';
 import BottomNav from './BottomNav';
+import AIChatWidget from './AIChatWidget';
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -13,6 +14,7 @@ function AppLayout({ children }: AppLayoutProps) {
 
       <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
       
+      <AIChatWidget />
       <BottomNav />
     </main>
   );

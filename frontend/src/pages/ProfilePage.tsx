@@ -10,11 +10,16 @@ import Modal from '../components/ui/Modal';
 import ExportModal from '../components/transactions/ExportModal';
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [showMemoryModal, setShowMemoryModal] = useState(false);
+  const [memoryText, setMemoryText] = useState(user?.aiMemory || '');
+  const [memoryLoading, setMemoryLoading] = useState(false);
+  const [memoryError, setMemoryError] = useState('');
+  const [memorySuccess, setMemorySuccess] = useState('');
   const [deleteStep, setDeleteStep] = useState<1 | 2>(1);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteOtp, setDeleteOtp] = useState('');
@@ -30,6 +35,28 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  const handleSaveMemory = async (newMemory: string | null) => {
+    setMemoryLoading(true);
+    setMemoryError('');
+    setMemorySuccess('');
+    try {
+      const res = await apiClient<{ message: string; data: any }>('/auth/profile', {
+        method: 'PUT',
+        body: { aiMemory: newMemory },
+      });
+      updateUser({ aiMemory: res.data.aiMemory });
+      setMemorySuccess(newMemory === null ? 'Memori AI berhasil dikosongkan.' : 'Memori AI berhasil disimpan.');
+      setTimeout(() => {
+        setShowMemoryModal(false);
+        setMemorySuccess('');
+      }, 1200);
+    } catch (err: any) {
+      setMemoryError(err.message || 'Gagal memperbarui memori AI');
+    } finally {
+      setMemoryLoading(false);
+    }
   };
 
   const handleRequestDeleteOtp = async (e: React.FormEvent) => {
@@ -166,6 +193,49 @@ export default function ProfilePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </ButtonLink>
+          </div>
+        </div>
+      </div>
+
+      {/* AI Wealth Advisor Memory & Personalization Section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+            AI Advisor Memory & Personalization
+          </h3>
+          <span className="text-[10px] text-slate-400 font-mono">Max 1000 Chars</span>
+        </div>
+        <div className="rounded-2xl border border-purple-200/80 bg-gradient-to-br from-purple-50/50 via-white to-slate-50 shadow-sm overflow-hidden dark:border-purple-900/50 dark:from-purple-950/20 dark:via-slate-900 dark:to-slate-900 backdrop-blur-md p-5">
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 shadow-inner">
+                <svg className="h-5 w-5 animate-pulse" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <span className="block font-bold text-slate-800 dark:text-slate-100">Ingatan Jangka Panjang AI</span>
+                <span className="block text-xs text-slate-500 dark:text-slate-400">Fakta, habit belanja, atau catatan yang dipelajari AI tentang kamu</span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setMemoryText(user?.aiMemory || '');
+                setShowMemoryModal(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-semibold hover:bg-purple-500 active:scale-95 transition-all shadow-sm shadow-purple-600/20 shrink-0"
+            >
+              Kelola Memori
+            </button>
+          </div>
+
+          <div className="rounded-xl bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-3.5 text-xs text-slate-600 dark:text-slate-300 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto">
+            {user?.aiMemory ? (
+              user.aiMemory
+            ) : (
+              <span className="text-slate-400 italic">Belum ada ingatan yang disimpan. Coba chat dengan AI dan katakan kebiasaan atau jadwal gajianmu!</span>
+            )}
           </div>
         </div>
       </div>
@@ -469,6 +539,76 @@ export default function ProfilePage() {
               </div>
             </form>
           )}
+        </div>
+      </Modal>
+
+      {/* Modal Kelola Memori AI */}
+      <Modal
+        isOpen={showMemoryModal}
+        onClose={() => {
+          setShowMemoryModal(false);
+          setMemoryError('');
+          setMemorySuccess('');
+        }}
+        title="🧠 Kelola Ingatan & Habit AI"
+      >
+        <div className="space-y-4">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Ini adalah fakta keuangan dan habit yang diingat oleh AI tentang kamu. Kamu bisa mengedit secara manual atau mengosongkan seluruh memori jika ingin memulai dari awal.
+          </p>
+
+          {memoryError && <ErrorAlert message={memoryError} />}
+          {memorySuccess && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-500/10 dark:text-emerald-300">
+              {memorySuccess}
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center text-xs text-slate-400">
+              <span>Isi Memori AI (Fakta & Habit):</span>
+              <span className={memoryText.length > 900 ? 'text-rose-500 font-bold' : ''}>
+                {memoryText.length} / 1000 Karakter
+              </span>
+            </div>
+            <textarea
+              value={memoryText}
+              onChange={(e) => setMemoryText(e.target.value)}
+              maxLength={1000}
+              rows={6}
+              placeholder="Contoh: Gajian tiap tanggal 25 sebesar 10 juta. Habit pagi beli kopi 20rb. Target menabung untuk nikah tahun depan."
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-xs text-slate-800 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:bg-slate-900"
+            />
+          </div>
+
+          <div className="flex items-center justify-between pt-2 gap-3">
+            <button
+              type="button"
+              onClick={() => handleSaveMemory(null)}
+              disabled={memoryLoading || !user?.aiMemory}
+              className="px-3.5 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 text-xs font-semibold hover:bg-rose-100 disabled:opacity-40 transition-all dark:border-rose-900/40 dark:bg-rose-500/10 dark:text-rose-400"
+            >
+              🗑️ Kosongkan Semua (Clear)
+            </button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowMemoryModal(false)}
+                className="py-2 text-xs"
+              >
+                Batal
+              </Button>
+              <button
+                type="button"
+                onClick={() => handleSaveMemory(memoryText.trim() || null)}
+                disabled={memoryLoading}
+                className="px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-semibold hover:bg-purple-500 active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-purple-600/30"
+              >
+                {memoryLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
+              </button>
+            </div>
+          </div>
         </div>
       </Modal>
 

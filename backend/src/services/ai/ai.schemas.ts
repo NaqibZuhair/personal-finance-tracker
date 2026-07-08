@@ -111,6 +111,19 @@ export const tools: ChatCompletionTool[] = [
           accountId: { type: 'string', description: 'UUID akun atau dompet asal' },
           toAccountId: { type: 'string', description: 'UUID akun tujuan (wajib diisi jika tipe transfer)' },
           description: { type: 'string', description: 'Keterangan transaksi' },
+          merchantName: { type: 'string', description: 'Nama toko, restoran, atau merchant jika dari struk (misal: Indomaret, Starbucks, Gojek)' },
+          lineItems: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                item: { type: 'string', description: 'Nama barang atau menu' },
+                price: { type: 'number', description: 'Harga satuan atau total per barang' },
+                qty: { type: 'number', description: 'Jumlah barang' },
+              },
+            },
+            description: 'Daftar rincian barang belanjaan jika mengekstrak dari foto struk belanja',
+          },
           transactionDate: { type: 'string', description: 'Tanggal transaksi dalam format ISO (YYYY-MM-DD)' },
           tags: { type: 'array', items: { type: 'string' }, description: 'Daftar tag atau label tambahan (misal: ["makan", "liburan bali"]). Gunakan tag yang konsisten dari daftar tag yang sudah ada jika relevan.' },
         },
@@ -368,6 +381,20 @@ export const tools: ChatCompletionTool[] = [
       parameters: {
         type: 'object',
         properties: { month: { type: 'string', description: 'Format YYYY-MM' } },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'save_user_memory',
+      description: 'Menyimpan ingatan penting, habit keuangan, jadwal gajian, preferensi, atau catatan khusus pemilik ke dalam memori jangka panjang AI agar AI selalu mengingatnya di sesi berikutnya.',
+      parameters: {
+        type: 'object',
+        properties: {
+          memory: { type: 'string', description: 'Catatan ringkas atau habit penting yang harus selalu diingat oleh AI (misal: "Gajian setiap tanggal 25 sebesar 15 juta", "Habit pagi selalu beli kopi 20rb", "Lagi berhemat untuk nikah tahun depan")' },
+        },
+        required: ['memory'],
       },
     },
   },

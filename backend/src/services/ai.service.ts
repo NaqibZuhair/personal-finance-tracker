@@ -2,7 +2,7 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 import prisma from '../lib/prisma';
 import { getAIProviders } from './ai/ai.providers';
 import { tools } from './ai/ai.schemas';
-import { executeTool, getAccountsWithBalances, getUserUniqueTags } from './ai/ai.executor';
+import { executeTool, getAccountsWithBalances, getUserUniqueTags, getUserAIMemoryAndHabits } from './ai/ai.executor';
 import { generateSystemPrompt } from './ai/ai.prompt';
 
 export async function processAIChat(
@@ -11,10 +11,11 @@ export async function processAIChat(
   history: ChatCompletionMessageParam[] = [],
   image?: string
 ) {
-  const [accounts, categories, tags] = await Promise.all([
+  const [accounts, categories, tags, habitsReport] = await Promise.all([
     getAccountsWithBalances(userId),
     prisma.category.findMany({ where: { userId }, select: { id: true, name: true, type: true } }),
     getUserUniqueTags(userId),
+    getUserAIMemoryAndHabits(userId),
   ]);
 
   const accountMapping = accounts.map((a: any) => `[ID: "${a.id}" | ${a.name} (${a.type}) - Saldo Nyata Saat Ini: ${a.formattedBalance}]`).join('\n');
@@ -37,7 +38,7 @@ export async function processAIChat(
   const isoDateWIB = new Date(nowWIB.getTime() + 7 * 3600 * 1000).toISOString().split('T')[0];
   const currentTimeWIB = `${dateStrWIB}, pukul ${timeStrWIB} WIB (ISO Date: ${isoDateWIB})`;
 
-  const systemInstruction = generateSystemPrompt(categoryMapping, accountMapping, currentTimeWIB, isoDateWIB, tagMapping);
+  const systemInstruction = generateSystemPrompt(categoryMapping, accountMapping, currentTimeWIB, isoDateWIB, tagMapping, habitsReport);
 
   const userContent: any = image
     ? [

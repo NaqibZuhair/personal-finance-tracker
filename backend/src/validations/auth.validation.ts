@@ -15,6 +15,7 @@ export const loginSchema = z.object({
 export const updateProfileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   waPhone: z.string().optional().nullable(),
+  aiMemory: z.string().max(1000, 'AI Memory cannot exceed 1000 characters').optional().nullable(),
 });
 
 export const changePasswordSchema = z.object({

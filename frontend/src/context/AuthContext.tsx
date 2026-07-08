@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   waPhone?: string | null;
+  aiMemory?: string | null;
 }
 
 interface AuthContextType {
