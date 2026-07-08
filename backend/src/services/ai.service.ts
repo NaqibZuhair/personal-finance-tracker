@@ -47,9 +47,17 @@ export async function processAIChat(
       ]
     : message;
 
+  const cleanHistory: ChatCompletionMessageParam[] = history
+    .slice(-6)
+    .filter((msg: any) => msg && (msg.role === 'user' || msg.role === 'assistant') && msg.content)
+    .map((msg: any) => ({
+      role: msg.role,
+      content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+    }));
+
   const messages: ChatCompletionMessageParam[] = [
     { role: 'system', content: systemInstruction },
-    ...history.slice(-6),
+    ...cleanHistory,
     { role: 'user', content: userContent },
   ];
 

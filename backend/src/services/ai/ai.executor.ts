@@ -1,4 +1,5 @@
 import prisma from '../../lib/prisma';
+import { checkAndNotifyBudgetAlert, checkAndNotifyGoalMilestone } from '../notification.service';
 
 export async function getAccountsWithBalances(userId: string) {
   const accounts = await prisma.account.findMany({
@@ -173,6 +174,16 @@ export async function executeTool(userId: string, toolName: string, args: Record
             categoryName: cat?.name || 'Kategori',
           };
         }
+      }
+
+      if (type === 'expense' && categoryId) {
+        checkAndNotifyBudgetAlert(userId, categoryId).catch((err) =>
+          console.error('Failed to run budget alert check in AI tool:', err)
+        );
+      } else if (toAccountId) {
+        checkAndNotifyGoalMilestone(userId, toAccountId).catch((err) =>
+          console.error('Failed to run goal milestone check in AI tool:', err)
+        );
       }
 
       return { transaction: trx, budgetStatus };

@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import type { Prisma } from '../generated/prisma/client.js';
 import { ZodError } from 'zod';
 import prisma from '../lib/prisma';
+import { checkAndNotifyBudgetAlert, checkAndNotifyGoalMilestone } from '../services/notification.service';
 import {
   createTransactionSchema,
   transactionIdParamSchema,
@@ -215,6 +216,16 @@ export async function createTransaction(req: AuthRequest, res: Response) {
         toAccount: true,
       },
     });
+
+    if (transaction.type === 'expense' && transaction.categoryId) {
+      checkAndNotifyBudgetAlert(req.userId!, transaction.categoryId).catch((err) =>
+        console.error('Failed to run budget alert check:', err)
+      );
+    } else if (transaction.toAccountId) {
+      checkAndNotifyGoalMilestone(req.userId!, transaction.toAccountId).catch((err) =>
+        console.error('Failed to run goal milestone check:', err)
+      );
+    }
 
     res.status(201).json({
       message: 'Transaction created successfully',

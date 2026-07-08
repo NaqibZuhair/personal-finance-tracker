@@ -15,8 +15,8 @@ export default defineConfig({
         name: 'Personal Finance Tracker',
         short_name: 'FinanceApp',
         description: 'Track your personal finances easily',
-        theme_color: '#10b981',
-        background_color: '#ffffff',
+        theme_color: '#7169fb',
+        background_color: '#0f172a',
         display: 'standalone',
         icons: [
           {

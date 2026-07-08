@@ -120,7 +120,7 @@ function DashboardPage() {
         />
 
         <label className="block">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300 pr-4">
             Summary Month
           </span>
           <input

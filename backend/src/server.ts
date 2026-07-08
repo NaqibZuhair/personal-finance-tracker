@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import app from './app';
 import { initCronJobs } from './cron/recurringTransactions';
+import { initFinancialAlertCronJobs } from './cron/financialAlerts.cron';
 
 dotenv.config();
 
@@ -10,4 +11,5 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   
   initCronJobs();
+  initFinancialAlertCronJobs();
 });

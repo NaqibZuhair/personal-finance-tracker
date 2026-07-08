@@ -1,4 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#7169fb" />
-  <path d="M336 213.3c0-41.2-33.5-74.7-74.7-74.7H256v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v32h-10.7c-41.2 0-74.7 33.5-74.7 74.7v21.3c0 41.2 33.5 74.7 74.7 74.7H256v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32h10.7c41.2 0 74.7-33.5 74.7-74.7V213.3zM256 181.3h5.3c17.6 0 32 14.4 32 32v21.3c0 17.6-14.4 32-32 32H256V181.3zM256 330.7h-74.7c-17.6 0-32-14.4-32-32v-21.3c0-17.6 14.4-32 32-32H256V330.7z" fill="white" />
+  <defs>
+    <linearGradient id="indigoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8f8dff" />
+      <stop offset="50%" stop-color="#7169fb" />
+      <stop offset="100%" stop-color="#3c32a7" />
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main Background Container -->
+  <rect width="512" height="512" rx="128" fill="url(#indigoGrad)" />
+
+  <!-- Glassmorphism Inner Glow Border -->
+  <rect x="8" y="8" width="496" height="496" rx="120" fill="none" stroke="url(#glow)" stroke-width="6" />
+
+  <!-- Stylish Finance / Growth Emblem (Clean Modern Wallet & Trending Up Chart) -->
+  <g transform="translate(96, 110)">
+    <!-- Wallet Card Base -->
+    <path d="M48 64 C48 46.3 62.3 32 80 32 L272 32 C289.7 32 304 46.3 304 64 L304 88 L48 88 Z" fill="#ffffff" fill-opacity="0.25" />
+    <!-- Wallet Main Body -->
+    <path d="M48 88 L272 88 C289.7 88 304 102.3 304 120 L304 232 C304 249.7 289.7 264 272 264 L48 264 C30.3 264 16 249.7 16 232 L16 96 C16 78.3 30.3 64 48 64 Z" fill="#ffffff" />
+    <!-- Wallet Lock / Emerald Badge -->
+    <circle cx="248" cy="176" r="24" fill="#7169fb" />
+    <circle cx="248" cy="176" r="10" fill="#10b981" />
+    <!-- Trending Up Arrow Symbol Inside Wallet -->
+    <path d="M76 196 L132 140 L168 176 L216 128" stroke="#7169fb" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <path d="M192 128 L216 128 L216 152" stroke="#7169fb" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  </g>
 </svg>
