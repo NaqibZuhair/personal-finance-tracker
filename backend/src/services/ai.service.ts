@@ -50,10 +50,23 @@ export async function processAIChat(
   const cleanHistory: ChatCompletionMessageParam[] = history
     .slice(-6)
     .filter((msg: any) => msg && (msg.role === 'user' || msg.role === 'assistant') && msg.content)
-    .map((msg: any) => ({
-      role: msg.role,
-      content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
-    }));
+    .map((msg: any) => {
+      let contentStr = '';
+      if (typeof msg.content === 'string') {
+        contentStr = msg.content;
+      } else if (Array.isArray(msg.content)) {
+        contentStr = msg.content
+          .filter((item: any) => item && item.type === 'text')
+          .map((item: any) => item.text)
+          .join(' ') || '[Struk/Gambar Terlampir]';
+      } else {
+        contentStr = JSON.stringify(msg.content);
+      }
+      return {
+        role: msg.role,
+        content: contentStr,
+      };
+    });
 
   const messages: ChatCompletionMessageParam[] = [
     { role: 'system', content: systemInstruction },
@@ -160,7 +173,12 @@ export async function processAIChat(
         }
       }
     } else {
-      finalResponseText = messageObj.content || '';
+      const respText = messageObj.content || '';
+      if (respText.trim().toLowerCase() === message.trim().toLowerCase() && iteration < 2) {
+        console.warn(`[AI Load Balancer] Model echoed prompt text. Retrying...`);
+        continue;
+      }
+      finalResponseText = respText;
       break;
     }
   }

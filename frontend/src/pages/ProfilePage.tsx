@@ -15,6 +15,7 @@ export default function ProfilePage() {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [showRoadmapModal, setShowRoadmapModal] = useState(false);
   const [showMemoryModal, setShowMemoryModal] = useState(false);
   const [memoryText, setMemoryText] = useState(user?.aiMemory || '');
   const [memoryLoading, setMemoryLoading] = useState(false);
@@ -197,26 +198,24 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* AI Wealth Advisor Memory & Personalization Section */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
-            AI Advisor Memory & Personalization
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            AI Personalization & Memory
           </h3>
           <span className="text-[10px] text-slate-400 font-mono">Max 1000 Chars</span>
         </div>
-        <div className="rounded-2xl border border-purple-200/80 bg-gradient-to-br from-purple-50/50 via-white to-slate-50 shadow-sm overflow-hidden dark:border-purple-900/50 dark:from-purple-950/20 dark:via-slate-900 dark:to-slate-900 backdrop-blur-md p-5">
-          <div className="flex items-start justify-between gap-4 mb-3">
+        <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm overflow-hidden dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 shadow-inner">
-                <svg className="h-5 w-5 animate-pulse" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
               </div>
               <div>
-                <span className="block font-bold text-slate-800 dark:text-slate-100">Ingatan Jangka Panjang AI</span>
-                <span className="block text-xs text-slate-500 dark:text-slate-400">Fakta, habit belanja, atau catatan yang dipelajari AI tentang kamu</span>
+                <span className="block font-semibold text-slate-800 dark:text-slate-100">Long-Term Advisor Memory</span>
+                <span className="block text-xs text-slate-500 dark:text-slate-400">Personal financial context and habits saved for customized recommendations</span>
               </div>
             </div>
             <button
@@ -224,17 +223,17 @@ export default function ProfilePage() {
                 setMemoryText(user?.aiMemory || '');
                 setShowMemoryModal(true);
               }}
-              className="px-3 py-1.5 rounded-xl bg-purple-600 text-white text-xs font-semibold hover:bg-purple-500 active:scale-95 transition-all shadow-sm shadow-purple-600/20 shrink-0"
+              className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-xs font-semibold hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 transition shrink-0"
             >
-              Kelola Memori
+              Manage Memory
             </button>
           </div>
 
-          <div className="rounded-xl bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 p-3.5 text-xs text-slate-600 dark:text-slate-300 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto">
+          <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 p-3.5 text-xs text-slate-600 dark:text-slate-300 font-mono whitespace-pre-wrap max-h-40 overflow-y-auto">
             {user?.aiMemory ? (
               user.aiMemory
             ) : (
-              <span className="text-slate-400 italic">Belum ada ingatan yang disimpan. Coba chat dengan AI dan katakan kebiasaan atau jadwal gajianmu!</span>
+              <span className="text-slate-400 italic">No saved context yet. Chat with the AI advisor about your payday schedule or financial habits to store personalized context.</span>
             )}
           </div>
         </div>
@@ -359,6 +358,42 @@ export default function ProfilePage() {
                 </div>
                 <span className="font-semibold text-slate-700 dark:text-slate-200">Export & Backup Financial Data</span>
               </div>
+              <svg className="h-5 w-5 text-slate-400 ml-auto" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Product Roadmap & Preview Features */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 px-1">
+          Product Roadmap
+        </h3>
+        <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm overflow-hidden dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-slate-800 dark:text-slate-100">Smart Split-Bill & Debt Tracker</span>
+                  <span className="rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">Roadmap</span>
+                </div>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                  Shared bill splitting and friend receivable tracking. Scheduled for a future update.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowRoadmapModal(true)}
+              className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-xs font-semibold hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 transition shrink-0"
+            >
+              Coming Soon
             </button>
           </div>
         </div>
@@ -542,7 +577,6 @@ export default function ProfilePage() {
         </div>
       </Modal>
 
-      {/* Modal Kelola Memori AI */}
       <Modal
         isOpen={showMemoryModal}
         onClose={() => {
@@ -550,11 +584,11 @@ export default function ProfilePage() {
           setMemoryError('');
           setMemorySuccess('');
         }}
-        title="🧠 Kelola Ingatan & Habit AI"
+        title="Manage Advisor Long-Term Memory"
       >
         <div className="space-y-4">
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Ini adalah fakta keuangan dan habit yang diingat oleh AI tentang kamu. Kamu bisa mengedit secara manual atau mengosongkan seluruh memori jika ingin memulai dari awal.
+            Personal financial context and preferences stored by the AI advisor. You can manually edit or clear all context to reset recommendations.
           </p>
 
           {memoryError && <ErrorAlert message={memoryError} />}
@@ -566,9 +600,9 @@ export default function ProfilePage() {
 
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs text-slate-400">
-              <span>Isi Memori AI (Fakta & Habit):</span>
+              <span>Personal Financial Context:</span>
               <span className={memoryText.length > 900 ? 'text-rose-500 font-bold' : ''}>
-                {memoryText.length} / 1000 Karakter
+                {memoryText.length} / 1000 Characters
               </span>
             </div>
             <textarea
@@ -576,8 +610,8 @@ export default function ProfilePage() {
               onChange={(e) => setMemoryText(e.target.value)}
               maxLength={1000}
               rows={6}
-              placeholder="Contoh: Gajian tiap tanggal 25 sebesar 10 juta. Habit pagi beli kopi 20rb. Target menabung untuk nikah tahun depan."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-xs text-slate-800 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:bg-slate-900"
+              placeholder="Example: Payday on the 25th monthly ($3,000). Morning coffee budget $5/day. Saving goal for home deposit next year."
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-xs text-slate-800 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-100 dark:focus:bg-slate-900"
             />
           </div>
 
@@ -586,9 +620,9 @@ export default function ProfilePage() {
               type="button"
               onClick={() => handleSaveMemory(null)}
               disabled={memoryLoading || !user?.aiMemory}
-              className="px-3.5 py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 text-xs font-semibold hover:bg-rose-100 disabled:opacity-40 transition-all dark:border-rose-900/40 dark:bg-rose-500/10 dark:text-rose-400"
+              className="px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 text-xs font-semibold hover:bg-rose-100 disabled:opacity-40 transition-all dark:border-rose-900/40 dark:bg-rose-500/10 dark:text-rose-400"
             >
-              🗑️ Kosongkan Semua (Clear)
+              Clear All Memory
             </button>
             <div className="flex gap-2">
               <Button
@@ -597,17 +631,35 @@ export default function ProfilePage() {
                 onClick={() => setShowMemoryModal(false)}
                 className="py-2 text-xs"
               >
-                Batal
+                Cancel
               </Button>
-              <button
+              <Button
                 type="button"
                 onClick={() => handleSaveMemory(memoryText.trim() || null)}
                 disabled={memoryLoading}
-                className="px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-semibold hover:bg-purple-500 active:scale-95 disabled:opacity-50 transition-all shadow-md shadow-purple-600/30"
+                className="py-2 text-xs"
               >
-                {memoryLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
-              </button>
+                {memoryLoading ? 'Saving...' : 'Save Changes'}
+              </Button>
             </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Product Roadmap Feature Preview Modal */}
+      <Modal
+        isOpen={showRoadmapModal}
+        onClose={() => setShowRoadmapModal(false)}
+        title="Feature Roadmap Preview"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            The Smart Split-Bill & Debt Tracker feature is scheduled for a future release. It will introduce automated receipt scanning (OCR), proportional tax calculation, and friend receivable tracking.
+          </p>
+          <div className="flex justify-end pt-2">
+            <Button onClick={() => setShowRoadmapModal(false)} className="py-2 px-4 text-xs">
+              Understood
+            </Button>
           </div>
         </div>
       </Modal>

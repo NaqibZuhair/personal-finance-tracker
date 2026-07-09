@@ -13,6 +13,7 @@ import BudgetsPage from './pages/BudgetsPage';
 import GoalsPage from './pages/GoalsPage';
 import RecurringTransactionsPage from './pages/RecurringTransactionsPage';
 import AllocationRoutinesPage from './pages/AllocationRoutinesPage';
+import SplitBillsPage from './pages/SplitBillsPage';
 import TransactionPrintPreviewPage from './pages/TransactionPrintPreviewPage';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -44,6 +45,7 @@ function App() {
                 <Route path="/goals" element={<GoalsPage />} />
                 <Route path="/recurring" element={<RecurringTransactionsPage />} />
                 <Route path="/routines" element={<AllocationRoutinesPage />} />
+                <Route path="/split-bills" element={<SplitBillsPage />} />
               </Routes>
             </AppLayout>
           }

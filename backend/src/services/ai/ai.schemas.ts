@@ -398,4 +398,69 @@ export const tools: ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'record_split_bill',
+      description: 'Mencatat patungan / split bill makan, nongkrong, atau belanja bareng teman. Otomatis menghitung pembagian rata atau itemized proporsional dengan pajak serta mencatat piutang teman.',
+      parameters: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'Judul patungan (misal: Nongkrong Starbucks bareng Andi & Budi)' },
+          totalAmount: { type: 'number', description: 'Total seluruh tagihan' },
+          taxServicePercent: { type: 'number', description: 'Persentase pajak & service charge jika ada (misal 15 untuk 15%)' },
+          splitMethod: { type: 'string', enum: ['equal', 'itemized'], description: 'Metode bagi: equal (bagi rata) atau itemized (sesuai menu)' },
+          participants: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Nama orang (misal: "Saya", "Andi", "Budi")' },
+              },
+            },
+            description: 'Daftar orang yang ikut patungan wajib menyertakan "Saya" atau "Me" untuk porsi sendiri',
+          },
+          items: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                item: { type: 'string', description: 'Nama menu atau barang' },
+                price: { type: 'number', description: 'Harga menu' },
+                assignedTo: { type: 'array', items: { type: 'string' }, description: 'Nama orang yang memesan menu ini' },
+              },
+            },
+          },
+        },
+        required: ['title', 'totalAmount', 'splitMethod', 'participants'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_debts',
+      description: 'Melihat daftar catatan utang atau piutang teman (siapa saja yang belum bayar patungan ke pengguna).',
+      parameters: {
+        type: 'object',
+        properties: {
+          isPaid: { type: 'boolean', description: 'Filter lunas (true) atau belum lunas (false)' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'mark_debt_paid',
+      description: 'Menandai bahwa teman sudah membayar lunas utang/patungannya.',
+      parameters: {
+        type: 'object',
+        properties: {
+          debtId: { type: 'string', description: 'UUID catatan utang yang sudah dibayar' },
+        },
+        required: ['debtId'],
+      },
+    },
+  },
 ];

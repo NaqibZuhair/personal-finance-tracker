@@ -1,5 +1,6 @@
 import prisma from '../../lib/prisma';
 import { checkAndNotifyBudgetAlert, checkAndNotifyGoalMilestone } from '../notification.service';
+import { createSplitBill, getDebts, markDebtPaid } from '../splitBill.service';
 
 export async function getAccountsWithBalances(userId: string) {
   const accounts = await prisma.account.findMany({
@@ -509,6 +510,30 @@ export async function executeTool(userId: string, toolName: string, args: Record
         data: { aiMemory: currentMem },
       });
       return { message: '🧠 Habit / catatan berhasil disimpan ke dalam Memori Jangka Panjang AI (Batas 1000 karakter terjaga)!', savedMemory: args.memory };
+    }
+
+    case 'record_split_bill': {
+      const bill = await createSplitBill(userId, {
+        title: args.title,
+        totalAmount: Number(args.totalAmount),
+        taxServicePercent: args.taxServicePercent ? Number(args.taxServicePercent) : 0,
+        splitMethod: args.splitMethod || 'equal',
+        participants: args.participants || [],
+        items: args.items || [],
+      });
+      return { message: '✅ Split bill & piutang teman berhasil dicatat!', splitBill: bill };
+    }
+
+    case 'get_debts': {
+      const debts = await getDebts(userId, {
+        isPaid: args.isPaid !== undefined ? Boolean(args.isPaid) : false,
+      });
+      return { debts };
+    }
+
+    case 'mark_debt_paid': {
+      const updated = await markDebtPaid(userId, args.debtId);
+      return { message: '✅ Status utang teman berhasil ditandai LUNAS!', debt: updated };
     }
 
     default:
