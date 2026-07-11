@@ -132,57 +132,75 @@ export async function generateAndSendMorningBriefing(userId: string): Promise<vo
 
     if (!user || !user.waPhone) return;
 
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1;
-    const currentYear = now.getFullYear();
-
     const accounts = await prisma.account.findMany({
-      where: { userId, type: { in: ['bank', 'ewallet', 'cash'] } },
+      where: { userId },
     });
 
-    let totalLiquidBalance = 0;
-    for (const acc of accounts) {
-      const aggIn = await prisma.transaction.aggregate({
-        where: { toAccountId: acc.id, userId },
-        _sum: { amount: true },
-      });
-      const aggOut = await prisma.transaction.aggregate({
-        where: { accountId: acc.id, userId },
-        _sum: { amount: true },
-      });
-      totalLiquidBalance +=
-        Number(acc.initialBalance || 0) +
-        Number(aggIn._sum.amount || 0) -
-        Number(aggOut._sum.amount || 0);
-    }
-
-    const budgets = await prisma.budget.findMany({
-      where: { userId, month: currentMonth, year: currentYear },
+    const transactionTotals = await prisma.transaction.groupBy({
+      by: ['accountId', 'type'],
+      where: { userId },
+      _sum: { amount: true },
     });
-    const totalBudget = budgets.reduce((acc, b) => acc + Number(b.amount), 0);
 
-    const startOfMonth = new Date(currentYear, currentMonth - 1, 1);
-    const endOfMonth = new Date(currentYear, currentMonth, 0, 23, 59, 59, 999);
-
-    const aggSpent = await prisma.transaction.aggregate({
+    const transferInTotals = await prisma.transaction.groupBy({
+      by: ['toAccountId'],
       where: {
+        type: 'transfer',
+        toAccountId: { not: null },
         userId,
-        type: 'expense',
-        transactionDate: { gte: startOfMonth, lte: endOfMonth },
       },
       _sum: { amount: true },
     });
-    const totalSpentMonth = Number(aggSpent._sum.amount || 0);
-    const remainingBudget = Math.max(0, totalBudget - totalSpentMonth);
 
-    const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-    const remainingDays = Math.max(1, daysInMonth - now.getDate() + 1);
+    const balanceMap = new Map<string, { income: number; expense: number; transferOut: number; transferIn: number }>();
+    for (const total of transactionTotals) {
+      const existing = balanceMap.get(total.accountId) ?? { income: 0, expense: 0, transferOut: 0, transferIn: 0 };
+      const amt = Number(total._sum?.amount ?? 0);
+      if (total.type === 'income') existing.income += amt;
+      if (total.type === 'expense') existing.expense += amt;
+      if (total.type === 'transfer') existing.transferOut += amt;
+      balanceMap.set(total.accountId, existing);
+    }
+    for (const total of transferInTotals) {
+      if (!total.toAccountId) continue;
+      const existing = balanceMap.get(total.toAccountId) ?? { income: 0, expense: 0, transferOut: 0, transferIn: 0 };
+      existing.transferIn += Number(total._sum?.amount ?? 0);
+      balanceMap.set(total.toAccountId, existing);
+    }
 
-    const safeDailyFromLiquid =
-      totalLiquidBalance > 0 ? Math.round(totalLiquidBalance / remainingDays) : 0;
-    const safeDailyFromBudget =
-      totalBudget > 0 ? Math.round(remainingBudget / remainingDays) : 0;
+    // Daily Spending Balance: sum of currentBalance where includeInTotal !== false
+    let dailySpendingBalance = 0;
+    const accountCurrentBalanceMap = new Map<string, number>();
 
+    for (const account of accounts) {
+      const totals = balanceMap.get(account.id) ?? { income: 0, expense: 0, transferOut: 0, transferIn: 0 };
+      const currentBal = Number(account.initialBalance) + totals.income - totals.expense - totals.transferOut + totals.transferIn;
+      accountCurrentBalanceMap.set(account.id, currentBal);
+
+      if (account.includeInTotal !== false) {
+        dailySpendingBalance += currentBal;
+      }
+    }
+
+    // 2. Fetch Savings Goals
+    const savingsGoals = await prisma.savingsGoal.findMany({
+      where: { userId },
+      include: { account: true },
+    });
+
+    let goalsNote = '• 🎯 *Daftar Goal Tabungan:* Belum ada goal aktif. Yuk buat goal pertamamu!';
+    if (savingsGoals.length > 0) {
+      const goalLines = savingsGoals.map((goal) => {
+        const currentSaved = accountCurrentBalanceMap.get(goal.accountId) ?? 0;
+        const target = Number(goal.targetAmount);
+        const percent = target > 0 ? Math.round((currentSaved / target) * 100) : 0;
+        return `   - *${goal.name}*: Rp ${currentSaved.toLocaleString('id-ID')} / Rp ${target.toLocaleString('id-ID')} (${percent}%)`;
+      });
+      goalsNote = `• 🎯 *Daftar Goal Tabungan Kamu:*\n${goalLines.join('\n')}`;
+    }
+
+    // 3. Due Routines / Tagihan
+    const now = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(now.getDate() + 1);
     const dueRoutines = await prisma.recurringTransaction.findMany({
@@ -196,25 +214,15 @@ export async function generateAndSendMorningBriefing(userId: string): Promise<vo
       },
     });
 
-    let routineNote = '• 🔔 Tagihan Rutin: Tidak ada yang jatuh tempo hari ini.';
+    let routineNote = '• 🔔 *Tagihan Rutin:* Tidak ada yang jatuh tempo hari ini.';
     if (dueRoutines.length > 0) {
       const names = dueRoutines.map((r) => `${r.description || 'Tagihan'} (Rp ${Number(r.amount).toLocaleString('id-ID')})`).join(', ');
       routineNote = `• ⚠️ *Tagihan Jatuh Tempo:* ${names}`;
     }
 
-    let budgetNote = '';
-    if (totalBudget > 0) {
-      budgetNote += `• 🍔 Sisa Budget Bulan Ini: Rp ${remainingBudget.toLocaleString('id-ID')} (kuota budget: Rp ${safeDailyFromBudget.toLocaleString('id-ID')}/hari)\n`;
-    }
-    if (totalLiquidBalance > 0) {
-      budgetNote += `• 💡 Kapasitas Pengeluaran Aman: Maksimal *Rp ${safeDailyFromLiquid.toLocaleString('id-ID')} / hari* dari saldo kas siap pakai hingga akhir bulan!`;
-    } else if (!budgetNote) {
-      budgetNote = '• 💡 Atur budget bulananmu di aplikasi untuk saran harian akurat.';
-    }
-
     const memoryNote = user.aiMemory ? `\n\n🧠 *Catatan AI untukmu:* "${user.aiMemory.slice(0, 150)}..."` : '';
 
-    const message = `☀️ *PROACTIVE MORNING BRIEFING*\n\nSelamat pagi ${user.name}! Semoga harimu menyenangkan dan produktif. Ini ringkasan keuanganmu pagi ini:\n\n• 💰 Saldo Kas/Bank Siap Pakai: Rp ${totalLiquidBalance.toLocaleString('id-ID')}\n${budgetNote}\n${routineNote}${memoryNote}\n\nKetik langsung di sini jika ingin mencatat transaksi atau konsultasi keuangan hari ini! 🚀`;
+    const message = `☀️ *PROACTIVE MORNING BRIEFING*\n\nSelamat pagi ${user.name}! Semoga harimu menyenangkan dan produktif.\n\n• 💰 *Saldo Harian Siap Pakai (Daily Spending):* Rp ${dailySpendingBalance.toLocaleString('id-ID')}\n• 💡 *Saran Pengeluaran Hari Ini:* Maksimal *Rp 50.000* hari ini untuk segala kebutuhanmu.\n• 🌱 *Ingatan Menabung:* Jangan lupa untuk menyisihkan sebagian uangmu untuk masa depan!\n${goalsNote}\n${routineNote}${memoryNote}\n\nKetik langsung di sini jika ingin mencatat transaksi atau konsultasi keuangan hari ini! 🚀`;
 
     await sendWhatsAppMessage(user.waPhone, message);
   } catch (error) {
