@@ -13,11 +13,13 @@ import recurringRoutes from './routes/recurring.routes';
 import routineRoutes from './routes/routine.routes';
 import aiRoutes from './routes/ai.routes';
 import splitBillRoutes from './routes/splitBill.routes';
+import cronRoutes from './routes/cron.routes';
 import { requireAuth } from './middleware/auth.middleware';
 import helmet from 'helmet';
 import { apiLimiter } from './middleware/rateLimiter';
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(helmet());
 
@@ -63,6 +65,7 @@ app.get('/', (_req, res) => {
 });
 
 app.use('/api', healthRoutes);
+app.use('/api/cron', cronRoutes);
 app.use('/api/auth', authRoutes);
 
 app.use('/api/accounts', requireAuth, accountRoutes);
