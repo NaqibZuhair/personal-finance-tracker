@@ -14,18 +14,15 @@ export const getAIProviders = (isVision: boolean = false): AIProvider[] => {
 
   const getKeys = (prefix: string, typoPrefixes: string[] = []): string[] => {
     const keys: string[] = [];
-    const prefixes = [prefix, ...typoPrefixes];
+    const prefixes = [prefix, `${prefix}S`, ...typoPrefixes];
     for (const p of prefixes) {
-      if (process.env[`${p}S`]) {
-        keys.push(...process.env[`${p}S`]!.split(',').map(k => k.trim()).filter(Boolean));
+      if (process.env[p]) {
+        keys.push(...process.env[p]!.split(',').map(k => k.trim()).filter(Boolean));
       }
       for (let i = 1; i <= 10; i++) {
         if (process.env[`${p}_${i}`]) {
-          keys.push(process.env[`${p}_${i}`]!.trim());
+          keys.push(...process.env[`${p}_${i}`]!.split(',').map(k => k.trim()).filter(Boolean));
         }
-      }
-      if (process.env[p]) {
-        keys.push(process.env[p]!.trim());
       }
     }
     return Array.from(new Set(keys)).filter(Boolean);
