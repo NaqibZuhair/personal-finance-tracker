@@ -150,7 +150,10 @@ export async function generateAndSendMorningBriefing(userId: string): Promise<vo
         where: { accountId: acc.id, userId },
         _sum: { amount: true },
       });
-      totalLiquidBalance += Number(aggIn._sum.amount || 0) - Number(aggOut._sum.amount || 0);
+      totalLiquidBalance +=
+        Number(acc.initialBalance || 0) +
+        Number(aggIn._sum.amount || 0) -
+        Number(aggOut._sum.amount || 0);
     }
 
     const budgets = await prisma.budget.findMany({
@@ -174,7 +177,11 @@ export async function generateAndSendMorningBriefing(userId: string): Promise<vo
 
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
     const remainingDays = Math.max(1, daysInMonth - now.getDate() + 1);
-    const safeDailyLimit = totalBudget > 0 ? Math.round(remainingBudget / remainingDays) : 0;
+
+    const safeDailyFromLiquid =
+      totalLiquidBalance > 0 ? Math.round(totalLiquidBalance / remainingDays) : 0;
+    const safeDailyFromBudget =
+      totalBudget > 0 ? Math.round(remainingBudget / remainingDays) : 0;
 
     const tomorrow = new Date();
     tomorrow.setDate(now.getDate() + 1);
@@ -195,9 +202,14 @@ export async function generateAndSendMorningBriefing(userId: string): Promise<vo
       routineNote = `• ⚠️ *Tagihan Jatuh Tempo:* ${names}`;
     }
 
-    let budgetNote = '• 🍔 Budget Bulanan: Belum diatur.';
+    let budgetNote = '';
     if (totalBudget > 0) {
-      budgetNote = `• 🍔 Sisa Budget Bulan Ini: Rp ${remainingBudget.toLocaleString('id-ID')}\n• 💡 Saran Jajan Harian: Maksimal *Rp ${safeDailyLimit.toLocaleString('id-ID')} / hari* agar aman sampai akhir bulan!`;
+      budgetNote += `• 🍔 Sisa Budget Bulan Ini: Rp ${remainingBudget.toLocaleString('id-ID')} (kuota budget: Rp ${safeDailyFromBudget.toLocaleString('id-ID')}/hari)\n`;
+    }
+    if (totalLiquidBalance > 0) {
+      budgetNote += `• 💡 Kapasitas Pengeluaran Aman: Maksimal *Rp ${safeDailyFromLiquid.toLocaleString('id-ID')} / hari* dari saldo kas siap pakai hingga akhir bulan!`;
+    } else if (!budgetNote) {
+      budgetNote = '• 💡 Atur budget bulananmu di aplikasi untuk saran harian akurat.';
     }
 
     const memoryNote = user.aiMemory ? `\n\n🧠 *Catatan AI untukmu:* "${user.aiMemory.slice(0, 150)}..."` : '';
