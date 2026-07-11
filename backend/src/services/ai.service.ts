@@ -86,14 +86,28 @@ export async function processAIChat(
 
     for (const provider of providers) {
       try {
-        response = await provider.client.chat.completions.create({
-          model: provider.model,
-          messages: currentMessages,
-          tools,
-          tool_choice: 'auto',
-          temperature: 0.3,
-        });
-        if (response && response.choices && response.choices.length > 0) {
+        const respWithTimeout = await Promise.race([
+          provider.client.chat.completions.create({
+            model: provider.model,
+            messages: currentMessages,
+            tools,
+            tool_choice: 'auto',
+            temperature: 0.3,
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout melebih 12 detik')), 12000)
+          ),
+        ]) as any;
+
+        if (respWithTimeout && respWithTimeout.choices && respWithTimeout.choices.length > 0) {
+          const choiceMsg = respWithTimeout.choices[0].message;
+          const textContent = choiceMsg.content || '';
+          if (!choiceMsg.tool_calls && textContent.trim().toLowerCase() === message.trim().toLowerCase()) {
+            console.warn(`[AI Load Balancer] Model "${provider.name}" meng-echo prompt user. Bergeser ke provider berikutnya...`);
+            continue;
+          }
+
+          response = respWithTimeout;
           console.log(`[AI Load Balancer] Sukses dijawab oleh: "${provider.name}" (Model: ${provider.model})`);
           break;
         }

@@ -37,10 +37,10 @@ export const getAIProviders = (isVision: boolean = false): AIProvider[] => {
   const GROQ_TEXT_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
   const GROQ_VISION_MODELS = ['llama-3.2-11b-vision-preview', 'llama-3.2-90b-vision-preview'];
   const OPENROUTER_TEXT_MODELS = [
-    'meta-llama/llama-3.3-70b-instruct:free',
+    'nvidia/nemotron-3-nano-30b-a3b:free',
+    'openrouter/free',
     'qwen/qwen-2.5-coder-32b-instruct:free',
-    'google/gemini-2.0-flash-exp:free',
-    'openrouter/free'
+    'meta-llama/llama-3.3-70b-instruct:free'
   ];
   const OPENROUTER_VISION_MODELS = [
     'qwen/qwen-2-vl-72b-instruct:free',
