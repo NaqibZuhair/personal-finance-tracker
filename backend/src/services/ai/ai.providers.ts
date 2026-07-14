@@ -28,9 +28,9 @@ export const getAIProviders = (isVision: boolean = false): AIProvider[] => {
     return Array.from(new Set(keys)).filter(Boolean);
   };
 
-  const CEREBRAS_MODELS = ['llama-3.3-70b', 'llama-3.1-8b'];
-  const GEMINI_TEXT_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash'];
-  const GEMINI_VISION_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+  const CEREBRAS_MODELS = ['gpt-oss-120b', 'gemma-4-31b', 'zai-glm-4.7'];
+  const GEMINI_TEXT_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+  const GEMINI_VISION_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash'];
   const GROQ_TEXT_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
   const GROQ_VISION_MODELS = ['llama-3.2-11b-vision-preview', 'llama-3.2-90b-vision-preview'];
   const OPENROUTER_TEXT_MODELS = [
