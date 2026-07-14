@@ -64,20 +64,35 @@ export async function getTransactions(req: AuthRequest, res: Response) {
       };
     }
 
-    const transactions = await prisma.transaction.findMany({
-      where,
-      include: {
-        category: true,
-        account: true,
-        toAccount: true,
-      },
-      orderBy: {
-        transactionDate: 'desc',
-      },
-    });
+    const page = query.page ?? 1;
+    const limit = query.limit;
+    const skip = limit ? (page - 1) * limit : undefined;
+
+    const [transactions, total] = await Promise.all([
+      prisma.transaction.findMany({
+        where,
+        include: {
+          category: true,
+          account: true,
+          toAccount: true,
+        },
+        orderBy: {
+          transactionDate: 'desc',
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.transaction.count({ where }),
+    ]);
 
     res.status(200).json({
       data: transactions,
+      meta: {
+        total,
+        page,
+        limit: limit ?? total,
+        totalPages: limit ? Math.ceil(total / limit) : 1,
+      },
     });
   } catch (error) {
     if (error instanceof ZodError) {

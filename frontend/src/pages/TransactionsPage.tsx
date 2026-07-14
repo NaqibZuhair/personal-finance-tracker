@@ -16,6 +16,12 @@ import type { Account } from '../types/account';
 
 type TransactionsResponse = {
   data: Transaction[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 };
 
 type CategoriesResponse = {
@@ -49,6 +55,11 @@ function TransactionsPage() {
   const [deletingTransactionId, setDeletingTransactionId] = useState('');
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
+
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   const transactionQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -111,12 +122,21 @@ function TransactionsPage() {
       try {
         setIsLoading(true);
         setErrorMessage('');
+        setPage(1);
 
+        const separator = transactionQuery.includes('?') ? '&' : '?';
         const response = await apiClient<TransactionsResponse>(
-          `/transactions${transactionQuery}`,
+          `/transactions${transactionQuery}${separator}page=1&limit=30`,
         );
 
         setTransactions(response.data);
+        if (response.meta) {
+          setHasMore(response.meta.page < response.meta.totalPages);
+          setTotalRecords(response.meta.total);
+        } else {
+          setHasMore(false);
+          setTotalRecords(response.data.length);
+        }
       } catch (error) {
         setErrorMessage(
           error instanceof Error
@@ -130,6 +150,33 @@ function TransactionsPage() {
 
     fetchTransactions();
   }, [transactionQuery]);
+
+  async function handleLoadMore() {
+    if (isLoadingMore || !hasMore) return;
+    try {
+      setIsLoadingMore(true);
+      const nextPage = page + 1;
+      const separator = transactionQuery.includes('?') ? '&' : '?';
+      const response = await apiClient<TransactionsResponse>(
+        `/transactions${transactionQuery}${separator}page=${nextPage}&limit=30`,
+      );
+
+      setTransactions((prev) => [...prev, ...response.data]);
+      setPage(nextPage);
+      if (response.meta) {
+        setHasMore(response.meta.page < response.meta.totalPages);
+        setTotalRecords(response.meta.total);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Failed to load more transactions',
+      );
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }
 
   async function handleDeleteTransaction(transactionId: string) {
     try {
@@ -145,6 +192,7 @@ function TransactionsPage() {
           (transaction) => transaction.id !== transactionId,
         ),
       );
+      setTotalRecords((prev) => Math.max(0, prev - 1));
 
       setPendingDeleteId('');
     } catch (error) {
@@ -221,7 +269,7 @@ function TransactionsPage() {
       )}
 
       {!isLoading && !errorMessage && transactions.length > 0 && (
-        <div className="print-area">
+        <div className="print-area space-y-6">
           <TransactionTable
             transactions={transactions}
             pendingDeleteId={pendingDeleteId}
@@ -230,6 +278,37 @@ function TransactionsPage() {
             onCancelDelete={handleCancelDelete}
             onConfirmDelete={handleDeleteTransaction}
           />
+
+          {hasMore && (
+            <div className="flex flex-col items-center justify-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white/90 px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800/80 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:bg-slate-800/80"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Loading more...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Load More Transactions</span>
+                    <svg className="h-4 w-4 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </>
+                )}
+              </button>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Showing {transactions.length} of {totalRecords} records
+              </p>
+            </div>
+          )}
         </div>
       )}
 

@@ -59,4 +59,6 @@ export const transactionQuerySchema = z.object({
   search: z.string().optional(),
   tag: z.string().optional(),
   format: z.enum(['xlsx', 'csv']).optional().default('xlsx'),
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().optional(),
 });
