@@ -274,3 +274,72 @@ export async function getHistoricalSummary(req: AuthRequest, res: Response) {
     });
   }
 }
+
+export async function getDailySummary(req: AuthRequest, res: Response) {
+  try {
+    const query = monthlySummaryQuerySchema.parse(req.query);
+    const startDate = new Date(`${query.month}-01T00:00:00.000Z`);
+    const endDate = new Date(startDate);
+    endDate.setUTCMonth(endDate.getUTCMonth() + 1);
+
+    const [yearStr, monthStr] = query.month.split('-');
+    const daysInMonth = new Date(Date.UTC(Number(yearStr), Number(monthStr), 0)).getUTCDate();
+
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        userId: req.userId,
+        transactionDate: {
+          gte: startDate,
+          lt: endDate,
+        },
+        type: {
+          in: ['income', 'expense'],
+        },
+      },
+      select: {
+        type: true,
+        amount: true,
+        transactionDate: true,
+      },
+    });
+
+    const days: Record<string, { income: number; expense: number }> = {};
+    for (let i = 1; i <= daysInMonth; i++) {
+      const dayStr = `${query.month}-${String(i).padStart(2, '0')}`;
+      days[dayStr] = { income: 0, expense: 0 };
+    }
+
+    for (const t of transactions) {
+      const dayStr = t.transactionDate.toISOString().substring(0, 10);
+      if (days[dayStr]) {
+        if (t.type === 'income') {
+          days[dayStr].income += Number(t.amount);
+        } else if (t.type === 'expense') {
+          days[dayStr].expense += Number(t.amount);
+        }
+      }
+    }
+
+    const data = Object.keys(days).sort().map((day) => ({
+      day,
+      income: days[day].income,
+      expense: days[day].expense,
+    }));
+
+    res.status(200).json({
+      data,
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        message: 'Validation failed',
+        errors: error.issues,
+      });
+      return;
+    }
+
+    res.status(500).json({
+      message: 'Failed to fetch daily summary',
+    });
+  }
+}

@@ -4,6 +4,7 @@ import {
   getMonthlySummary,
   getRecentTransactions,
   getHistoricalSummary,
+  getDailySummary,
 } from '../controllers/summary.controller';
 import { requireAuth } from '../middleware/auth.middleware';
 
@@ -15,5 +16,6 @@ router.get('/monthly', getMonthlySummary);
 router.get('/categories', getCategorySummary);
 router.get('/recent', getRecentTransactions);
 router.get('/historical', getHistoricalSummary);
+router.get('/daily', getDailySummary);
 
 export default router;

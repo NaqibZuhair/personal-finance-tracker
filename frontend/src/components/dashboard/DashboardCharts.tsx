@@ -26,22 +26,31 @@ export type HistoricalItem = {
   expense: number;
 };
 
+export type DailyItem = {
+  day: string;
+  income: number;
+  expense: number;
+};
+
 interface DashboardChartsProps {
   accountBalances: AccountBalance[];
   historicalSummary: HistoricalItem[];
   categorySummary: CategorySummaryItem[];
+  dailySummary?: DailyItem[];
+  selectedMonth?: string;
 }
 
 type ChartMode = 'all' | 'income' | 'expense' | 'net';
+type PeriodMode = 'daily' | 'monthly';
 
 const COLORS = [
-  '#0ea5e9', // primary-500
-  '#10b981', // emerald-500
-  '#f59e0b', // amber-500
-  '#ef4444', // red-500
-  '#8b5cf6', // violet-500
-  '#ec4899', // pink-500
-  '#14b8a6', // teal-500
+  '#0ea5e9',
+  '#10b981',
+  '#f59e0b',
+  '#ef4444',
+  '#8b5cf6',
+  '#ec4899',
+  '#14b8a6',
 ];
 
 const formatYAxisTick = (value: number) => {
@@ -63,19 +72,34 @@ const formatYAxisTick = (value: number) => {
 export default function DashboardCharts({
   accountBalances,
   historicalSummary,
+  dailySummary = [],
+  selectedMonth,
 }: DashboardChartsProps) {
   const [chartMode, setChartMode] = useState<ChartMode>('all');
+  const [periodMode, setPeriodMode] = useState<PeriodMode>('daily');
   const { isDark } = useTheme();
 
-  const historicalData = historicalSummary.map((item) => {
-    const date = new Date(`${item.month}-01T00:00:00.000Z`);
-    return {
-      name: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
-      Income: item.income,
-      Expense: item.expense,
-      Net: item.income - item.expense,
-    };
-  });
+  const chartData = periodMode === 'daily' && dailySummary.length > 0
+    ? dailySummary.map((item) => {
+        const date = new Date(`${item.day}T00:00:00.000Z`);
+        const dayNum = date.getUTCDate();
+        const monthShort = date.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+        return {
+          name: `${dayNum} ${monthShort}`,
+          Income: item.income,
+          Expense: item.expense,
+          Net: item.income - item.expense,
+        };
+      })
+    : historicalSummary.map((item) => {
+        const date = new Date(`${item.month}-01T00:00:00.000Z`);
+        return {
+          name: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+          Income: item.income,
+          Expense: item.expense,
+          Net: item.income - item.expense,
+        };
+      });
 
   const accountData = accountBalances
     .filter((a) => a.currentBalance > 0)
@@ -103,72 +127,95 @@ export default function DashboardCharts({
 
   return (
     <div className="grid gap-6 md:grid-cols-3">
-      {/* Unified Interactive Toggle Chart */}
       <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-6 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/80 backdrop-blur-md transition-all duration-200 hover:shadow-md md:col-span-2">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
           <div>
             <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Activity className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              Financial Cashflow Analysis (6 Months)
+              {periodMode === 'daily' ? `Daily Cashflow (${selectedMonth || 'This Month'})` : 'Financial Cashflow Analysis (6 Months)'}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               Interactive breakdown of your income, expense, and net trajectory
             </p>
           </div>
 
-          {/* Toggle Buttons with Micro-Animations (Single horizontal row, no wrapping!) */}
-          <div className="flex items-center flex-nowrap overflow-x-auto max-w-full bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1 self-start lg:self-auto border border-slate-200/50 dark:border-slate-700/50 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <button
-              onClick={() => setChartMode('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                chartMode === 'all'
-                  ? 'bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 shadow-sm scale-100'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 scale-95 hover:scale-100'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              All
-            </button>
-            <button
-              onClick={() => setChartMode('income')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                chartMode === 'income'
-                  ? 'bg-emerald-500 text-white shadow-sm scale-100'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 scale-95 hover:scale-100'
-              }`}
-            >
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              Income
-            </button>
-            <button
-              onClick={() => setChartMode('expense')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                chartMode === 'expense'
-                  ? 'bg-rose-500 text-white shadow-sm scale-100'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 scale-95 hover:scale-100'
-              }`}
-            >
-              <ArrowDownRight className="w-3.5 h-3.5" />
-              Expense
-            </button>
-            <button
-              onClick={() => setChartMode('net')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
-                chartMode === 'net'
-                  ? 'bg-indigo-600 text-white shadow-sm scale-100'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 scale-95 hover:scale-100'
-              }`}
-            >
-              <Activity className="w-3.5 h-3.5" />
-              Net
-            </button>
+          <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+            <div className="flex items-center flex-nowrap bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-slate-200/50 dark:border-slate-700/50">
+              <button
+                onClick={() => setPeriodMode('daily')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
+                  periodMode === 'daily'
+                    ? 'bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                Daily
+              </button>
+              <button
+                onClick={() => setPeriodMode('monthly')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
+                  periodMode === 'monthly'
+                    ? 'bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                6 Months
+              </button>
+            </div>
+
+            <div className="flex items-center flex-nowrap overflow-x-auto max-w-full bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1 border border-slate-200/50 dark:border-slate-700/50 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <button
+                onClick={() => setChartMode('all')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                  chartMode === 'all'
+                    ? 'bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 shadow-sm scale-100'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 scale-95 hover:scale-100'
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                All
+              </button>
+              <button
+                onClick={() => setChartMode('income')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                  chartMode === 'income'
+                    ? 'bg-emerald-500 text-white shadow-sm scale-100'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 scale-95 hover:scale-100'
+                }`}
+              >
+                <ArrowUpRight className="w-3.5 h-3.5" />
+                Income
+              </button>
+              <button
+                onClick={() => setChartMode('expense')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                  chartMode === 'expense'
+                    ? 'bg-rose-500 text-white shadow-sm scale-100'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 scale-95 hover:scale-100'
+                }`}
+              >
+                <ArrowDownRight className="w-3.5 h-3.5" />
+                Expense
+              </button>
+              <button
+                onClick={() => setChartMode('net')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                  chartMode === 'net'
+                    ? 'bg-indigo-600 text-white shadow-sm scale-100'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 scale-95 hover:scale-100'
+                }`}
+              >
+                <Activity className="w-3.5 h-3.5" />
+                Net
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="h-[240px] sm:h-[260px] w-full transition-all duration-500">
           <ResponsiveContainer width="100%" height="100%">
             {chartMode === 'net' ? (
-              <AreaChart data={historicalData} margin={{ top: 10, right: 10, left: 5, bottom: 10 }}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 5, bottom: 10 }}>
                 <defs>
                   <linearGradient id="colorNet" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
@@ -189,7 +236,7 @@ export default function DashboardCharts({
                 <Area type="monotone" dataKey="Net" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorNet)" />
               </AreaChart>
             ) : (
-              <BarChart data={historicalData} margin={{ top: 10, right: 10, left: 5, bottom: 10 }}>
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: 5, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
                 <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: tickFill }} minTickGap={10} dy={10} />
                 <YAxis

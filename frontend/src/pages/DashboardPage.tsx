@@ -11,7 +11,7 @@ import type { Transaction } from '../types/transaction';
 import { formatCurrency } from '../utils/formatters';
 import { getAccountBalances } from '../lib/accountApi';
 import type { AccountBalance } from '../types/account';
-import DashboardCharts, { type HistoricalItem } from '../components/dashboard/DashboardCharts';
+import DashboardCharts, { type HistoricalItem, type DailyItem } from '../components/dashboard/DashboardCharts';
 
 type MonthlySummary = {
   month: string;
@@ -45,6 +45,10 @@ type HistoricalSummaryResponse = {
   data: HistoricalItem[];
 };
 
+type DailySummaryResponse = {
+  data: DailyItem[];
+};
+
 function getCurrentMonth() {
   return new Date().toISOString().slice(0, 7);
 }
@@ -58,6 +62,7 @@ function DashboardPage() {
     [],
   );
   const [historicalSummary, setHistoricalSummary] = useState<HistoricalItem[]>([]);
+  const [dailySummary, setDailySummary] = useState<DailyItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [accountBalances, setAccountBalances] = useState<AccountBalance[]>([]);
@@ -74,12 +79,14 @@ function DashboardPage() {
           categoryResponse,
           recentResponse,
           historicalResponse,
+          dailyResponse,
           accountBalancesData,
         ] = await Promise.all([
           apiClient<MonthlySummaryResponse>(`/summary/monthly?month=${selectedMonth}`),
           apiClient<CategorySummaryResponse>(`/summary/categories?month=${selectedMonth}`),
           apiClient<RecentTransactionsResponse>('/summary/recent'),
           apiClient<HistoricalSummaryResponse>(`/summary/historical?month=${selectedMonth}`),
+          apiClient<DailySummaryResponse>(`/summary/daily?month=${selectedMonth}`),
           getAccountBalances(),
         ]);
 
@@ -87,6 +94,7 @@ function DashboardPage() {
         setCategorySummary(categoryResponse.data);
         setRecentTransactions(recentResponse.data);
         setHistoricalSummary(historicalResponse.data);
+        setDailySummary(dailyResponse.data);
         setAccountBalances(accountBalancesData);
       } catch (error) {
         setErrorMessage(
@@ -198,6 +206,8 @@ function DashboardPage() {
           <DashboardCharts 
             accountBalances={accountBalances}
             historicalSummary={historicalSummary}
+            dailySummary={dailySummary}
+            selectedMonth={selectedMonth}
             categorySummary={categorySummary.categories}
           />
 
